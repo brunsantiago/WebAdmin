@@ -1,0 +1,246 @@
+<!-- Content Wrapper. Contains page content -->
+<div class="content-wrapper">
+  <!-- Content Header (Page header) -->
+  <section class="content-header">
+    <h1>
+      Control de Horas
+      <small>Version 1.0</small>
+    </h1>
+    <ol class="breadcrumb">
+      <li><a routerLink="/layouts/home"><i class="fa fa-calendar"></i> Home</a></li>
+      <li class="active">Control de Horas</li>
+      <li class="active">Cubrimiento de Servicios</li>
+    </ol>
+  </section>
+
+  <!-- <div *ngIf="identity">
+      <h1>
+        {{title}}
+      </h1>
+      <span>
+        {{identity.name}} {{identity.surname}}
+        <p>Estas logueado en la Aplicacion</p>
+      </span>
+      <span class="btn btn-warning" (click)="logout()">
+        Cerrar Sesion
+      </span>
+  </div> -->
+
+  <!-- Main content -->
+  <section class="content">
+
+    <div class="row">
+      <div class="col-md-12">
+
+        <div class="box box-danger">
+          <div class="box-header with-border">
+            <h3 class="box-title">CUBRIMIENTO DE SERVICIOS</h3>
+
+            <div class="box-tools pull-right">
+              <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+              <div class="btn-group">
+                <button type="button" class="btn btn-box-tool dropdown-toggle" data-toggle="dropdown">
+                  <i class="fa fa-wrench"></i></button>
+                <ul class="dropdown-menu" role="menu">
+                  <li><a href="#">Elegir un periodo</a></li>
+                  <li><a href="#">Cambiar Servicio</a></li>
+                  <li class="divider"></li>
+                  <li><a href="#">Configuracion</a></li>
+                </ul>
+              </div>
+              <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+            </div>
+          </div>
+          <!-- /.box-header -->
+          <div class="box-body">
+            <!-- <div class="row"> -->
+
+              <div class="container-fluid my-3">
+
+                <div class="panel panel-default" >
+                  <div class="panel-heading">
+                    <h3 class="panel-title">Panel de Configuracion</h3>
+                  </div>
+                  <br/>
+                  <form [formGroup]="form">
+
+                    <div class="row conf">
+                      <div class="col-md-1">
+                      </div>
+                      <div class="form-group col-md-2">
+                        <label for="selectClientes">Cliente</label>
+                        <select class="form-control"  formControlName="cliente" id="selectClientes" onchange="cargarListadoObjetivos()">
+                          <option selected>Seleccione un Cliente</option>
+                        </select>
+                      </div>
+                      <div class="form-group col-md-2">
+                        <label for="selectObjetivos">Objetivo</label>
+                        <select class="form-control"  formControlName="objetivo" id="selectObjetivos">
+                          <option selected>Seleccione un Objetivo</option>
+                        </select>
+                      </div>
+
+                      <div class="form-group col-md-3">
+                        <label>Periodo</label>
+                        <!-- <p>Seleccione el periodo</p> -->
+                        <div *ngIf="mensual.checked || dias25.checked "class="row">
+                          <div class="form-group col-md-8">
+                            <input type="text"
+                                   id="datePicker"
+                                   placeholder="Seleccione un mes ..."
+                                   class="form-control"
+                                   [bsConfig]="{ dateInputFormat: 'MMMM - YYYY', containerClass: 'theme-red', minMode: 'month' }"
+                                   #dp="bsDatepicker"
+                                   bsDatepicker
+                                   [bsValue]=""
+                                   placement="bottom"
+                                   formControlName="date">
+                          </div>
+                          <div class="form-group col-md-4">
+                            <button class="btn btn-success" (click)="dp.toggle()">Periodo</button>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="form-group col-md-2">
+                        <label>Visualizacion</label>
+                        <!-- <p>Seleccione el formato de Visualizacion</p> -->
+                        <div class="radio">
+                          <label><input #dias25 type="radio" formControlName="visual" value="dias25"checked>Formato del 26 al 25</label>
+                        </div>
+                        <div class="radio">
+                          <label><input #mensual type="radio" formControlName="visual" value="mensual">Formato Mensual</label>
+                        </div>
+                      </div>
+
+                      <div class="form-group col-md-2">
+                        <br/>
+                        <button id="aceptar" (click)="onSubmit()" class="btn btn-primary">Aceptar</button>
+                      </div>
+                      </div>
+                    </form>
+                </div>
+              <br/>
+
+              <div id="panelPlantilla"class="panel panel-default" style="visibility:hidden">
+                <div class="panel-heading">
+                  <h3 class="panel-title">{{cliente}} - {{objetivo}}</h3>
+                </div>
+                <div class="row conf">
+                  <div  class="table-responsive">
+                    <table name="miTabla" id="miTabla" class="table table-condensed table-striped table-bordered table-hover rwd_auto text-nowrap">
+                    </table>
+                  </div>
+                </div>
+                <div class="row conf">
+                  <button (click)="cargarDiferenciasTS()" class="btn btn-primary">Cargar Diferencias</button>
+                </div>
+              </div>
+
+
+
+              <!-- Trigger the modal with a button -->
+              <!-- <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal" data-id="1234">Open Modal</button> -->
+
+              </div>
+              <!-- ./container-fluid -->
+              <!-- </div> -->
+
+              <!-- </div> -->
+              <!-- /.row -->
+              </div>
+              <!-- ./box-body -->
+              <div class="box-footer">
+              <div class="row">
+
+            </div>
+            <!-- /.row -->
+
+          </div>
+          <!-- /.box-footer -->
+        </div>
+        <!-- /.box -->
+      </div>
+      <!-- /.col -->
+    </div>
+    <!-- /.row -->
+  </section>
+  <!-- /.content -->
+</div>
+<!-- /.content-wrapper -->
+
+<!-- Modal -->
+<div id="myModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+
+      <div class="modal-header bg-primary">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 id="titulo" class="modal-title"><i class="fa fa-building-o"></i>   DIA - TIENDA 143</h4>
+        <p>Lunes, 24 de Septiembre de 2019</p>
+
+      </div>
+
+      <div class="modal-body">
+
+      <div class="row">
+        <div class="row col-md-6 ml-7">
+
+          <div>
+            <h5>Datos del Personal: </h5>
+          </div>
+
+          <div>
+              <label>Legajo: </label>
+              <p><i class="fa fa-folder-open"></i><span id="nroLegajo"></span></p>
+          </div>
+
+          <div>
+              <label>Personal: </label>
+              <p><i class="glyphicon glyphicon-user"></i><span id="nombrePersonal"></span></p>
+          </div>
+
+          <div>
+              <label>Datos de Ingreso: </label>
+              <p><i class="glyphicon glyphicon-time"></i><span id="ingresoReal"></span></p>
+          </div>
+
+          <div>
+              <label>Datos de Egreso: </label>
+              <p><i class="glyphicon glyphicon-time"></i><span id="egresoReal"></span></p>
+          </div>
+        </div>
+
+        <div class="row col-md-6 ml-7">
+          <img src="assets/fotos/vigilador.jpg" width="200" height="200">
+        </div>
+      </div>
+
+      <div class="row">
+
+        <div class="row col-sm-6 col-md-6 ml-7">
+          <h5>Datos del Puesto:</h5>
+          <p><i class="fa fa-street-view"></i> Denominacion:<span id="nombrePuesto"></span></p>
+          <p><i class="glyphicon glyphicon-log-in"></i> Hora Ingreso:<span id="ingresoPuesto"></span></p>
+          <p><i class="glyphicon glyphicon-log-out"></i> Hora Egreso:<span id="egresoPuesto"></span></p>
+        </div>
+
+        <div class="row col-sm-6 col-md-6 ml-7">
+          <h5>Datos Registrados: </h5>
+          <p><i class="glyphicon glyphicon-check"></i> Total Horas:<span id="totalHoras"></span></p>
+          <p class="text-primary"><i class="glyphicon glyphicon-log-in"></i> Hora Ingreso:<span id="ingresoParam"></span></p>
+          <p class="text-danger"><i class="glyphicon glyphicon-log-out"></i> Hora Egreso:<span id="egresoParam"></span></p>
+        </div>
+      </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary">Modificar</button>
+        <button type="button" class="btn" data-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+
+  </div>
+</div>

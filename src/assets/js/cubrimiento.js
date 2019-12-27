@@ -1,0 +1,541 @@
+firebase.initializeApp({
+  apiKey: "AIzaSyAWKQiKjfXHDuQXI50vIAp8PmEJ8ONNzmQ",
+  authDomain: "presentismoapp.firebaseapp.com",
+  projectId: "presentismoapp"
+});
+
+// Initialize Cloud Firestore through Firebase
+var db = firebase.firestore();
+
+function cargaInicial(cliente,objetivo,fechaInicial,fechaFinal){
+
+  db.collection("clientes").doc(cliente).collection("objetivos").doc("TIENDA 143").collection("cobertura")
+  .where("fecha",">=",fechaInicial).where("fecha","<=",fechaFinal).orderBy("fecha")
+  .get()
+  .then(function(querySnapshot) {
+    if (querySnapshot.empty) {
+      // Si no se ecuentran fechas en este rango
+    } else {
+      querySnapshot.forEach((doc) => {
+        // doc.data() is never undefined for query doc snapshots
+        idDia = doc.id;
+        cargarHorasDiarias(cliente,"TIENDA 143",idDia,fechaInicial,fechaFinal);
+      });
+    } // fin else
+    let delayInMilliseconds = 1000; // 1 second
+    setTimeout(function() {
+      //your code to be executed after 1 second
+      cargarDiferencias(fechaInicial,fechaFinal);
+    }, delayInMilliseconds);
+    })
+    .catch(function(error) {
+        console.log("Error getting document:", error);
+    });
+
+}
+
+function cargarHorasDiarias(cliente,objetivo,idDia,fechaInicial,fechaFinal){
+
+  db.collection("clientes").doc(cliente).collection("objetivos").doc(objetivo).collection("cobertura")
+  .doc(idDia).collection("puestos")
+  .get()
+  .then(function(querySnapshot) {
+    if (querySnapshot.empty) {
+      // Si no se ecuentran la fecha
+    } else {
+      querySnapshot.forEach((doc) => {
+        // doc.data() is never undefined for query doc snapshots
+        let puesto = doc.data();
+        //No cargar hasta que no tenga hora de egreso
+        if (puesto.horaEgreso.length>0){
+          cargarHorasPersonal(puesto,fechaInicial,fechaFinal);
+        }
+      });
+    } // fin else
+    })
+    .catch(function(error) {
+        console.log("Error getting document:", error);
+    });
+}
+
+function devolverNombre(idPersonal,columnaNombre) {
+var docRef = db.collection("users").doc(idPersonal);
+  docRef.get()
+  .then(function(doc) {
+      if (doc.exists) {
+        columnaNombre.textContent = doc.data().nombre;
+      } else {
+          // doc.data() will be undefined in this case
+          console.log("No such document!");
+      }
+  }).catch(function(error) {
+      console.log("Error getting document:", error);
+  });
+}
+
+function cargarNombrePersonal(nroLegajo) {
+var docRef = db.collection("users").doc(nroLegajo);
+  docRef.get()
+  .then(function(doc) {
+      if (doc.exists) {
+          $('#nombrePersonal').html("   "+doc.data().nombre);
+      } else {
+          // doc.data() will be undefined in this case
+          console.log("No such document!");
+      }
+  }).catch(function(error) {
+      console.log("Error getting document:", error);
+  });
+}
+
+function posicionTabla(fechaCarga,fechaInicial){
+  // Se pasa una fecha de consulta junto con la fecha desde donde
+  // inicia la tabla hasta la fecha donde termina y devuelve la posicion
+  var cantColIni=3; // Cantidad de Columnas Iniciales
+  resultado = cantidadDeDias(fechaInicial,fechaCarga) + cantColIni;
+  return resultado;
+}
+
+function cargarHorasPersonal(puesto,fechaInicial,fechaFinal){
+	// obtenemos todas las filas del tbody y generamos un "Array de Filas" en la variable filas.
+	let filas=document.querySelectorAll("#miTabla tbody tr");
+
+  let ingresoReal = new Date( Date.parse(puesto.fechaIngreso+"T"+puesto.horaIngreso+":00") );
+  let egresoReal = new Date( Date.parse(puesto.fechaEgreso+"T"+puesto.horaEgreso+":00") );
+  let ingresoPuesto = new Date( Date.parse(puesto.fechaPuesto+"T"+puesto.ingresoPuesto+":00") );
+  let egresoPuesto = new Date( Date.parse(puesto.fechaPuesto+"T"+puesto.egresoPuesto+":00") );
+  if(puesto.turnoNoche){
+    egresoPuesto = new Date( egresoPuesto.getTime() + 24*60*60*1000 ); // La fecha de salida del puesto es un dia posterior
+  }
+
+  let ingresoParam = ingresoParametrizado(ingresoPuesto,ingresoReal);
+  let egresoParam = egresoParametrizado(egresoPuesto,egresoReal);
+
+
+  let difHoras = totalHoras(ingresoParam,egresoParam);
+  let horaIngresoParam = componerHorasDate(ingresoParam);
+  let horaEgresoParam = componerHorasDate(egresoParam);
+
+	let encontrado=false;
+  let horas = "";
+
+  var fechaPuesto = new Date(Date.parse(puesto.fechaPuesto+"T"+"00:00:00"));
+
+  let posDia = posicionTabla(fechaPuesto,fechaInicial);
+
+  horas = difHoras;
+
+	// recorremos cada una de las filas
+	filas.forEach(function(e) {
+			// Obtenemos las columnas de la fila recorrida y posiciono la busqueda del legajo en el primer elemento.
+			//TODO Ver si existe una funcion que devuelva la primera columna.
+			let columnas=e.querySelectorAll("td");
+
+			if (columnas[0].textContent==puesto.idPersonal){
+          let totalHoras = columnas[posDia].textContent;
+  				columnas[posDia].textContent= sumarHoras(totalHoras,horas);
+          columnas[posDia].style.textAlign = "center";
+          columnas[posDia].setAttribute("data-toggle", "modal");
+          columnas[posDia].setAttribute("data-target", "#myModal");
+          columnas[posDia].addEventListener("click", function(){
+           mostrarModal(puesto.idPersonal,horas,puesto.nombrePuesto,puesto.ingresoPuesto,puesto.egresoPuesto,puesto.horaIngreso,puesto.horaEgreso,horaIngresoParam,horaEgresoParam);
+           cargarNombrePersonal(puesto.idPersonal);
+          });
+          encontrado=true;
+          // Se agrega un dia mas porque tiene horario internacional
+          actualizarTotales(fechaPuesto.getDate(),horas,puesto.idPersonal);
+			}
+	});
+	if(!encontrado){
+	   crearFilaNueva(puesto.idPersonal,puesto.fechaPuesto,horas,puesto.nombrePuesto,puesto.ingresoPuesto,puesto.egresoPuesto,puesto.horaIngreso,puesto.horaEgreso,horaIngresoParam,horaEgresoParam,fechaInicial,fechaFinal);
+	}
+}
+
+function crearFilaNueva(nroLegajo,fechaCarga,horas,nombrePuesto,ingresoPuesto,egresoPuesto,ingresoReal,egresoReal,ingresoParam,egresoParam,fechaInicial,fechaFinal) {
+
+    var cantidadColumnasFijas=4;
+    var cantidadDias=cantidadDeDias(fechaInicial,fechaFinal);
+    var tamanioTabla=cantidadDias+cantidadColumnasFijas;
+    //var diaCarga = new Date(fechaCarga);
+    let fechaPuesto = new Date( Date.parse(fechaCarga+"T"+"00:00:00"));
+    //console.log("Dia Carga 2: "+diaCarga);
+    var posDia = posicionTabla(fechaPuesto,fechaInicial);
+
+		var tBody = document.getElementById("tBody");
+    var row = tBody.insertRow();
+
+		//Rellenar con celdas vacias la fila
+		for (var i = 0; i < tamanioTabla; i++) {
+			var celda = row.insertCell();
+		}
+
+		//Asignar valores iniciales
+		var columnas=row.querySelectorAll("td");
+		 columnas[0].textContent=nroLegajo;
+     columnas[0].style.textAlign = "right";
+		 //columnas[1].textContent=nombre;
+     devolverNombre(nroLegajo,columnas[1]);
+     columnas[1].style.textAlign = "left";
+		 columnas[posDia].textContent=horas;
+     columnas[posDia].style.textAlign = "center";
+     columnas[posDia].setAttribute("data-toggle", "modal");
+     columnas[posDia].setAttribute("data-target", "#myModal");
+     columnas[posDia].addEventListener("click", function(){
+      mostrarModal(nroLegajo,horas,nombrePuesto,ingresoPuesto,egresoPuesto,ingresoReal,egresoReal,ingresoParam,egresoParam);
+      cargarNombrePersonal(nroLegajo);
+     });
+
+     //Genera la clase totalHs del Legajo y la inicializa en cero
+     columnas[tamanioTabla-1].className="ltotalHs"+nroLegajo;
+     columnas[tamanioTabla-1].textContent="0:00";
+     columnas[tamanioTabla-1].style.textAlign = "right";
+     // Se agrega un dia mas porque tiene horario internacional
+     actualizarTotales(fechaPuesto.getDate(),horas,nroLegajo);
+
+}
+
+function recargar(){
+      var Table = document.getElementById("tBody");
+      Table.innerHTML = "";
+      cargaInicial();
+}
+
+function genera_tabla(fecha1,fecha2) {
+
+  var fechaGT = new Date(fecha1.getTime());
+
+  var cantidadColumnasFijas=4;
+  var cantidadDias=cantidadDeDias(fecha1,fecha2);
+  var tamanioTabla=cantidadDias+cantidadColumnasFijas;
+
+  // Obtener la referencia del elemento body
+  var tabla = document.getElementsByTagName("table")[0];
+
+  // Crea un elemento <table> y un elemento <tbody>
+  //var tabla   = document.createElement("table");
+  var tblHead = document.createElement("thead");
+  var tblBody = document.createElement("tbody");
+  var tblFoot = document.createElement("tfoot");
+  tblHead.setAttribute("id", "tHead");
+  tblBody.setAttribute("id", "tBody");
+  tblFoot.setAttribute("id", "tFoot");
+
+  // Crea las celdas del thead NUMEROS DEL DIA
+  for (var i = 0; i < 1; i++) {
+    // Crea las hileras de la tabla
+    var hilera = document.createElement("tr");
+    var textoCelda;
+    for (var j = 0; j < tamanioTabla; j++) {
+      // Crea un elemento <td> y un nodo de texto, haz que el nodo de
+      // texto sea el contenido de <td>, ubica el elemento <td> al final
+      // de la hilera de la tabla
+      var celda = document.createElement("th");
+      celda.style.textAlign = "center";
+      celda.style.padding = "1px";
+      textoCelda = document.createTextNode("");
+      if(j>2 && j<tamanioTabla-1) celda.style.borderBottom = "none";
+      if(j>2){
+        textoCelda = document.createTextNode(fechaGT.getDate());
+        fechaGT.setDate(fechaGT.getDate()+1);
+      }
+
+      celda.appendChild(textoCelda);
+      hilera.appendChild(celda);
+    }
+
+    //Asignar valores iniciales
+    var columnas=hilera.querySelectorAll("th");
+     columnas[0].textContent="Legajo";
+     columnas[0].style.textAlign = "center";
+     columnas[0].style.verticalAlign = "middle";
+     columnas[0].rowSpan="2";
+     columnas[0].style.padding = "3px";
+     columnas[1].textContent="Nombre y Apellido";
+     columnas[1].style.textAlign = "center";
+     columnas[1].style.verticalAlign = "middle";
+     columnas[1].rowSpan="2";
+     columnas[2].textContent="Puesto";
+     columnas[2].style.textAlign = "center";
+     columnas[2].style.verticalAlign = "middle";
+     columnas[2].rowSpan="2";
+     columnas[2].style.padding = "3px";
+     columnas[tamanioTabla-1].textContent="Total Hs";
+     columnas[tamanioTabla-1].style.textAlign = "center";
+     columnas[tamanioTabla-1].style.verticalAlign = "middle";
+     columnas[tamanioTabla-1].rowSpan="2";
+     columnas[tamanioTabla-1].style.padding = "3px";
+
+    // agrega la hilera al final de la tabla (al final del elemento tblbody)
+    tblHead.appendChild(hilera);
+  }
+
+
+  // Crea las celdas del thead DIAS DE LA SEMANA
+  fechaGT = new Date(fecha1.getTime()); // Se reinician la fecha a la inicial
+  for (var i = 0; i < 1; i++) {
+    // Crea las hileras de la tabla
+    var hilera = document.createElement("tr");
+
+    for (var j = 0; j < cantidadDias; j++) {
+      // Crea un elemento <td> y un nodo de texto, haz que el nodo de
+      // texto sea el contenido de <td>, ubica el elemento <td> al final
+      // de la hilera de la tabla
+      var celda = document.createElement("th");
+      celda.className="sdia"+fechaGT.getDate();
+      celda.style.color = "#265a88";
+      celda.style.fontSize = "10px";
+      celda.style.textAlign = "center";
+      celda.style.padding = "1px";
+      textoCelda = document.createTextNode(fechaGT.getDate());
+      fechaGT.setDate(fechaGT.getDate()+1);
+      celda.appendChild(textoCelda);
+      hilera.appendChild(celda);
+    }
+    // agrega la hilera al final de la tabla (al final del elemento tblbody)
+    tblHead.appendChild(hilera);
+  }
+
+
+  // Crea las celdas del tfoot HORAS A LIQUIDAR
+  fechaGT = new Date(fecha1.getTime()); // Se reinicia la fecha a la inicial
+  for (var i = 0; i < 1; i++) {
+    // Crea las hileras de la tabla
+    var hilera = document.createElement("tr");
+
+    for (var j = 0; j < tamanioTabla-2; j++) {
+      // Crea un elemento <td> y un nodo de texto, haz que el nodo de
+      // texto sea el contenido de <td>, ubica el elemento <td> al final
+      // de la hilera de la tabla
+      var celda = document.createElement("th");
+      celda.style.textAlign = "center";
+      celda.style.padding = "2px";
+      if (j>0) {
+        celda.className="ldia"+fechaGT.getDate();
+        fechaGT.setDate(fechaGT.getDate()+1);
+      }
+      var textoCelda = document.createTextNode("0:00");
+      celda.appendChild(textoCelda);
+      hilera.appendChild(celda);
+    }
+    //Asignar valores iniciales
+    var columnas=hilera.querySelectorAll("th");
+     columnas[0].textContent="Horas a Liquidar";
+     columnas[0].colSpan="3";
+     columnas[tamanioTabla-3].className="ltotalHs";
+     columnas[tamanioTabla-3].style.textAlign = "right";
+    // agrega la hilera al final de la tabla (al final del elemento tblbody)
+    tblFoot.appendChild(hilera);
+  }
+
+  // Crea las celdas del tfoot HORAS A FACTURAR
+  fechaGT = new Date(fecha1.getTime()); // Se reinicia la fecha a la inicial
+  for (var i = 0; i < 1; i++) {
+    // Crea las hileras de la tabla
+    var hilera = document.createElement("tr");
+
+    for (var j = 0; j < tamanioTabla-2; j++) {
+      // Crea un elemento <td> y un nodo de texto, haz que el nodo de
+      // texto sea el contenido de <td>, ubica el elemento <td> al final
+      // de la hilera de la tabla
+      var celda = document.createElement("th");
+      celda.style.textAlign = "center";
+      celda.style.color = "#265a88";
+      celda.style.padding = "2px";
+      if (j>0) {
+        celda.className="fdia"+fechaGT.getDate();
+        fechaGT.setDate(fechaGT.getDate()+1);
+      }
+      var textoCelda = document.createTextNode("0:00");
+      celda.appendChild(textoCelda);
+      hilera.appendChild(celda);
+    }
+    //Asignar valores iniciales
+    var columnas=hilera.querySelectorAll("th");
+     columnas[0].textContent="Horas a Facturar";
+     columnas[0].colSpan="3";
+     columnas[tamanioTabla-3].className="ftotalHs";
+     columnas[tamanioTabla-3].style.textAlign = "right";
+    // agrega la hilera al final de la tabla (al final del elemento tblbody)
+    tblFoot.appendChild(hilera);
+  }
+
+  // Crea las celdas del tfoot DIFERENCIA DE HORAS
+  fechaGT = new Date(fecha1.getTime()); // Se reinicia la fecha a la inicial
+  for (var i = 0; i < 1; i++) {
+    // Crea las hileras de la tabla
+    var hilera = document.createElement("tr");
+
+    for (var j = 0; j < tamanioTabla-2; j++) {
+      // Crea un elemento <td> y un nodo de texto, haz que el nodo de
+      // texto sea el contenido de <td>, ubica el elemento <td> al final
+      // de la hilera de la tabla
+      var celda = document.createElement("th");
+      celda.style.textAlign = "center";
+      celda.style.color = "#3c763d";
+      celda.style.padding = "2px";
+      if (j>0) {
+        celda.className="ddia"+fechaGT.getDate();
+        //console.log("HORAS DIFERENCIAS: "+j+" "+fechaGT.getDate());
+        fechaGT.setDate(fechaGT.getDate()+1);
+      }
+      var textoCelda = document.createTextNode("0:00");
+      celda.appendChild(textoCelda);
+      hilera.appendChild(celda);
+    }
+    //Asignar valores iniciales
+    var columnas=hilera.querySelectorAll("th");
+     columnas[0].textContent="Diferencia de Horas";
+     columnas[0].colSpan="3";
+     columnas[tamanioTabla-3].className="dtotalHs";
+     columnas[tamanioTabla-3].style.textAlign = "right";
+    // agrega la hilera al final de la tabla (al final del elemento tblbody)
+    tblFoot.appendChild(hilera);
+  }
+
+  // posiciona el <tbody> debajo del elemento <table>
+  tabla.appendChild(tblHead);
+  tabla.appendChild(tblBody);
+  tabla.appendChild(tblFoot);
+}
+
+function mostrarCubrimiento(cliente,objetivo,visual,date,range){
+  let primerDia;
+  let ultimoDia;
+  if(visual == "mensual" && date!=""){
+    primerDia = new Date(date.getFullYear(), date.getMonth(), 1);
+    ultimoDia = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+  } else if(visual == "dias25" && date!=""){
+    primerDia = new Date(date.getFullYear(), date.getMonth()-1, 26);
+    ultimoDia = new Date(date.getFullYear(), date.getMonth(), 25);
+  }
+
+  genera_tabla(primerDia,ultimoDia);
+  cargaInicial(cliente,objetivo,primerDia,ultimoDia);
+  cargarCobertura(primerDia,ultimoDia);
+
+  document.getElementById('panelPlantilla').style.visibility='visible';
+}
+
+function cantidadDeDias(fechaInicial,fechaFinal){
+	var fechaini = fechaInicial;
+	var fechafin = fechaFinal;
+
+	var diasdif = fechafin.getTime()-fechaini.getTime();
+	var contdias = Math.round(diasdif/(1000*60*60*24)); //borrado+1
+	return contdias;
+}
+
+function eliminarContenidoTabla(){
+  if(miTabla.rows.length>0){
+    var parent = document.getElementById("miTabla");
+    var tHead = document.getElementById("tHead");
+    var tBody = document.getElementById("tBody");
+    var tFoot = document.getElementById("tFoot");
+    parent.removeChild(tFoot);
+    parent.removeChild(tBody);
+    parent.removeChild(tHead);
+  }
+}
+
+function cargarListadoClientes(){
+  var listadoClientes = [];
+  db.collection("clientes")
+  .get()
+  .then(function(querySnapshot) {
+    querySnapshot.forEach(function(doc) {
+        // if (doc.exists){
+          let nombreCliente = doc.data().nombreCliente;
+          listadoClientes.push(nombreCliente);
+        // }
+      });
+      cargarDesplegableClientes(listadoClientes);
+    });
+}
+
+function cargarDesplegableClientes(listadoClientes){
+  let selectClientes = document.getElementById('selectClientes');
+  for(var i = 0; i < listadoClientes.length; i++){
+    var option = listadoClientes[i];
+    selectClientes.options.add( new Option(option) );
+  }
+}
+
+function cargarListadoObjetivos(){
+
+  var listadoObjetivos = [];
+  var nombreCliente = document.getElementById("selectClientes").value;
+
+  db.collection("clientes").where("nombreCliente","==",nombreCliente)
+    .get()
+    .then(function(querySnapshot) {
+        querySnapshot.forEach(function(doc) {
+          idCliente=doc.id;
+            db.collection("clientes").doc(idCliente).collection("objetivos")
+            .get()
+            .then(function(querySnapshot) {
+              querySnapshot.forEach(function(doc) {
+                if (doc.exists){
+                  let nombreObjetivo = doc.data().nombreObjetivo;
+                  listadoObjetivos.push(nombreObjetivo);
+                }
+                });
+                cargarDesplegableObjetivos(listadoObjetivos);
+            });
+       })
+    });
+
+}
+
+function cargarDesplegableObjetivos(listadoObjetivos){
+  var selectObjetivos = document.getElementById('selectObjetivos');
+
+  while (selectObjetivos.length > 1) {
+      selectObjetivos.remove(1);
+  }
+
+  for(var i = 0; i < listadoObjetivos.length; i++){
+    var option = listadoObjetivos[i];
+    selectObjetivos.options.add( new Option(option) );
+  }
+}
+
+function limpiarSelect(idSelect) {
+   var select = document.getElementById(idSelect);
+   while (select.length > 0) {
+       select.remove(1);
+   }
+}
+
+function esconder_div(div_id){
+  if(document.getElementById(div_id)){
+    document.getElementById(div_id).style.display = "none";
+  }
+  else{
+    alert("no se encuentra id: "+div_id);
+  }
+}
+
+function mostrar_div(div_id){
+  if(document.getElementById(div_id)){
+    document.getElementById(div_id).style.display = "block";
+  }
+  else{
+    alert("no se encuentra id: "+div_id);
+  }
+}
+
+function mostrarModal(nroLegajo,totalHoras,nombrePuesto,ingresoPuesto,egresoPuesto,ingresoReal,egresoReal,ingresoParam,egresoParam){
+  $('#nroLegajo').html("   "+nroLegajo);
+  $('#nombrePuesto').html("   "+nombrePuesto);
+  $('#ingresoPuesto').html("   "+ingresoPuesto);
+  $('#egresoPuesto').html("   "+egresoPuesto);
+  $('#ingresoReal').html("   "+ingresoReal);
+  $('#egresoReal').html("   "+egresoReal);
+  $('#ingresoParam').html("   "+ingresoParam);
+  $('#egresoParam').html("   "+egresoParam);
+  $('#totalHoras').html("   "+totalHoras);
+};
+
+function createDateAsUTC(date) {
+    return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds()));
+}

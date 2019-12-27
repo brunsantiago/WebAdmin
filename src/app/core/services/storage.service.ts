@@ -1,0 +1,76 @@
+/**
+ * Created by xavi on 5/16/17.
+ */
+import {Injectable} from "@angular/core";
+import { Router } from '@angular/router';
+//import {Session} from "../models/session.model";
+//import {User} from "../models/user.model";
+import { UserService} from './user.service';
+
+@Injectable()
+export class StorageService {
+
+  private identity;
+  private token;
+
+  constructor (
+    private _userService: UserService
+  ){}
+
+  // private localStorageService;
+  // private currentSession : Session = null;
+  //
+  //
+  // constructor(private router: Router) {
+  //   this.localStorageService = localStorage;
+  //   this.currentSession = this.loadSessionData();
+  // }
+
+  // setCurrentSession(session: Session): void {
+  //   this.currentSession = session;
+  //   this.localStorageService.setItem('currentUser', JSON.stringify(session));
+  // }
+  //
+  // loadSessionData(): Session{
+  //   var sessionStr = this.localStorageService.getItem('currentUser');
+  //   return (sessionStr) ? <Session> JSON.parse(sessionStr) : null;
+  // }
+  //
+  // getCurrentSession(): Session {
+  //   return this.currentSession;
+  // }
+  //
+  // removeCurrentSession(): void {
+  //   this.localStorageService.removeItem('currentUser');
+  //   this.currentSession = null;
+  // }
+  //
+  // getCurrentUser(): User {
+  //   var session: Session = this.getCurrentSession();
+  //   return (session && session.user) ? session.user : null;
+  // };
+
+  isAuthenticated(): boolean {
+    // return (this.getCurrentToken() != null) ? true : false;
+    this.identity = this._userService.getIdentity();
+    //this.token = this._userService.getToken();
+    if(this.identity){
+      console.log("Esta es toda la informacion del Usuario Autenticado: ");
+      return true;
+    }
+    else {
+      return false;
+    }
+  };
+
+  // getCurrentToken(): string {
+  //   var session = this.getCurrentSession();
+  //   return (session && session.token) ? session.token : null;
+  // };
+  //
+  // logout(): void{
+  //   this.removeCurrentSession();
+  //   this.router.navigate(['/login']);
+  // }
+
+}
