@@ -21,7 +21,7 @@
 
         <div class="box box-danger">
           <div class="box-header with-border">
-            <h3 class="box-title">CONTROL DE ASISTENCIA</h3>
+            <h3 class="box-title">Control de Asistencia</h3>
 
             <div class="box-tools pull-right">
               <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
@@ -44,71 +44,73 @@
 
            <div class="container-fluid my-3">
 
-             <div class="panel panel-default" >
+             <div class="panel panel-primary" >
                <div class="panel-heading">
-                 <h3 class="panel-title">Panel de Configuracion</h3>
+                 <h3 class="panel-title">Opciones</h3>
                </div>
                <br/>
                <form [formGroup]="form">
 
                  <div class="row conf">
+
                    <div class="col-md-1">
                    </div>
+
                    <div class="form-group col-md-2">
                      <label for="selectClientes">Cliente</label>
-                     <select class="form-control"  formControlName="cliente" id="selectClientes" onchange="cargarListadoObjetivos()">
-                       <option selected>Seleccione un Cliente</option>
+                     <select class="form-control"  name="selectClientes" id="selectClientes2" onchange="cargarListadoObjetivos2()">
+                       <option value="0" selected>Seleccione un Cliente</option>
                      </select>
                    </div>
                    <div class="form-group col-md-2">
                      <label for="selectObjetivos">Objetivo</label>
-                     <select class="form-control"  formControlName="objetivo" id="selectObjetivos">
-                       <option selected>Seleccione un Objetivo</option>
+                     <select class="form-control"  name="selectObjetivos" id="selectObjetivos2">
+                       <option value="0" selected>Seleccione un Objetivo</option>
                      </select>
                    </div>
-                   <div class="form-group col-md-3">
-                     <label>Periodo</label>
-                     <!-- <p>Seleccione el periodo</p> -->
-                     <div *ngIf="mensual.checked || dias25.checked "class="row">
-                       <div class="form-group col-md-8">
-                         <input type="text"
-                                id="datePicker"
-                                placeholder="Seleccione un mes ..."
-                                class="form-control"
-                                [bsConfig]="{ dateInputFormat: 'MMMM - YYYY', containerClass: 'theme-red', minMode: 'month' }"
-                                #dp="bsDatepicker"
-                                bsDatepicker
-                                [bsValue]=""
-                                placement="bottom"
-                                formControlName="date">
-                       </div>
-                       <div class="form-group col-md-4">
-                         <button class="btn btn-success" (click)="dp.toggle()">Periodo</button>
-                       </div>
-                     </div>
-                   </div>
-                   <div class="form-group col-md-2">
-                     <label>Visualizacion</label>
-                     <!-- <p>Seleccione el formato de Visualizacion</p> -->
-                     <div class="radio">
-                       <label><input #dias25 type="radio" formControlName="visual" value="dias25"checked>Formato del 26 al 25</label>
-                     </div>
-                     <div class="radio">
-                       <label><input #mensual type="radio" formControlName="visual" value="mensual">Formato Mensual</label>
+
+                   <div class="form-group col-md-1">
+                     <label for="datetimepicker3">Hora Desde</label>
+                     <div class="input-group date" id="datetimepicker1">
+                         <input type="text" class="form-control" value="00:00"/>
+                         <span class="input-group-addon">
+                             <span class="glyphicon glyphicon-time"></span>
+                         </span>
                      </div>
                    </div>
 
-                   <div class="form-group col-md-2">
+                   <div class="form-group col-md-1">
+                     <label for="datetimepicker4">Hora Hasta</label>
+                     <div class="input-group date" id="datetimepicker2">
+                         <input type="text" class="form-control" value="23:00"/>
+                         <span class="input-group-addon">
+                             <span class="glyphicon glyphicon-time"></span>
+                         </span>
+                     </div>
+                   </div>
+
+                   <div class="form-group col-md-1">
+                     <label>Visualizacion</label>
+                     <div class="radio">
+                       <label><input type="radio" name="radio-group" value="ingreso" checked>Ingresos</label>
+                     </div>
+                     <div class="radio">
+                       <label><input type="radio" name="radio-group" value="egreso">Egresos</label>
+                     </div>
+                   </div>
+
+                   <div class="form-group col-md-1">
                      <br/>
-                     <button id="aceptar" (click)="onSubmit()" class="btn btn-primary">Aceptar</button>
-                     <!-- <button (click)="cargarDiferenciasTS()" class="btn btn-primary">Diferencias</button> -->
+                     <button type="button" class="btn btn-primary" id="btncargarPuestosAsistencia" onclick="cargarPuestosAsistencia()">Aceptar</button>
                    </div>
+
                    </div>
+
                  </form>
              </div>
            <br/>
 
-           <div class="panel panel-default" >
+           <div class="panel panel-primary" id="panelResultado" style="display:none">
              <div class="panel-heading">
                <h3 class="panel-title">Resultado</h3>
              </div>
@@ -119,8 +121,8 @@
                  </table>
                </div>
              </div>
-
            </div>
+
          <br/>
 
 
@@ -146,11 +148,29 @@
     </div>
     <!-- /.row -->
 
-    <button type="button" name="button" (click)="cargarFila()" class="btn btn-primary">Recargar</button>
-
-    <!-- <button type="button" name="button" (click)="tableExport()" class="btn btn-primary">Exportar</button> -->
-
   </section>
   <!-- /.content -->
 </div>
 <!-- /.content-wrapper -->
+
+<!-- Modal Validar Formulario -->
+<div id="select-validate" class="modal fade"  tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">Seleccionar</h4>
+            </div>
+
+            <div class="modal-body">
+                <p>Debe seleccionar un Cliente / Objetivo</p>
+                <p class="debug-url"></p>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Aceptar</button>
+            </div>
+        </div>
+    </div>
+</div>

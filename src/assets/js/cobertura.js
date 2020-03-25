@@ -1,139 +1,143 @@
 
-function cargarCobertura(fechaInicial,fechaFinal){
-  var cantidadColumnasFijas=4;
-  var cantidadDias=cantidadDeDias(fechaInicial,fechaFinal);
-  var tamanioTabla=cantidadDias+cantidadColumnasFijas;
-  var horasCobertura = "";
-  var diaSemana = "";
-  var fechaIni = new Date(fechaInicial.getTime());
+function cargarCobertura(idCliente,idObjetivo,fechaInicial,fechaFinal){
+  let cantidadColumnasFijas=4;
+  let cantidadDias=cantidadDeDias(fechaInicial,fechaFinal);
+  let tamanioTabla=cantidadDias+cantidadColumnasFijas;
+  let horasCobertura = "";
+  let diaSemana = "";
+  let fechaIni = new Date(fechaInicial.getTime());
   for (i = 1; i < cantidadDias+1; i++) {
-    var fecha = "";
+    let fecha = "";
       if (i < 10) {
         fecha = "0"+i;
       } else fecha=i;
     actualizarDiaSemana(fechaIni); // Carga dias de la semana
     fechaIni.setDate(fechaIni.getDate()+1);
   }
-  recorrerEsquema(fechaInicial,fechaFinal);
+  recorrerEsquema(idCliente,idObjetivo,fechaInicial,fechaFinal);
 }
 
-function recorrerEsquema(fechaD,fechaH){
-  var fechaDesde=fechaD.getTime();
-  var fechaHasta=fechaH.getTime();
-  var refCubrimiento = db.collection("clientes").doc("DIA").collection("objetivos").doc("TIENDA 143")
-                .collection("cubrimiento");
+function recorrerEsquema(idCliente,idObjetivo,fechaD,fechaH){
+
+let promise = new Promise(function(resolve, reject) {
+
+  let fechaDesde=fechaD.getTime();
+  let fechaHasta=fechaH.getTime();
+  let refCubrimiento = db.collection("clientes").doc(idCliente).collection("objetivos").doc(idObjetivo)
+                         .collection("cubrimiento");
   refCubrimiento.get()
   .then(function(querySnapshot) {
-      var esquema1="false";
-      var esquema2="false";
-      querySnapshot.forEach(function(doc) {
+      const listPromises = []; //Lista de Promesas
+      querySnapshot.forEach(function(doc){
         //Lectura de las fechas Desde y Hasta de cada esquema
-        var fechaDesdeEsquema = new Date(doc.data().fechaDesde).getTime();
-        var fechaHastaEsquema;
-        if(doc.data().fechaHasta!=="indeterminada"){
-          fechaHastaEsquema = new Date(doc.data().fechaHasta).getTime();
+        let fechaDesdeEsquema = doc.data().fechaDesdeTime.toDate().getTime();
+        let fechaHastaEsquema;
+        //Verifico que fechaHastaEsquema este definida
+        if(doc.data().fechaHastaTime!==undefined){
+          fechaHastaEsquema = doc.data().fechaHastaTime.toDate().getTime();
         } else {
-          fechaHastaEsquema = doc.data().fechaHasta;
+          fechaHastaEsquema = doc.data().fechaHastaTime; // Verificar en caso de ser indefinida que pasaria
         }
         //Si el ESQUEMA tiene la fecha HASTA dentro del rango Solicitado entonces lo procesa
         if(fechaHastaEsquema>fechaDesde && fechaHastaEsquema<fechaHasta){
-          cargarHorasFacturacion(doc.id,fechaD,fechaH,doc.data().fechaDesde,doc.data().fechaHasta);
-          esquema1=true;
+          listPromises.push(cargarHorasFacturacion(idCliente,idObjetivo,doc.id,fechaD,fechaH,doc.data().fechaDesdeTime,doc.data().fechaHastaTime));
         }
         //Si el ESQUEMA tiene la fecha DESDE dentro del rango Solicitado entonces lo procesa
         else if(fechaDesdeEsquema>fechaDesde && fechaDesdeEsquema<fechaHasta){
-          cargarHorasFacturacion(doc.id,fechaD,fechaH,doc.data().fechaDesde,doc.data().fechaHasta);
-          esquema1=true;
+          listPromises.push(cargarHorasFacturacion(idCliente,idObjetivo,doc.id,fechaD,fechaH,doc.data().fechaDesdeTime,doc.data().fechaHastaTime));
         }
         //Si el ESQUEMA tiene la fecha DESDE y HASTA que incluye al periodo solicitado lo procesa
-        if(fechaDesdeEsquema<=fechaDesde && (fechaHastaEsquema>=fechaHasta || fechaHastaEsquema=="indeterminada")){
-          cargarHorasFacturacion(doc.id,fechaD,fechaH,doc.data().fechaDesde,doc.data().fechaHasta);
-          esquema2=true;
+        if(fechaDesdeEsquema<=fechaDesde && (fechaHastaEsquema>=fechaHasta || fechaHastaEsquema==undefined)){
+          listPromises.push(cargarHorasFacturacion(idCliente,idObjetivo,doc.id,fechaD,fechaH,doc.data().fechaDesdeTime,doc.data().fechaHastaTime));
         }
       });
-      if(esquema1==true && esquema2==true){alert("Existe otro esquema de Facturacion para el mismo periodo");}
+      Promise.all(listPromises)
+      .then(value => resolve()) //Si se ejecuto correctamente la lista de promesas
+      .catch(error => reject(Error("Se ha producido un error al ejecutar todas las Promesas cargarHorasFacturacion")));
   })
   .catch(function(error) {
       console.log("Error getting documents: ", error);
+      reject();
   });
+
+}); // End promise
+
+promise.then(function(result){
+  //Si se cumple con la carga de horas de facturacion de todos los esquemas que estan dentro del rango
+  //se procede a cargar las horas temporales y luego se calcula las diferencias entre lo cubierto y lo
+  //que se deberia haber cubierto
+  //console.log("Se cargaron todas las horas de Facturacion de los esquemas dentro del rango requerido");
+  cargarHorasTemporales(idCliente,idObjetivo,fechaD,fechaH)
+  .then(function(response) {
+    //console.log("Cargando diferencia de horas...");
+    cargarDiferencias(fechaD,fechaH);
+  }, function(error) {
+    console.error("No se pudieron cargar las horas temporales", error);
+  });
+}, function(err) {
+  console.log("No se cargaron todas las horas de Facturacion de los esquemas dentro del rango requerido"); // Error:
+});
+
 }
 
-function cargarHorasFacturacion(docId,fechaDesdeSol,fechaHastaSol,fechaDesde,fechaHasta){
-  var totalDias=[]; //Array con cantidad de horas semanales para un esquema
-  var refEsquema = db.collection("clientes").doc("DIA").collection("objetivos").doc("TIENDA 143")
-                .collection("cubrimiento").doc(docId).collection("esquema");
+function cargarHorasFacturacion(idCliente,idObjetivo,docId,fechaDesdeSol,fechaHastaSol,fechaDesde,fechaHasta){
+
+  return new Promise(function(resolve, reject) {
+
+  let totalDias=[]; //Array con cantidad de horas semanales para un esquema
+  let refEsquema = db.collection("clientes").doc(idCliente).collection("objetivos").doc(idObjetivo)
+                     .collection("cubrimiento").doc(docId).collection("esquema");
   refEsquema.get()
   .then(function(querySnapshot) {
       querySnapshot.forEach(function(doc) {
-          var i = doc.data().documentData.numeroDia;
+          let i = doc.data().documentData.numeroDia;
           totalDias[i]=doc.data().documentData.totalHoras;
       });
-      cargarHorasTemporales(docId,fechaDesdeSol,fechaHastaSol,fechaDesde,fechaHasta);
       cargarFacturacion(totalDias,fechaDesdeSol,fechaHastaSol,fechaDesde,fechaHasta);
+      resolve();
   })
   .catch(function(error) {
       console.log("Error getting documents: ", error);
+      reject();
   });
-}
 
-function cargarHorasTemporales(docId,fechaDesdeSol,fechaHastaSol,fechaDesde,fechaHasta){
-
-  var refTemporal = db.collection("clientes").doc("DIA").collection("objetivos").doc("TIENDA 143")
-                .collection("temporales").where("documentData.fecha",">=",fechaDesdeSol).where("documentData.fecha","<=",fechaHastaSol)
-
-  refTemporal.get()
-  .then(function(querySnapshot) {
-      querySnapshot.forEach(function(doc) {
-          var fecha = doc.data().documentData.fecha;
-          var dia = fecha.getDate();
-          console.log("Dia Temporal: "+fecha);
-          var horas = doc.data().documentData.totalHoras;
-          if(horas!==undefined){
-            horasEsq = document.querySelector(".fdia"+dia).textContent;
-            document.querySelector(".fdia"+dia).textContent = sumarHoras(horasEsq,horas+":00"); // MODIFICAR VER MINUTOS
-            //Actualiza el Total de Totales a Facturar
-            totales = document.querySelector(".ftotalHs").textContent;
-            document.querySelector(".ftotalHs").textContent = sumarHoras(totales,horas+":00"); // MODIFICAR VER MINUTOS
-          }
-      });
-      //cargarFacturacion(totalDias,fechaDesdeSol,fechaHastaSol,fechaDesde,fechaHasta);
-  })
-  .catch(function(error) {
-      console.log("Error getting documents: ", error);
-  });
+}); //End Promise
 }
 
 function diaDeSemana(fecha){
-    var dias=["DOMINGO", "LUNES", "MARTES", "MIERCOLES", "JUEVES", "VIERNES", "SABADO"];
+    let dias=["DOMINGO", "LUNES", "MARTES", "MIERCOLES", "JUEVES", "VIERNES", "SABADO"];
     //var dt = new Date(mes+'/'+dia+'/'+anio);
     return dias[fecha.getUTCDay()];
 }
 
 function cargarFacturacion(totalDias,fechaDesdeSol,fechaHastaSol,fechaDesdeEsq,fechaHastaEsq){
-  var fechaDS = fechaDesdeSol.getTime();
-  var fechaHS = fechaHastaSol.getTime();
-  var fechaDE = new Date(fechaDesdeEsq).getTime();
-  var fechaHE = new Date(fechaHastaEsq).getTime();
-  var fechaDesde,fechaHasta;
+  let fechaDS = fechaDesdeSol.getTime();
+  let fechaHS = fechaHastaSol.getTime();
+  // var fechaDE = new Date(fechaDesdeEsq).getTime();
+  // var fechaHE = new Date(fechaHastaEsq).getTime();
+  let fechaDE = fechaDesdeEsq.toDate().getTime();
+  let fechaHE = fechaHastaEsq.toDate().getTime();
+  let fechaDesde,fechaHasta;
   //Si la fecha Desde de la Solicitud es mas chica que la fecha Hasta entonces entra
   if(fechaDS<fechaHS){
     if(fechaDS<fechaDE){
-      fechaDesde = new Date(fechaDesdeEsq+"T00:00:00");
+      //fechaDesde = new Date(fechaDesdeEsq+"T00:00:00");
+      fechaDesde = fechaDesdeEsq.toDate();
     } else if (fechaDS>=fechaDE){
       fechaDesde = fechaDesdeSol
     }
     if(fechaHS>fechaHE){
-      fechaHasta = new Date(fechaHastaEsq+"T00:00:00");
+      fechaHasta = fechaHastaEsq.toDate();
     } else if (fechaHS<=fechaHE){
       fechaHasta = fechaHastaSol;
     }
   }
-  var cantidadColumnasFijas=4;
-  var cantidadDias=cantidadDeDias(fechaDesde,fechaHasta);
-  var fechaIni = new Date(fechaDesde.getTime()); // Se reinicia la fecha a la inicial
+  let cantidadColumnasFijas=4;
+  let cantidadDias=cantidadDeDias(fechaDesde,fechaHasta);
+  let fechaIni = new Date(fechaDesde.getTime()); // Se reinicia la fecha a la inicial
   for (var j = 0; j < cantidadDias; j++) {
     //var fecha = new Date(mes+'/'+i+'/'+anio);
-    var totalHoras = totalDias[fechaIni.getUTCDay()];
+    let totalHoras = totalDias[fechaIni.getUTCDay()];
     if(totalHoras!==undefined){
       //document.querySelector(".fdia"+fechaIni.getDate()).textContent = totalHoras+":00";
       document.querySelector(".fdia"+fechaIni.getDate()).textContent = totalHoras;
@@ -148,8 +152,8 @@ function cargarFacturacion(totalDias,fechaDesdeSol,fechaHastaSol,fechaDesdeEsq,f
 
 function totalHoras(ingresoParam2,egresoParam2){
   difMili = egresoParam2.getTime()-ingresoParam2.getTime();
-  var horas = Math.floor(difMili/1000/60/60);
-  var minutos = Math.floor(difMili/1000/60);
+  let horas = Math.floor(difMili/1000/60/60);
+  let minutos = Math.floor(difMili/1000/60);
   minutos = minutos - horas*60;
   // if (horas<10){horas="0"+horas;}
   if (minutos<10){minutos="0"+minutos;}
@@ -181,13 +185,13 @@ function sumarHoras(horaInicial,horaASumar){
   if(horaASumar.length == 0){
     horaASumar = "00:00";
   }
-  var totalHoras,totalMinutos;
-  var sepHrIni = horaInicial.indexOf(":");
-  var sepHrSum = horaASumar.indexOf(":");
-  var inicioHoras = parseInt(horaInicial.substr(0,sepHrIni));
-  var inicioMinutos = parseInt(horaInicial.substr(sepHrIni+1,2));
-  var finHoras = parseInt(horaASumar.substr(0,sepHrSum));
-  var finMinutos = parseInt(horaASumar.substr(sepHrSum+1,2));
+  let totalHoras,totalMinutos;
+  let sepHrIni = horaInicial.indexOf(":");
+  let sepHrSum = horaASumar.indexOf(":");
+  let inicioHoras = parseInt(horaInicial.substr(0,sepHrIni));
+  let inicioMinutos = parseInt(horaInicial.substr(sepHrIni+1,2));
+  let finHoras = parseInt(horaASumar.substr(0,sepHrSum));
+  let finMinutos = parseInt(horaASumar.substr(sepHrSum+1,2));
   //Si las dos horas son negativas ingresa al If
   if (horaInicial.charAt(0)=="-" && horaASumar.charAt(0)=="-"){
     totalHoras = inicioHoras + finHoras;
@@ -225,58 +229,33 @@ function sumarHoras(horaInicial,horaASumar){
        totalMinutos = totalMinutos - 60;
      }
   }
-    var horas = totalHoras.toString();
-    var minutos = totalMinutos.toString();
+    let horas = totalHoras.toString();
+    let minutos = totalMinutos.toString();
     if (minutos.length < 2) {
       minutos = "0"+minutos;
     }
   return horas+":"+minutos;
 }
 
-function consulta(diaNumero, diaSemana){
-  var fecha="";
-  var cubrimientoRef = db.collection("clientes").doc("DIA").collection("objetivos").doc("TIENDA 143").collection("cubrimiento");
-  var queryRef = cubrimientoRef.where("vigente", "==", true);
-  queryRef.onSnapshot(function(querySnapshot) {
-          querySnapshot.forEach(function(doc) {
-              //console.log(doc.data().fechaDesde);
-              fecha = doc.data().fechaDesde;
-              mostrarDias(fecha, diaNumero, diaSemana);
-          });
-  });
-  }
-
-function mostrarDias(fecha, diaNumero, diaSemana){
-    db.collection("clientes").doc("DIA").collection("objetivos").doc("TIENDA 143").collection("cubrimiento").doc(fecha).collection("esquema")
-    .onSnapshot((querySnapshot) => {
-          querySnapshot.forEach((doc) => {
-            if (doc.exists && doc.id == diaSemana){
-              var horas = doc.data().puesto1;
-              actualizarTotalesFacturar(diaNumero,horas);
-            }
-          });
-      });
-  }
-
 function actualizarTotalesFacturar(dia,horas){
     document.querySelector(".fdia"+dia).textContent = horas;
-  }
+}
 
 function actualizarDiaSemana(diaFecha){
-    var diaNumero = diaFecha.getDate();
-    var diaSemanal = diaDeSemana(diaFecha).substr(0,2);
+    let diaNumero = diaFecha.getDate();
+    let diaSemanal = diaDeSemana(diaFecha).substr(0,2);
     document.querySelector(".sdia"+diaNumero).textContent = diaSemanal;
-  }
+}
 
 function totalHorasFacturar(horaIngreso,horaEgreso){
-    var inicio = horaIngreso;
-    var fin = horaEgreso;
-    var inicioHoras = parseInt(inicio.substr(0,2));
-    var inicioMinutos = parseInt(inicio.substr(3,2));
-    var finHoras = parseInt(fin.substr(0,2));
-    var finMinutos = parseInt(fin.substr(3,2));
-    var transcurridoHoras = 0;
-    var transcurridoMinutos = finMinutos - inicioMinutos;
+    let inicio = horaIngreso;
+    let fin = horaEgreso;
+    let inicioHoras = parseInt(inicio.substr(0,2));
+    let inicioMinutos = parseInt(inicio.substr(3,2));
+    let finHoras = parseInt(fin.substr(0,2));
+    let finMinutos = parseInt(fin.substr(3,2));
+    let transcurridoHoras = 0;
+    let transcurridoMinutos = finMinutos - inicioMinutos;
     if (finHoras < inicioHoras){
       transcurridoHoras = 24 - inicioHoras + finHoras;
     } else transcurridoHoras = finHoras - inicioHoras;
@@ -284,8 +263,8 @@ function totalHorasFacturar(horaIngreso,horaEgreso){
        transcurridoHoras--;
        transcurridoMinutos = 60 + transcurridoMinutos;
      }
-    var horas = transcurridoHoras.toString();
-    var minutos = transcurridoMinutos.toString();
+    let horas = transcurridoHoras.toString();
+    let minutos = transcurridoMinutos.toString();
       if (horas.length < 2) {
         horas = "0"+horas;
       }
@@ -342,9 +321,9 @@ function egresoParametrizado(egresoPuesto,egresoReal){
   }
 
 function cuartoPosterior(hora){
-    var horaParametrizada="";
-    var minutosParametrizados="";
-    var minutosReales=extraerMinutosReales(hora);
+    let horaParametrizada="";
+    let minutosParametrizados="";
+    let minutosReales=extraerMinutosReales(hora);
         if (minutosReales==0){
           minutosParametrizados = 0;
         } else if (minutosReales>0 && minutosReales<=15){
@@ -358,32 +337,32 @@ function cuartoPosterior(hora){
         }
         horaParametrizada=componerHora(hora,minutosParametrizados);
     return horaParametrizada;
-  }
+}
 
 function extraerMinutos(hora){
-    var separadorHora = hora.indexOf(":");
-    var horas = parseInt(hora.substr(0,separadorHora));
-    var minutos = parseInt(hora.substr(separadorHora+1,2));
+    let separadorHora = hora.indexOf(":");
+    let horas = parseInt(hora.substr(0,separadorHora));
+    let minutos = parseInt(hora.substr(separadorHora+1,2));
     if(hora>0){
       //console.log("Ingreso mayor a una hora");
       return 60;
     } else {
       return minutos;
     }
-  }
+}
 
 function extraerMinutosReales(hora){
-    var sepHr = hora.indexOf(":");
+    let sepHr = hora.indexOf(":");
     //var horas = parseInt(hora.substr(0,sepHr));
-    var minutos = parseInt(hora.substr(sepHr+1,2));
+    let minutos = parseInt(hora.substr(sepHr+1,2));
     //if(minutos<10){minutos="0"+minutos;}
     return minutos;
-  }
+}
 
 function componerHora(hora,minutosParametrizados){
-    var horaParametrizada="";
-    var sepHr = hora.indexOf(":");
-    var horas = parseInt(hora.substr(0,sepHr));
+    let horaParametrizada="";
+    let sepHr = hora.indexOf(":");
+    let horas = parseInt(hora.substr(0,sepHr));
     //var minutos = parseInt(hora.substr(sepHr+1,2));
     if(minutosParametrizados<60){
       if(horas<10){
@@ -401,7 +380,7 @@ function componerHora(hora,minutosParametrizados){
       horaParametrizada=horas+":00";
     }
     return horaParametrizada;
-  }
+}
 
 function componerHorasDate(date){
     let hora = date.getHours();
@@ -417,11 +396,11 @@ function componerHorasDate(date){
 
 function sumarUnaHora(hora){
     return sumarHoras(hora,"01:00");
-  }
+}
 
 function sumarMediaHora(hora){
     return sumarHoras(hora,"00:30");
-  }
+}
 
 function compararHoras(horaPuesto,horaReal){
     if (horaPuesto>horaReal){
@@ -435,40 +414,28 @@ function compararHoras(horaPuesto,horaReal){
 }
 
 function cargarDiferencias(fechaInicial,fechaFinal){
-    //let primerDia;
-    //let ultimoDia;
-    // if(visual == "mensual" && date!=""){
-    //   fechaInicial = new Date(date.getFullYear(), date.getMonth(), 1);
-    //   fechaFinal = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-    // } else if(visual == "dias25" && date!=""){
-    //   fechaInicial = new Date(date.getFullYear(), date.getMonth()-1, 26);
-    //   fechaFinal = new Date(date.getFullYear(), date.getMonth(), 25);
-    // }
-    //console.log("Fecha Inicial: "+fechaInicial);
-    //console.log("Fecha Final: "+fechaFinal);
+
     let cantidadColumnasFijas=4;
     let cantidadDias=cantidadDeDias(fechaInicial,fechaFinal);
-    //console.log("Cantidad de Dias: "+cantidadDias);
     let horasCobertura = "";
     let diaSemana = "";
     let fechaIni = new Date(fechaInicial.getTime());
-    var sumatoria="0:00";
+    let sumatoria="0:00";
     for (i = 0; i < cantidadDias; i++) {
       sumatoria = sumarHoras(sumatoria,actualizarDiferencia(fechaIni));
       fechaIni.setDate(fechaIni.getDate()+1);
     }
-    //document.querySelector(".dtotalHs").textContent = sumatoria;
     if(sumatoria.startsWith("-")){
       document.querySelector(".dtotalHs").style.color = "#a94442";
       document.querySelector(".dtotalHs").textContent = sumatoria;
     } else {
       document.querySelector(".dtotalHs").textContent = sumatoria;
     }
-  }
+}
 
 function actualizarDiferencia(diaFecha){
     let diaNumero = diaFecha.getDate();
-    let diferencia = restarHoras(diaNumero);
+    let diferencia = restarHorasLiquidacion(diaNumero);
     if(diferencia.startsWith("-")){
       document.querySelector(".ddia"+diaNumero).style.color = "#a94442";
       document.querySelector(".ddia"+diaNumero).textContent = diferencia;
@@ -476,14 +443,15 @@ function actualizarDiferencia(diaFecha){
       document.querySelector(".ddia"+diaNumero).textContent = diferencia;
     }
     return diferencia;
-  }
+}
 
+//funcion en deshuso, chequear utilizacion
 function restarHoras(diaNumero){
-    var horasLiquidar = document.querySelector(".ldia"+diaNumero).textContent;
+    let horasLiquidar = document.querySelector(".ldia"+diaNumero).textContent;
     console.log("Horas a Liquidar: "+horasLiquidar);
-    var horasFacturar = document.querySelector(".fdia"+diaNumero).textContent;
+    let horasFacturar = document.querySelector(".fdia"+diaNumero).textContent;
     console.log("Horas a Facturar: "+horasFacturar);
-    var hora1 = (horasLiquidar+":00").split(":"),
+    let hora1 = (horasLiquidar+":00").split(":"),
         hora2 = (horasFacturar+":00").split(":"),
         t1 = new Date(), //Hora a Facturar
         t2 = new Date(), //Hora a Liquidar
@@ -505,11 +473,75 @@ function restarHoras(diaNumero){
       t1.setHours(t2.getHours() - t1.getHours(), t2.getMinutes() - t1.getMinutes(), t2.getSeconds() - t1.getSeconds());
       signo="-";
     }
-    var hora = t1.getHours();
-    var minutos = t1.getMinutes();
+    let hora = t1.getHours();
+    let minutos = t1.getMinutes();
     if(minutos<10){
       minutos = minutos+"0";
     }
     console.log("Resultado: "+signo+hora+":"+minutos);
     return signo+hora+":"+minutos;
+}
+
+function restarHorasLiquidacion(diaNumero){
+
+  let horaARestar = document.querySelector(".ldia"+diaNumero).textContent;
+  let horaInicial = document.querySelector(".fdia"+diaNumero).textContent;
+
+  if(horaInicial.length == 0){
+    horaInicial = "00:00";
   }
+  if(horaARestar.length == 0){
+    horaARestar = "00:00";
+  }
+  let totalHoras,totalMinutos;
+  let sepHrIni = horaInicial.indexOf(":");
+  let sepHrRes = horaARestar.indexOf(":");
+  let inicioHoras = parseInt(horaInicial.substr(0,sepHrIni));
+  let inicioMinutos = parseInt(horaInicial.substr(sepHrIni+1,2));
+  let finHoras = parseInt(horaARestar.substr(0,sepHrRes));
+  let finMinutos = parseInt(horaARestar.substr(sepHrRes+1,2));
+
+  totalHoras = inicioHoras - finHoras;
+  totalMinutos = inicioMinutos - finMinutos;
+  if (totalMinutos < 0) {
+     totalHoras--;
+     totalMinutos = 60 + totalMinutos;
+   }
+
+  let horas = totalHoras.toString();
+  let minutos = totalMinutos.toString();
+  if (minutos.length < 2) {
+    minutos = "0"+minutos;
+  }
+  return horas+":"+minutos;
+}
+
+function cargarHorasTemporales(idCliente,idObjetivo,fechaDesdeSol,fechaHastaSol){
+
+  return new Promise(function(resolve, reject) {
+
+      let refTemporal = db.collection("clientes").doc(idCliente).collection("objetivos").doc(idObjetivo)
+                        .collection("temporales").where("documentData.fecha",">=",fechaDesdeSol).where("documentData.fecha","<=",fechaHastaSol)
+
+      refTemporal.get()
+      .then(function(querySnapshot) {
+          querySnapshot.forEach(function(doc) {
+              let fecha = doc.data().documentData.fecha.toDate();
+              let dia = fecha.getDate();
+              let horas = doc.data().documentData.totalHoras;
+              if(horas!==undefined){
+                horasEsq = document.querySelector(".fdia"+dia).textContent;
+                document.querySelector(".fdia"+dia).textContent = sumarHoras(horasEsq,horas+":00"); // MODIFICAR VER MINUTOS
+                //Actualiza el Total de Totales a Facturar
+                totales = document.querySelector(".ftotalHs").textContent;
+                document.querySelector(".ftotalHs").textContent = sumarHoras(totales,horas+":00"); // MODIFICAR VER MINUTOS
+              }
+          });
+          resolve();
+      })
+      .catch(function(error) {
+          reject(Error("No se pudieron cargar las horas temporales"));
+      });
+    });
+
+}

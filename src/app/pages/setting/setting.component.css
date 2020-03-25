@@ -97,7 +97,7 @@ body {
   float: right;
 } */
 
-.accordion-option .toggle-accordion {
+/* .accordion-option .toggle-accordion {
   float: right;
   font-size: 16px;
   color: #6a6c6f;
@@ -109,4 +109,4 @@ body {
 
 .accordion-option .toggle-accordion.active:before {
   content: "Contraer / Expandir";
-}
+} */

@@ -69,37 +69,32 @@ export class HomeComponent implements OnInit {
 
     this.form = new FormGroup({
       visual: new FormControl('dias25'),
-      cliente: new FormControl('Seleccione un Cliente'),
-      objetivo: new FormControl('Seleccione un Objetivo'),
+      cliente: new FormControl(),
+      objetivo: new FormControl(),
       date: new FormControl(''),
       range: new FormControl('')
     });
-
     cargarListadoClientes();
-
     $('.box').boxWidget();
 
   }
 
-  onSubmit() {
-    let cliente = this.form.get('cliente').value;
-    let objetivo = this.form.get('objetivo').value;
+  onSubmit(){
+    // let cliente = this.form.get('cliente').value;
+    // let objetivo = this.form.get('objetivo').value;
+    this.cliente = this.form.get('cliente').value;
+    this.objetivo = this.form.get('objetivo').value;
     this.visual = this.form.get('visual').value;
     this.date = this.form.get('date').value;
     let range = this.form.get('range').value;
-
-    this.cliente=cliente;
-    this.objetivo=objetivo;
-
+    //this.cliente=cliente;
+    //this.objetivo=objetivo;
     eliminarContenidoTabla();
-
     if(this.visual == "mensual" || this.visual == "dias25"){
-      mostrarCubrimiento(cliente,objetivo,this.visual,this.date,range);
+      //devolverIdCliente(this.cliente);
+      //mostrarCubrimiento(this.cliente,this.objetivo,this.visual,this.date,range);
+      mostrarCubrimiento(this.visual,this.date,range);
     }
-  }
-
-  cargarDiferenciasTS(){
-    cargarDiferencias(this.date,this.visual);
   }
 
 }

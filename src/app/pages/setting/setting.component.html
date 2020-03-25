@@ -3,7 +3,7 @@
   <!-- Content Header (Page header) -->
   <section class="content-header">
     <h1>
-      Cobertura de Objetivos
+      Configuracion
       <small>Version 1.0</small>
     </h1>
     <ol class="breadcrumb">
@@ -22,7 +22,7 @@
         <div class="box box-danger">
           <!-- box-header -->
           <div class="box-header with-border">
-            <h3 class="box-title">Panel de Opciones</h3>
+            <h3 class="box-title">Objetivos</h3>
 
             <div class="box-tools pull-right">
               <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
@@ -70,13 +70,14 @@
                             <option value="0" selected>Seleccione un Objetivo</option>
                           </select>
                         </div>
-                        <div class="form-group col-md-5 ml-7">
+                        <div class="form-group col-md-6 ml-7">
                           <label style="visibility: hidden">Opciones</label>
                           <form class="form-inline">
                               <div class="form-group">
                                 <button type="button" class="btn btn-primary" onclick="cargarPuestosSetting()">Esquema Vigente</button>
-                                <button type="button" class="btn btn-warning ml-7" onclick="tablaDiasEspeciales()">Ver Dias Especiales</button>
-                                <button type="button" class="btn btn-success ml-7" onclick="cargarHistorial()">Ver Historial</button>
+                                <button type="button" class="btn btn-success ml-7" onclick="cargarEsquemaNuevo()">Nuevo Esquema</button>
+                                <button type="button" class="btn btn-warning ml-7" onclick="tablaDiasEspeciales()">Dias Especiales</button>
+                                <button type="button" class="btn btn-danger ml-7" onclick="cargarHistorial()">Historial de Esquemas</button>
                               </div>
                           </form>
                         </div>

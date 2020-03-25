@@ -58,33 +58,49 @@ function cargarPuestosSetting(){
                           cargarDatosObjetivo(nombreCliente,nombreObjetivo);
                         } else {
                           // Si hay esquema vigente ingresa aca
-                          $("#datosObjetivo").show();
-                          $("#esquemaCobertura").show();
-                          $("#contenedorEsquema").show();
-                          $("#sinEsquema").hide();
-                          $("#acordionEsquema").show();
                           querySnapshot.forEach(function(doc) {
-                            idCubrimientoGlobal=doc.id;
-                            cargarDatosEsquema(nombreCliente,nombreObjetivo,doc.data().fechaDesde,doc.data().fechaHasta,doc.data().vigente);
-                            borrarTablas();
-                            for(var numeroDia=0;numeroDia<7;numeroDia++){
-                              db.collection("clientes").doc(idClienteGlobal).collection("objetivos").doc(idObjetivoGlobal).collection("cubrimiento")
-                                .doc(idCubrimientoGlobal).collection("esquema").where("documentData.numeroDia","==",numeroDia)
-                                .get()
-                                .then(function(querySnapshot) {
-                                    querySnapshot.forEach(function(doc) {
-                                      let docObject = doc.data();
-                                      let idDia = doc.id;
-                                      let numDia = doc.data().documentData.numeroDia;
-                                      for (var fieldName in docObject) {
-                                        if (fieldName=="documentData"){
-                                        }else {
-                                          let dia = docObject[fieldName];
-                                          cargarEsquemaSetting(idClienteGlobal,idObjetivoGlobal,idCubrimientoGlobal,idDia,fieldName,dia.nombrePuesto,dia.nombreTurno,dia.ingresoPuesto,dia.egresoPuesto,dia.horasTurno,dia.estado,numDia);
+                            //Antes de mostrar el esquema verifico que el mismo este vigente
+                            if(fechaEsquemaVigente(doc.data().fechaHastaTime)){
+                              //Si el esquema esta vigente lo muestro por pantalla
+                              $("#datosObjetivo").show();
+                              $("#esquemaCobertura").show();
+                              $("#contenedorEsquema").show();
+                              $("#sinEsquema").hide();
+                              $("#acordionEsquema").show();
+
+                              idCubrimientoGlobal=doc.id;
+                              cargarDatosEsquema(nombreCliente,nombreObjetivo,doc.data().fechaDesdeTime,doc.data().fechaHastaTime,doc.data().vigente);
+                              borrarTablas();
+                              for(var numeroDia=0;numeroDia<7;numeroDia++){
+                                db.collection("clientes").doc(idClienteGlobal).collection("objetivos").doc(idObjetivoGlobal).collection("cubrimiento")
+                                  .doc(idCubrimientoGlobal).collection("esquema").where("documentData.numeroDia","==",numeroDia)
+                                  .get()
+                                  .then(function(querySnapshot) {
+                                      querySnapshot.forEach(function(doc) {
+                                        let docObject = doc.data();
+                                        let idDia = doc.id;
+                                        let numDia = doc.data().documentData.numeroDia;
+                                        for (var fieldName in docObject) {
+                                          if (fieldName=="documentData"){
+                                          }else {
+                                            let dia = docObject[fieldName];
+                                            cargarEsquemaSetting(idClienteGlobal,idObjetivoGlobal,idCubrimientoGlobal,idDia,fieldName,dia.nombrePuesto,dia.nombreTurno,dia.ingresoPuesto,dia.egresoPuesto,dia.horasTurno,dia.estado,numDia);
+                                          }
                                         }
-                                      }
-                                    });
-                                });
+                                      });
+                                  });
+                              }
+
+                            } else {
+                              // Si el esquema no esta vigente entonces modifico el estado
+                              // y muestro en pantalla que no hay esquema vigente
+                              modificarEstadoEsquema(doc.id);
+                              $("#datosObjetivo").show();
+                              $("#esquemaCobertura").show();
+                              $("#contenedorEsquema").hide();
+                              $("#sinEsquema").show();
+                              $("#acordionEsquema").hide();
+                              cargarDatosObjetivo(nombreCliente,nombreObjetivo);
                             }
                           });
                           $("#esquemaCobertura").show();
@@ -98,6 +114,30 @@ function cargarPuestosSetting(){
       });
 
   }
+}
+
+function fechaEsquemaVigente(fechaHastaEsquema) {
+  let fechaActual = new Date();
+  fechaActual.setHours(0,0,0);
+  if (fechaHastaEsquema.toDate()>fechaActual){
+    return true;
+  } else {
+    return false;
+  }
+}
+
+function modificarEstadoEsquema(idEsquema){
+  db.collection("clientes").doc(idClienteGlobal).collection("objetivos").doc(idObjetivoGlobal).collection("cubrimiento")
+  .doc(idEsquema)
+  .update({vigente:false})
+  .then(function() {
+    console.log("Document successfully updated!");
+  })
+  .catch(function(error) {
+      // The document probably doesn't exist.
+      console.error("Error updating document: ", error);
+  });
+
 }
 
 function cargarEsquema(){
@@ -117,7 +157,7 @@ function cargarEsquema(){
         $("#acordionEsquema").show();
         $("#esquemaCobertura").show();
 
-          cargarDatosEsquema(nombreCliente,nombreObjetivo,doc.data().fechaDesde,doc.data().fechaHasta,doc.data().vigente);
+          cargarDatosEsquema(nombreCliente,nombreObjetivo,doc.data().fechaDesdeTime,doc.data().fechaHastaTime,doc.data().vigente);
           borrarTablas();
           for(var numeroDia=0;numeroDia<7;numeroDia++){
             db.collection("clientes").doc(idClienteGlobal).collection("objetivos").doc(idObjetivoGlobal).collection("cubrimiento")
@@ -149,8 +189,8 @@ function cargarEsquema(){
 
 function cargarDatosEsquema(nombreCliente,nombreObjetivo,fechaDesde,fechaHasta,vigente){
 
-  let fechaDesdeDate = new Date(fechaDesde+"T00:00:00");
-  let fechaHastaDate = new Date(fechaHasta+"T00:00:00");
+  let fechaDesdeDate = fechaDesde.toDate();
+  let fechaHastaDate = fechaHasta.toDate();
 
   $('#nombreCliente').text(" "+nombreCliente);
   $('#nombreObjetivo').text(" "+nombreObjetivo);
@@ -322,6 +362,9 @@ function cargarTurnos(idCliente,idObjetivo,idCubrimiento,nombrePuesto,nombreTurn
 }
 
 function cambiarPuestosSetting(){
+  // Return a new promise.
+  let promesa = new Promise(function(resolve, reject) {
+      // do a thing, possibly async, then…
 
   var nombrePuesto = document.getElementById("nombrePuesto").value;
   var nombreTurno = document.getElementById("nombreTurno").value;
@@ -350,7 +393,6 @@ function cambiarPuestosSetting(){
 
   db.collection("clientes").doc(idClienteGlobal).collection("objetivos").doc(idObjetivoGlobal).collection("cubrimiento")
     .doc(idCubrimientoGlobal).collection("esquema").doc(idDiaGlobal)
-    //.update({[fieldNameGlobal]:turno});
     .get()
     .then(function(doc){
       if (doc.exists) {
@@ -383,20 +425,26 @@ function cambiarPuestosSetting(){
       } else {
         console.log("No se encontro el turno a modificar");
       }
+
+      eliminarContenidoDia(numDiaGlobal);
+      $('#editar-puesto').modal('hide');
+      resolve();
+
     })
     .catch(function(error) {
     // The document probably doesn't exist.
-    console.log("Error getting document:", error);
+    //console.log("Error getting document:", error);
+    reject(Error(error));
     });
 
-    eliminarContenidoDia(numDiaGlobal);
-    let delayInMilliseconds = 1000; //1 second
-    setTimeout(function() {
-      //your code to be executed after 5 second
-      cargarDiaModificado();
-    }, delayInMilliseconds);
+  });
 
-    $('#editar-puesto').modal('hide');
+  promesa.then(function(result) {
+    console.log(result); // "Stuff worked!"
+    cargarDiaModificado();
+  }, function(err) {
+    console.log(err); // Error: "It broke"
+  });
 }
 
 function eliminarContenidoDia(numeroDia){
@@ -513,13 +561,40 @@ function eliminarTurno(idCliente,idObjetivo,idCubrimiento,idDia,fieldName,numero
 
 }
 
-function eliminarTurnoEspecial(idCliente,idObjetivo,idDia,fieldName,i){
+function eliminarTurnoEspecial(idCliente,idObjetivo,idDia,fieldName,numeroDia){
+
   db.collection("clientes").doc(idCliente).collection("objetivos").doc(idObjetivo).collection("temporales")
         .doc(idDia)
-        .update({[fieldName]: firebase.firestore.FieldValue.delete()});
+        .get()
+        .then(function(doc){
+          if(doc.data().documentData.cantidadPuestos == 1){
+            //Si es el unico turno que queda, elimino directamente el documento
+            db.collection("clientes").doc(idCliente).collection("objetivos").doc(idObjetivo).collection("temporales")
+            .doc(idDia)
+            .delete()
+            .then(function() {
+                console.log("Document successfully deleted!");
+                borrarFechasEspeciales();
+                $("#acordionDiasEspeciales").hide();
+                $("#sinDiasEspeciales").show();
+                mensajeOk();
+            }).catch(function(error) {
+                console.error("Error removing document: ", error);
+            });
+          } else {
+            db.collection("clientes").doc(idCliente).collection("objetivos").doc(idObjetivo).collection("temporales")
+                  .doc(idDia)
+                  .update({[fieldName]: firebase.firestore.FieldValue.delete()});
 
-  eliminarContenidoDiaEspecial(i);
-  cargarDiaEspecial(idCliente,idObjetivo,idDia,i);
+            const decrement = firebase.firestore.FieldValue.increment(-1);
+
+            db.collection("clientes").doc(idCliente).collection("objetivos").doc(idObjetivo).collection("temporales")
+                  .doc(idDia)
+                  .update({"documentData.cantidadPuestos": decrement });
+          }
+          eliminarContenidoDiaEspecial(numeroDia);
+          cargarDiaEspecial(idCliente,idObjetivo,idDia,numeroDia);
+        });
 
 }
 
@@ -654,7 +729,6 @@ function disableCheck() {
 
 function validarFormulario(){
   if($("#selectClientes option:selected").val() == 0) {
-    //alert("Debe seleccionar un Cliente");
     $('#select-validate').modal('show');
     return false;
   }else if($("#selectObjetivos option:selected").val() == 0) {
@@ -722,6 +796,7 @@ function cargarHistorialEsquemas(){
                     idObjetivoGlobal=doc.id;
 
                     db.collection("clientes").doc(idClienteGlobal).collection("objetivos").doc(idObjetivoGlobal).collection("cubrimiento")
+                    .orderBy("fechaDesdeTime","desc")
                     .get()
                     .then(function(querySnapshot) {
                         if (querySnapshot.empty) {
@@ -750,7 +825,7 @@ function cargarHistorialEsquemas(){
                                         }
                                       }
                                     });
-                                    cargarDatosHistorial(idClienteGlobal,idObjetivoGlobal,idCubrimiento,nombreCliente,nombreObjetivo,doc.data().fechaDesde,doc.data().fechaHasta,doc.data().vigente,diasSemana);
+                                    cargarDatosHistorial(idClienteGlobal,idObjetivoGlobal,idCubrimiento,nombreCliente,nombreObjetivo,doc.data().fechaDesdeTime,doc.data().fechaHastaTime,doc.data().vigente,diasSemana);
                                 });
                             //}
                           });
@@ -828,8 +903,8 @@ function cargarDatosHistorial(idCliente,idObjetivo,idCubrimiento,nombreCliente,n
   spanVi.className=diasSemana[5];
   spanSa.className=diasSemana[6];
 
-  celdaFechaDesde.textContent = fechaDesde;
-  celdaFechaHasta.textContent = fechaHasta;
+  celdaFechaDesde.textContent = dateToString(fechaDesde.toDate());
+  celdaFechaHasta.textContent = dateToString(fechaHasta.toDate());
 
   celdaDias.appendChild(spanDo);
   celdaDias.appendChild(document.createTextNode(" "));
@@ -891,7 +966,7 @@ function cargarPuestosHistorial(idCliente,idObjetivo,idCubrimiento,nombreCliente
             $("#acordionEsquema").show();
             $("#esquemaCobertura").show();
 
-              cargarDatosEsquema(nombreCliente,nombreObjetivo,doc.data().fechaDesde,doc.data().fechaHasta,doc.data().vigente);
+              cargarDatosEsquema(nombreCliente,nombreObjetivo,doc.data().fechaDesdeTime,doc.data().fechaHastaTime,doc.data().vigente);
               borrarTablas();
               for(var numeroDia=0;numeroDia<7;numeroDia++){
                 db.collection("clientes").doc(idCliente).collection("objetivos").doc(idObjetivo).collection("cubrimiento")
@@ -1027,6 +1102,7 @@ function cargarDiasEspeciales(){
 }
 
 function cargarPuestoTemporal(){
+
   // asignar valores de los campos del formulario
   let nombrePuesto = document.getElementById("nombrePuesto2").value;
   let nombreTurno = document.getElementById("nombreTurno2").value;
@@ -1037,20 +1113,16 @@ function cargarPuestoTemporal(){
   // recorrer el array de fechas y llamar a la funcion cargarPuesto por cada iteracion
   let selectedDates = $('.datepicker:first').datepicker('getDates');
   selectedDates.forEach(function(fecha){
-    cargarPuesto(fecha,nombrePuesto,nombreTurno,ingresoPuesto,egresoPuesto,horasTurno,estado);
+    cargarPuestoEspecial(fecha,nombrePuesto,nombreTurno,ingresoPuesto,egresoPuesto,horasTurno,estado);
   });
   $('#carga-dias').modal('hide');
   mensajeOk();
 
-  let delayInMilliseconds = 1000; //1 second
-  setTimeout(function() {
-    //your code to be executed after 5 second
-    recargarDiasEspeciales();
-  }, delayInMilliseconds);
-
 }
 
 function modificarPuestoTemporal(){
+  // Return a new promise.
+  let promesa = new Promise(function(resolve, reject) {
   // asignar valores de los campos del formulario
   let nombrePuesto = document.getElementById("nombrePuesto3").value;
   let nombreTurno = document.getElementById("nombreTurno3").value;
@@ -1059,22 +1131,80 @@ function modificarPuestoTemporal(){
   let horasTurno = document.getElementById("horasTurno3").value;
   let estado = document.getElementById("estado3").value;
   // recorrer el array de fechas y llamar a la funcion cargarPuesto por cada iteracion
-  // let selectedDates = $('.datepicker:first').datepicker('getDates');
-  // selectedDates.forEach(function(fecha){
-    modificarPuestoEspecial(nombrePuesto,nombreTurno,ingresoPuesto,egresoPuesto,horasTurno,estado);
-  // });
-  $('#modificar-dias').modal('hide');
-  mensajeOk();
+  //modificarPuestoEspecial(nombrePuesto,nombreTurno,ingresoPuesto,egresoPuesto,horasTurno,estado);
 
-  let delayInMilliseconds = 1000; //1 second
-  setTimeout(function() {
-    //your code to be executed after 5 second
+  // Carga el objeto Turno
+  let turno = {
+    nombrePuesto: nombrePuesto,
+    nombreTurno: nombreTurno,
+    ingresoPuesto: ingresoPuesto,
+    egresoPuesto: egresoPuesto,
+    horasTurno: horasTurno,
+    estado: estado
+  };
+  let nombreCampo = nombrePuesto+"_"+nombreTurno;
+  let comparaHoras = compararHorasString(ingresoPuesto,egresoPuesto);
+  if(comparaHoras==-1){
+    turno.turnoNoche=true;
+    turno.nombreTurno="TN";
+    nombreCampo = nombrePuesto+"_TN";
+  }
+
+  db.collection("clientes").doc(idClienteGlobal).collection("objetivos").doc(idObjetivoGlobal).collection("temporales")
+    .doc(idDiaGlobal)
+    .get()
+    .then(function(doc){
+      if (doc.exists) {
+        let docObject = doc.data();
+        let turnoAnterior = docObject[fieldNameGlobal];
+        let documentData = docObject["documentData"];
+        let totalHoras = sumarHorasString(documentData.totalHoras,"-"+turnoAnterior.horasTurno)
+        totalHoras = sumarHorasString(totalHoras,horasTurno);
+
+        documentData = {
+          cantidadPuestos : doc.data().documentData.cantidadPuestos,
+          fecha : doc.data().documentData.fecha,
+          totalHoras : totalHoras
+        }
+
+        //Elimina el turno modificado
+        db.collection("clientes").doc(idClienteGlobal).collection("objetivos").doc(idObjetivoGlobal).collection("temporales")
+          .doc(idDiaGlobal)
+          .update({[fieldNameGlobal]: firebase.firestore.FieldValue.delete()});
+
+        //Agrega el turno modificado
+        db.collection("clientes").doc(idClienteGlobal).collection("objetivos").doc(idObjetivoGlobal).collection("temporales")
+          .doc(idDiaGlobal)
+          .update({
+            [nombreCampo] : turno,
+            documentData : documentData
+          })
+
+      } else {
+        console.log("No se encontro el turno a modificar");
+      }
+      $('#modificar-dias').modal('hide');
+      mensajeOk();
+      resolve();
+    })
+    .catch(function(error) {
+    // The document probably doesn't exist.
+    console.log("Error getting document:", error);
+    reject();
+    });
+
+  });
+
+  promesa.then(function(result) {
+    console.log(result); // "Stuff worked!"
     recargarDiasEspeciales();
-  }, delayInMilliseconds);
+  }, function(err) {
+    console.log(err); // Error: "It broke"
+  });
 
 }
 
-function cargarPuesto(fecha,nombrePuesto,nombreTurno,ingresoPuesto,egresoPuesto,horasTurno,estado){
+function cargarPuestoEspecial(fecha,nombrePuesto,nombreTurno,ingresoPuesto,egresoPuesto,horasTurno,estado){
   // Carga el objeto Turno
   let turno = {
     nombrePuesto: nombrePuesto,
@@ -1097,9 +1227,22 @@ function cargarPuesto(fecha,nombrePuesto,nombreTurno,ingresoPuesto,egresoPuesto,
         let totalHoras = doc.data().documentData.totalHoras;
         totalHoras = sumarHorasString(totalHoras,horasTurno);
         let documentData = {
-          cantidadPuestos : doc.data().documentData.cantidadPuestos,
+          cantidadPuestos : doc.data().documentData.cantidadPuestos+1,
           fecha : doc.data().documentData.fecha,
           totalHoras : totalHoras
+        }
+
+        // Se chequea si el nombre del campo ya existe o es nuevo
+        let docObject = doc.data();
+        //let encontrado = false;
+
+        for (var fieldName in docObject) {
+          if (fieldName==nombreCampo){
+            console.log("Ya existe un Puesto con esos datos");
+            //encontrado = true;
+            //Resto uno en cantidadPuestos porque el turno ya Existe
+            documentData.cantidadPuestos--;
+          }
         }
 
         db.collection("clientes").doc(idClienteGlobal).collection("objetivos").doc(idObjetivoGlobal).collection("temporales")
@@ -1244,7 +1387,7 @@ function tablaDiasEspeciales(){
                           $("#tituloDiasEspeciales").text(tituloDiasEspeciales);
                           let i=1;
                           querySnapshot.forEach(function(doc) {
-                            let fecha = doc.data().documentData.fecha;
+                            let fecha = doc.data().documentData.fecha.toDate(); // toDate convierte Timestamp to Date Object
                             clonar(i,fecha);
                             let docObject = doc.data();
                             let idDia = doc.id;

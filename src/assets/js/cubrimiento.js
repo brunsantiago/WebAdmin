@@ -7,39 +7,116 @@ firebase.initializeApp({
 // Initialize Cloud Firestore through Firebase
 var db = firebase.firestore();
 
-function cargaInicial(cliente,objetivo,fechaInicial,fechaFinal){
+function mostrarCubrimiento(visual,date,range){
+  let primerDia="";
+  let ultimoDia="";
+  let idCliente="";
+  let idObjetivo="";
+  if(visual == "mensual" && date!=""){
+    primerDia = new Date(date.getFullYear(), date.getMonth(), 1);
+    ultimoDia = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+  } else if(visual == "dias25" && date!=""){
+    primerDia = new Date(date.getFullYear(), date.getMonth()-1, 26);
+    ultimoDia = new Date(date.getFullYear(), date.getMonth(), 25);
+  }
 
-  db.collection("clientes").doc(cliente).collection("objetivos").doc("TIENDA 143").collection("cobertura")
+  if(validarFormulario()){
+
+    let nombreCliente = document.getElementById("selectClientes").value;
+    let nombreObjetivo = document.getElementById("selectObjetivos").value;
+
+    $("#clienteTitulo").text(nombreCliente);
+    $("#objetivoTitulo").text(nombreObjetivo);
+
+    db.collection("clientes").where("nombreCliente","==",nombreCliente)
+      .get()
+      .then(function(querySnapshot) {
+          querySnapshot.forEach(function(doc) {
+            idCliente=doc.id;
+
+              db.collection("clientes").doc(idCliente).collection("objetivos").where("nombreObjetivo","==",nombreObjetivo)
+              .get()
+              .then(function(querySnapshot) {
+                  querySnapshot.forEach(function(doc) {
+                    idObjetivo=doc.id;
+                    generaTabla(primerDia,ultimoDia);
+                    cargarCobertura(idCliente,idObjetivo,primerDia,ultimoDia);
+                    cargaInicial(idCliente,idObjetivo,primerDia,ultimoDia);
+
+                    //document.getElementById('panelPlantilla').style.visibility='visible';
+                    $("#panelPlantilla").show();
+
+                  });
+              });
+         })
+      });
+
+  } else{
+    $("#panelPlantilla").hide();
+  }
+
+}
+
+function cargaInicial(idCliente,idObjetivo,fechaInicial,fechaFinal){
+
+  let promise = new Promise(function(resolve, reject) {
+
+  db.collection("clientes").doc(idCliente).collection("objetivos").doc(idObjetivo).collection("cobertura")
   .where("fecha",">=",fechaInicial).where("fecha","<=",fechaFinal).orderBy("fecha")
   .get()
   .then(function(querySnapshot) {
-    if (querySnapshot.empty) {
-      // Si no se ecuentran fechas en este rango
-    } else {
-      querySnapshot.forEach((doc) => {
-        // doc.data() is never undefined for query doc snapshots
-        idDia = doc.id;
-        cargarHorasDiarias(cliente,"TIENDA 143",idDia,fechaInicial,fechaFinal);
-      });
-    } // fin else
-    let delayInMilliseconds = 1000; // 1 second
-    setTimeout(function() {
-      //your code to be executed after 1 second
-      cargarDiferencias(fechaInicial,fechaFinal);
-    }, delayInMilliseconds);
+      const promises = []; //Creo el array de promesas a ejecutar
+      if (querySnapshot.empty) {
+        // Si no se ecuentran fechas en este rango no carga nada
+      } else {
+        querySnapshot.forEach((doc) => {
+          // doc.data() is never undefined for query doc snapshots
+          idDia = doc.id;
+          //cargarHorasDiarias(cliente,"TIENDA 143",idDia,fechaInicial,fechaFinal);
+          promises.push(cargarHorasDiarias(idCliente,idObjetivo,idDia,fechaInicial,fechaFinal));
+        });
+      } // fin else
+      //resolve("Carga Inicial Finalizada");
+      Promise.all(promises)
+      .then(value => resolve())
+      .catch(error => reject(Error("Se ha producido un error al ejecutar todas las Promesas cargarHorasDiarias")));
     })
     .catch(function(error) {
         console.log("Error getting document:", error);
+        reject();
     });
+
+  });
+
+  //Ejecuto la promesa
+  promise.then(function(result) {
+    //console.log(result); // "Carga Inicial Finalizada..."
+    cargarBotones();
+  }, function(err) {
+    //console.log(err); // Error: "It broke"
+  });
+
+}
+
+function cargarBotones(){
+  //$("#miTabla").tableExport();
+  $("#miTabla").tableExport({
+    //formats: ['xlsx', 'csv', 'txt'],
+    formats: ['xlsx'],
+    bootstrap: true
+  });
 
 }
 
 function cargarHorasDiarias(cliente,objetivo,idDia,fechaInicial,fechaFinal){
+  // Return a new promise.
+  return new Promise(function(resolve, reject) {
 
   db.collection("clientes").doc(cliente).collection("objetivos").doc(objetivo).collection("cobertura")
   .doc(idDia).collection("puestos")
   .get()
   .then(function(querySnapshot) {
+    const promises = []; //Creo el array de promesas a ejecutar
     if (querySnapshot.empty) {
       // Si no se ecuentran la fecha
     } else {
@@ -48,28 +125,45 @@ function cargarHorasDiarias(cliente,objetivo,idDia,fechaInicial,fechaFinal){
         let puesto = doc.data();
         //No cargar hasta que no tenga hora de egreso
         if (puesto.horaEgreso.length>0){
-          cargarHorasPersonal(puesto,fechaInicial,fechaFinal);
+          //cargarHorasPersonal(puesto,fechaInicial,fechaFinal);
+          promises.push(cargarHorasPersonal(puesto,fechaInicial,fechaFinal));
         }
       });
     } // fin else
+    //resolve(); // Una vez finalizada la carga de horas del Personal del idDia pasado como parametro retorna "resolve()"
+    Promise.all(promises)
+    .then(value => resolve())
+    .catch(error => reject(Error("Se ha producido un error al ejecutar todas las Promesas CargaHorasPersonal")));
     })
     .catch(function(error) {
         console.log("Error getting document:", error);
+        reject();
     });
+
+  });
 }
 
 function devolverNombre(idPersonal,columnaNombre) {
-var docRef = db.collection("users").doc(idPersonal);
-  docRef.get()
-  .then(function(doc) {
-      if (doc.exists) {
-        columnaNombre.textContent = doc.data().nombre;
-      } else {
-          // doc.data() will be undefined in this case
-          console.log("No such document!");
-      }
-  }).catch(function(error) {
-      console.log("Error getting document:", error);
+  // Return a new promise.
+  return new Promise(function(resolve,reject) {
+
+  var docRef = db.collection("users").doc(idPersonal);
+    docRef.get()
+    .then(function(doc) {
+        if (doc.exists) {
+          columnaNombre.textContent = doc.data().nombre;
+          //console.log("Se creo una fila nueva del siguiente personal: "+doc.data().nombre);
+          resolve();
+        } else {
+            // doc.data() will be undefined in this case
+            console.log("No such document!");
+            reject();
+        }
+    }).catch(function(error) {
+        console.log("Error getting document:", error);
+        reject();
+    });
+
   });
 }
 
@@ -91,12 +185,14 @@ var docRef = db.collection("users").doc(nroLegajo);
 function posicionTabla(fechaCarga,fechaInicial){
   // Se pasa una fecha de consulta junto con la fecha desde donde
   // inicia la tabla hasta la fecha donde termina y devuelve la posicion
-  var cantColIni=3; // Cantidad de Columnas Iniciales
+  var cantColIni=2; // Cantidad de Columnas Iniciales
   resultado = cantidadDeDias(fechaInicial,fechaCarga) + cantColIni;
   return resultado;
 }
 
 function cargarHorasPersonal(puesto,fechaInicial,fechaFinal){
+
+return new Promise(function(resolve,reject){
 	// obtenemos todas las filas del tbody y generamos un "Array de Filas" en la variable filas.
 	let filas=document.querySelectorAll("#miTabla tbody tr");
 
@@ -121,7 +217,7 @@ function cargarHorasPersonal(puesto,fechaInicial,fechaFinal){
 
   var fechaPuesto = new Date(Date.parse(puesto.fechaPuesto+"T"+"00:00:00"));
 
-  let posDia = posicionTabla(fechaPuesto,fechaInicial);
+  let posDia = posicionTabla(fechaPuesto,fechaInicial)-1; //Agregado -1 para corregir diferencia
 
   horas = difHoras;
 
@@ -144,22 +240,35 @@ function cargarHorasPersonal(puesto,fechaInicial,fechaFinal){
           encontrado=true;
           // Se agrega un dia mas porque tiene horario internacional
           actualizarTotales(fechaPuesto.getDate(),horas,puesto.idPersonal);
+          resolve(); //Si se actualizan correctamente las horas de un Legajo ya cargado devuleve resolve()
 			}
 	});
+
 	if(!encontrado){
-	   crearFilaNueva(puesto.idPersonal,puesto.fechaPuesto,horas,puesto.nombrePuesto,puesto.ingresoPuesto,puesto.egresoPuesto,puesto.horaIngreso,puesto.horaEgreso,horaIngresoParam,horaEgresoParam,fechaInicial,fechaFinal);
-	}
+	   crearFilaNueva(puesto.idPersonal,puesto.fechaPuesto,horas,puesto.nombrePuesto,puesto.ingresoPuesto,puesto.egresoPuesto,puesto.horaIngreso,puesto.horaEgreso,horaIngresoParam,horaEgresoParam,fechaInicial,fechaFinal)
+     .then(function(){
+       resolve(); //Si la funcion crearFilaNueva funciona correctamente se devuelve resolve()
+     })
+     .catch(function(error) {
+         console.log("Error al crear una fila nueva", error);
+         reject();
+     });
+  }
+
+  });
 }
 
 function crearFilaNueva(nroLegajo,fechaCarga,horas,nombrePuesto,ingresoPuesto,egresoPuesto,ingresoReal,egresoReal,ingresoParam,egresoParam,fechaInicial,fechaFinal) {
 
-    var cantidadColumnasFijas=4;
+return new Promise(function(resolve,reject){
+
+    var cantidadColumnasFijas=3;
     var cantidadDias=cantidadDeDias(fechaInicial,fechaFinal);
     var tamanioTabla=cantidadDias+cantidadColumnasFijas;
     //var diaCarga = new Date(fechaCarga);
     let fechaPuesto = new Date( Date.parse(fechaCarga+"T"+"00:00:00"));
     //console.log("Dia Carga 2: "+diaCarga);
-    var posDia = posicionTabla(fechaPuesto,fechaInicial);
+    var posDia = posicionTabla(fechaPuesto,fechaInicial)-1; //Agregado -1 para corregir diferencia
 
 		var tBody = document.getElementById("tBody");
     var row = tBody.insertRow();
@@ -173,8 +282,6 @@ function crearFilaNueva(nroLegajo,fechaCarga,horas,nombrePuesto,ingresoPuesto,eg
 		var columnas=row.querySelectorAll("td");
 		 columnas[0].textContent=nroLegajo;
      columnas[0].style.textAlign = "right";
-		 //columnas[1].textContent=nombre;
-     devolverNombre(nroLegajo,columnas[1]);
      columnas[1].style.textAlign = "left";
 		 columnas[posDia].textContent=horas;
      columnas[posDia].style.textAlign = "center";
@@ -192,6 +299,17 @@ function crearFilaNueva(nroLegajo,fechaCarga,horas,nombrePuesto,ingresoPuesto,eg
      // Se agrega un dia mas porque tiene horario internacional
      actualizarTotales(fechaPuesto.getDate(),horas,nroLegajo);
 
+     //Busca el nombre en la BD segun el nroLegajo y lo carga en la Tabla
+     devolverNombre(nroLegajo,columnas[1])
+     .then(function(){
+       resolve(); //Si la funcion devolverNombre funciona correctamente se devuelve resolve()
+     })
+     .catch(function(error) {
+         console.log("Error al intentar devolver el Nombre", error);
+         reject();
+     });
+
+     });
 }
 
 function recargar(){
@@ -200,22 +318,22 @@ function recargar(){
       cargaInicial();
 }
 
-function genera_tabla(fecha1,fecha2) {
+function generaTabla(fecha1,fecha2) {
 
-  var fechaGT = new Date(fecha1.getTime());
+  let fechaGT = new Date(fecha1.getTime());
 
-  var cantidadColumnasFijas=4;
-  var cantidadDias=cantidadDeDias(fecha1,fecha2);
-  var tamanioTabla=cantidadDias+cantidadColumnasFijas;
+  let cantidadColumnasFijas=3;
+  let cantidadDias=cantidadDeDias(fecha1,fecha2);
+  let tamanioTabla=cantidadDias+cantidadColumnasFijas;
 
   // Obtener la referencia del elemento body
-  var tabla = document.getElementsByTagName("table")[0];
+  let tabla = document.getElementsByTagName("table")[0];
 
   // Crea un elemento <table> y un elemento <tbody>
   //var tabla   = document.createElement("table");
-  var tblHead = document.createElement("thead");
-  var tblBody = document.createElement("tbody");
-  var tblFoot = document.createElement("tfoot");
+  let tblHead = document.createElement("thead");
+  let tblBody = document.createElement("tbody");
+  let tblFoot = document.createElement("tfoot");
   tblHead.setAttribute("id", "tHead");
   tblBody.setAttribute("id", "tBody");
   tblFoot.setAttribute("id", "tFoot");
@@ -223,18 +341,18 @@ function genera_tabla(fecha1,fecha2) {
   // Crea las celdas del thead NUMEROS DEL DIA
   for (var i = 0; i < 1; i++) {
     // Crea las hileras de la tabla
-    var hilera = document.createElement("tr");
-    var textoCelda;
+    let hilera = document.createElement("tr");
+    let textoCelda;
     for (var j = 0; j < tamanioTabla; j++) {
       // Crea un elemento <td> y un nodo de texto, haz que el nodo de
       // texto sea el contenido de <td>, ubica el elemento <td> al final
       // de la hilera de la tabla
-      var celda = document.createElement("th");
+      let celda = document.createElement("th");
       celda.style.textAlign = "center";
       celda.style.padding = "1px";
       textoCelda = document.createTextNode("");
-      if(j>2 && j<tamanioTabla-1) celda.style.borderBottom = "none";
-      if(j>2){
+      if(j>1 && j<tamanioTabla-1) celda.style.borderBottom = "none";
+      if(j>1){
         textoCelda = document.createTextNode(fechaGT.getDate());
         fechaGT.setDate(fechaGT.getDate()+1);
       }
@@ -244,7 +362,7 @@ function genera_tabla(fecha1,fecha2) {
     }
 
     //Asignar valores iniciales
-    var columnas=hilera.querySelectorAll("th");
+    let columnas=hilera.querySelectorAll("th");
      columnas[0].textContent="Legajo";
      columnas[0].style.textAlign = "center";
      columnas[0].style.verticalAlign = "middle";
@@ -254,11 +372,11 @@ function genera_tabla(fecha1,fecha2) {
      columnas[1].style.textAlign = "center";
      columnas[1].style.verticalAlign = "middle";
      columnas[1].rowSpan="2";
-     columnas[2].textContent="Puesto";
-     columnas[2].style.textAlign = "center";
-     columnas[2].style.verticalAlign = "middle";
-     columnas[2].rowSpan="2";
-     columnas[2].style.padding = "3px";
+     // columnas[2].textContent="Puesto";
+     // columnas[2].style.textAlign = "center";
+     // columnas[2].style.verticalAlign = "middle";
+     // columnas[2].rowSpan="2";
+     // columnas[2].style.padding = "3px";
      columnas[tamanioTabla-1].textContent="Total Hs";
      columnas[tamanioTabla-1].style.textAlign = "center";
      columnas[tamanioTabla-1].style.verticalAlign = "middle";
@@ -274,13 +392,13 @@ function genera_tabla(fecha1,fecha2) {
   fechaGT = new Date(fecha1.getTime()); // Se reinician la fecha a la inicial
   for (var i = 0; i < 1; i++) {
     // Crea las hileras de la tabla
-    var hilera = document.createElement("tr");
+    let hilera = document.createElement("tr");
 
     for (var j = 0; j < cantidadDias; j++) {
       // Crea un elemento <td> y un nodo de texto, haz que el nodo de
       // texto sea el contenido de <td>, ubica el elemento <td> al final
       // de la hilera de la tabla
-      var celda = document.createElement("th");
+      let celda = document.createElement("th");
       celda.className="sdia"+fechaGT.getDate();
       celda.style.color = "#265a88";
       celda.style.fontSize = "10px";
@@ -302,7 +420,7 @@ function genera_tabla(fecha1,fecha2) {
     // Crea las hileras de la tabla
     var hilera = document.createElement("tr");
 
-    for (var j = 0; j < tamanioTabla-2; j++) {
+    for (var j = 0; j < tamanioTabla-1; j++) {
       // Crea un elemento <td> y un nodo de texto, haz que el nodo de
       // texto sea el contenido de <td>, ubica el elemento <td> al final
       // de la hilera de la tabla
@@ -320,9 +438,9 @@ function genera_tabla(fecha1,fecha2) {
     //Asignar valores iniciales
     var columnas=hilera.querySelectorAll("th");
      columnas[0].textContent="Horas a Liquidar";
-     columnas[0].colSpan="3";
-     columnas[tamanioTabla-3].className="ltotalHs";
-     columnas[tamanioTabla-3].style.textAlign = "right";
+     columnas[0].colSpan="2";
+     columnas[tamanioTabla-2].className="ltotalHs";
+     columnas[tamanioTabla-2].style.textAlign = "right";
     // agrega la hilera al final de la tabla (al final del elemento tblbody)
     tblFoot.appendChild(hilera);
   }
@@ -333,7 +451,7 @@ function genera_tabla(fecha1,fecha2) {
     // Crea las hileras de la tabla
     var hilera = document.createElement("tr");
 
-    for (var j = 0; j < tamanioTabla-2; j++) {
+    for (var j = 0; j < tamanioTabla-1; j++) {
       // Crea un elemento <td> y un nodo de texto, haz que el nodo de
       // texto sea el contenido de <td>, ubica el elemento <td> al final
       // de la hilera de la tabla
@@ -352,9 +470,9 @@ function genera_tabla(fecha1,fecha2) {
     //Asignar valores iniciales
     var columnas=hilera.querySelectorAll("th");
      columnas[0].textContent="Horas a Facturar";
-     columnas[0].colSpan="3";
-     columnas[tamanioTabla-3].className="ftotalHs";
-     columnas[tamanioTabla-3].style.textAlign = "right";
+     columnas[0].colSpan="2";
+     columnas[tamanioTabla-2].className="ftotalHs";
+     columnas[tamanioTabla-2].style.textAlign = "right";
     // agrega la hilera al final de la tabla (al final del elemento tblbody)
     tblFoot.appendChild(hilera);
   }
@@ -365,7 +483,7 @@ function genera_tabla(fecha1,fecha2) {
     // Crea las hileras de la tabla
     var hilera = document.createElement("tr");
 
-    for (var j = 0; j < tamanioTabla-2; j++) {
+    for (var j = 0; j < tamanioTabla-1; j++) {
       // Crea un elemento <td> y un nodo de texto, haz que el nodo de
       // texto sea el contenido de <td>, ubica el elemento <td> al final
       // de la hilera de la tabla
@@ -385,9 +503,9 @@ function genera_tabla(fecha1,fecha2) {
     //Asignar valores iniciales
     var columnas=hilera.querySelectorAll("th");
      columnas[0].textContent="Diferencia de Horas";
-     columnas[0].colSpan="3";
-     columnas[tamanioTabla-3].className="dtotalHs";
-     columnas[tamanioTabla-3].style.textAlign = "right";
+     columnas[0].colSpan="2";
+     columnas[tamanioTabla-2].className="dtotalHs";
+     columnas[tamanioTabla-2].style.textAlign = "right";
     // agrega la hilera al final de la tabla (al final del elemento tblbody)
     tblFoot.appendChild(hilera);
   }
@@ -398,30 +516,12 @@ function genera_tabla(fecha1,fecha2) {
   tabla.appendChild(tblFoot);
 }
 
-function mostrarCubrimiento(cliente,objetivo,visual,date,range){
-  let primerDia;
-  let ultimoDia;
-  if(visual == "mensual" && date!=""){
-    primerDia = new Date(date.getFullYear(), date.getMonth(), 1);
-    ultimoDia = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-  } else if(visual == "dias25" && date!=""){
-    primerDia = new Date(date.getFullYear(), date.getMonth()-1, 26);
-    ultimoDia = new Date(date.getFullYear(), date.getMonth(), 25);
-  }
-
-  genera_tabla(primerDia,ultimoDia);
-  cargaInicial(cliente,objetivo,primerDia,ultimoDia);
-  cargarCobertura(primerDia,ultimoDia);
-
-  document.getElementById('panelPlantilla').style.visibility='visible';
-}
-
 function cantidadDeDias(fechaInicial,fechaFinal){
 	var fechaini = fechaInicial;
 	var fechafin = fechaFinal;
 
 	var diasdif = fechafin.getTime()-fechaini.getTime();
-	var contdias = Math.round(diasdif/(1000*60*60*24)); //borrado+1
+	var contdias = Math.round(diasdif/(1000*60*60*24)+1); //borrado+1
 	return contdias;
 }
 
@@ -435,6 +535,7 @@ function eliminarContenidoTabla(){
     parent.removeChild(tBody);
     parent.removeChild(tHead);
   }
+  $("#miTabla").tableExport().remove();
 }
 
 function cargarListadoClientes(){
@@ -468,6 +569,10 @@ function cargarListadoObjetivos(){
   db.collection("clientes").where("nombreCliente","==",nombreCliente)
     .get()
     .then(function(querySnapshot) {
+      if(querySnapshot.empty){
+        console.log("No se econtro el Cliente");
+        cargarDesplegableObjetivos(listadoObjetivos);
+      }else{
         querySnapshot.forEach(function(doc) {
           idCliente=doc.id;
             db.collection("clientes").doc(idCliente).collection("objetivos")
@@ -482,6 +587,8 @@ function cargarListadoObjetivos(){
                 cargarDesplegableObjetivos(listadoObjetivos);
             });
        })
+      }
+
     });
 
 }
@@ -490,11 +597,13 @@ function cargarDesplegableObjetivos(listadoObjetivos){
   var selectObjetivos = document.getElementById('selectObjetivos');
 
   while (selectObjetivos.length > 1) {
-      selectObjetivos.remove(1);
+    selectObjetivos.remove(1);
   }
 
+  // selectObjetivos.options.add( new Option("Todos") );
+
   for(var i = 0; i < listadoObjetivos.length; i++){
-    var option = listadoObjetivos[i];
+    let option = listadoObjetivos[i];
     selectObjetivos.options.add( new Option(option) );
   }
 }

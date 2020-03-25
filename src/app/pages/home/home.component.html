@@ -9,7 +9,7 @@
     <ol class="breadcrumb">
       <li><a routerLink="/layouts/home"><i class="fa fa-calendar"></i> Home</a></li>
       <li class="active">Control de Horas</li>
-      <li class="active">Cubrimiento de Servicios</li>
+      <li class="active">Cobertura de Servicios</li>
     </ol>
   </section>
 
@@ -34,7 +34,7 @@
 
         <div class="box box-danger">
           <div class="box-header with-border">
-            <h3 class="box-title">CUBRIMIENTO DE SERVICIOS</h3>
+            <h3 class="box-title">Cobertura de Objetivos</h3>
 
             <div class="box-tools pull-right">
               <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
@@ -57,9 +57,9 @@
 
               <div class="container-fluid my-3">
 
-                <div class="panel panel-default" >
+                <div class="panel panel-primary" >
                   <div class="panel-heading">
-                    <h3 class="panel-title">Panel de Configuracion</h3>
+                    <h3 class="panel-title">Opciones</h3>
                   </div>
                   <br/>
                   <form [formGroup]="form">
@@ -69,14 +69,16 @@
                       </div>
                       <div class="form-group col-md-2">
                         <label for="selectClientes">Cliente</label>
-                        <select class="form-control"  formControlName="cliente" id="selectClientes" onchange="cargarListadoObjetivos()">
-                          <option selected>Seleccione un Cliente</option>
+                        <!-- <select class="form-control"  formControlName="cliente" id="selectClientes" onchange="cargarListadoObjetivos()"> -->
+                        <select class="form-control" name="selectClientes" id="selectClientes" onchange="cargarListadoObjetivos()">
+                          <option value="0" selected>Seleccione un Cliente</option>
                         </select>
                       </div>
                       <div class="form-group col-md-2">
                         <label for="selectObjetivos">Objetivo</label>
-                        <select class="form-control"  formControlName="objetivo" id="selectObjetivos">
-                          <option selected>Seleccione un Objetivo</option>
+                        <!-- <select class="form-control"  formControlName="objetivo" id="selectObjetivos"> -->
+                        <select class="form-control" name="selectObjetivos" id="selectObjetivos">
+                          <option value="0" selected>Seleccione un Objetivo</option>
                         </select>
                       </div>
 
@@ -122,9 +124,10 @@
                 </div>
               <br/>
 
-              <div id="panelPlantilla"class="panel panel-default" style="visibility:hidden">
+              <div id="panelPlantilla"class="panel panel-primary" style="display:none">
                 <div class="panel-heading">
-                  <h3 class="panel-title">{{cliente}} - {{objetivo}}</h3>
+                  <!-- <h3 class="panel-title">{{cliente}} - {{objetivo}}</h3> -->
+                  <h3 class="panel-title"><span id=clienteTitulo></span> - <span id=objetivoTitulo></span></h3>
                 </div>
                 <div class="row conf">
                   <div  class="table-responsive">
@@ -132,9 +135,9 @@
                     </table>
                   </div>
                 </div>
-                <div class="row conf">
-                  <button (click)="cargarDiferenciasTS()" class="btn btn-primary">Cargar Diferencias</button>
-                </div>
+                <!-- <div class="row conf">
+                  <button (click)="cargarBotonesTS()" class="btn btn-primary">Cargar Diferencias</button>
+                </div> -->
               </div>
 
 
@@ -169,7 +172,7 @@
 </div>
 <!-- /.content-wrapper -->
 
-<!-- Modal -->
+<!-- Modal Detalle Dia -->
 <div id="myModal" class="modal fade" role="dialog">
   <div class="modal-dialog">
 
@@ -203,12 +206,12 @@
           </div>
 
           <div>
-              <label>Datos de Ingreso: </label>
+              <label>Hora de Ingreso Real: </label>
               <p><i class="glyphicon glyphicon-time"></i><span id="ingresoReal"></span></p>
           </div>
 
           <div>
-              <label>Datos de Egreso: </label>
+              <label>Hora de Egreso Real: </label>
               <p><i class="glyphicon glyphicon-time"></i><span id="egresoReal"></span></p>
           </div>
         </div>
@@ -243,4 +246,26 @@
     </div>
 
   </div>
+</div>
+
+<!-- Modal Validar Formulario -->
+<div id="select-validate" class="modal fade"  tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">Seleccionar</h4>
+            </div>
+
+            <div class="modal-body">
+                <p>Debe seleccionar un Cliente / Objetivo</p>
+                <p class="debug-url"></p>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Aceptar</button>
+            </div>
+        </div>
+    </div>
 </div>
