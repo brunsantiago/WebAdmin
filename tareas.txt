@@ -1,8 +1,12 @@
 
-setting.js
-1) SOLUCIONAR CUANDO SE ELIMINA UN DIA ESPECIAL QUE SE CARGUEN DE VUELTA TODOS LOS DIAS ESPECIALES
-2) SE DEBE CARGAR EL CAMPO TURNO NOCHE TANTO EN EL PUESTO COMO EN EL DOCUMENTDATA COMO TRUE
+Todos los archivos
 
-cobertura.js
-1) MEJORAR EN LA FUNCION RECORRERESQUEMA() LA BUSQUEDA DE ESQUEMAS DENTRO DEL RANGO A TRAVES DE LA API DE FIREBASE Y NO EN JAVASCRIPT
-2) EVALUAR EL CAMBIO DE INGRESOPUESTO Y HORAINGRESO COMO DATE EN VEZ DE SEPARAR LA FECHA Y EL HORARIO
+1) Chequear que VIGENTE sea verdadero y la fecha no se haya vencido
+
+2) Ver de enviar objetos como parametro en las funciones para achicar la lista de parametros
+
+Setting.js
+
+Falla al cargar Puesto TT masivo el en diferentes dias. Posible problema se actualiza al mismo tiempo que se carga
+
+Falta Limpiar pantalla al eliminar un esquema, en caso de ser el mismo que esta mostrandose

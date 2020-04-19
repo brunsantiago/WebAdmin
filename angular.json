@@ -28,19 +28,19 @@
             ],
             "scripts": [
               "node_modules/jquery/dist/jquery.min.js",
-              "node_modules/collapsible.js/jquery.collapsible.min.js",
+              "node_modules/bootstrap/dist/js/bootstrap.min.js",
               "node_modules/admin-lte/dist/js/adminlte.min.js",
-              "node_modules/tableexport/dist/js/tableexport.min.js",
-              "node_modules/file-saverjs/FileSaver.min.js",
               "src/assets/js/cobertura.js",
               "src/assets/js/cubrimiento.js",
               "src/assets/js/asistencia.js",
               "src/assets/js/setting.js",
-              "src/assets/bootstrap/js/bootstrap.min.js",
               "src/assets/js/datepicker/bootstrap-datepicker.min.js",
+              "src/assets/js/datepicker/locales/bootstrap-datepicker.es.js",
               "src/assets/bower_components/datatables.net/js/jquery.dataTables.min.js",
               "src/assets/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js",
-              "src/assets/js/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"
+              "src/assets/js/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js",
+              "src/assets/js/jquery-validation-1.19.1/dist/jquery.validate.min.js",
+              "src/assets/ion-range-slider/js/ion-range-slider.min.js",
             ]
           },
           "configurations": {

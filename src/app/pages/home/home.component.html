@@ -9,22 +9,9 @@
     <ol class="breadcrumb">
       <li><a routerLink="/layouts/home"><i class="fa fa-calendar"></i> Home</a></li>
       <li class="active">Control de Horas</li>
-      <li class="active">Cobertura de Servicios</li>
+      <li class="active">Cubrimiento de Objetivos</li>
     </ol>
   </section>
-
-  <!-- <div *ngIf="identity">
-      <h1>
-        {{title}}
-      </h1>
-      <span>
-        {{identity.name}} {{identity.surname}}
-        <p>Estas logueado en la Aplicacion</p>
-      </span>
-      <span class="btn btn-warning" (click)="logout()">
-        Cerrar Sesion
-      </span>
-  </div> -->
 
   <!-- Main content -->
   <section class="content">
@@ -34,7 +21,7 @@
 
         <div class="box box-danger">
           <div class="box-header with-border">
-            <h3 class="box-title">Cobertura de Objetivos</h3>
+            <h3 class="box-title">Cubrimiento de Objetivos</h3>
 
             <div class="box-tools pull-right">
               <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
@@ -42,8 +29,7 @@
                 <button type="button" class="btn btn-box-tool dropdown-toggle" data-toggle="dropdown">
                   <i class="fa fa-wrench"></i></button>
                 <ul class="dropdown-menu" role="menu">
-                  <li><a href="#">Elegir un periodo</a></li>
-                  <li><a href="#">Cambiar Servicio</a></li>
+                  <li><a href="#">Exportar</a></li>
                   <li class="divider"></li>
                   <li><a href="#">Configuracion</a></li>
                 </ul>
@@ -62,98 +48,89 @@
                     <h3 class="panel-title">Opciones</h3>
                   </div>
                   <br/>
-                  <form [formGroup]="form">
 
                     <div class="row conf">
                       <div class="col-md-1">
                       </div>
                       <div class="form-group col-md-2">
                         <label for="selectClientes">Cliente</label>
-                        <!-- <select class="form-control"  formControlName="cliente" id="selectClientes" onchange="cargarListadoObjetivos()"> -->
-                        <select class="form-control" name="selectClientes" id="selectClientes" onchange="cargarListadoObjetivos()">
+                        <select class="form-control" name="selectClientes" id="selectClientes" onchange="listadoObjetivosCubrimiento()">
                           <option value="0" selected>Seleccione un Cliente</option>
                         </select>
                       </div>
                       <div class="form-group col-md-2">
                         <label for="selectObjetivos">Objetivo</label>
-                        <!-- <select class="form-control"  formControlName="objetivo" id="selectObjetivos"> -->
                         <select class="form-control" name="selectObjetivos" id="selectObjetivos">
                           <option value="0" selected>Seleccione un Objetivo</option>
                         </select>
                       </div>
-
-                      <div class="form-group col-md-3">
-                        <label>Periodo</label>
-                        <!-- <p>Seleccione el periodo</p> -->
-                        <div *ngIf="mensual.checked || dias25.checked "class="row">
-                          <div class="form-group col-md-8">
-                            <input type="text"
-                                   id="datePicker"
-                                   placeholder="Seleccione un mes ..."
-                                   class="form-control"
-                                   [bsConfig]="{ dateInputFormat: 'MMMM - YYYY', containerClass: 'theme-red', minMode: 'month' }"
-                                   #dp="bsDatepicker"
-                                   bsDatepicker
-                                   [bsValue]=""
-                                   placement="bottom"
-                                   formControlName="date">
-                          </div>
-                          <div class="form-group col-md-4">
-                            <button class="btn btn-success" (click)="dp.toggle()">Periodo</button>
-                          </div>
-                        </div>
+                      <div class="form-group col-md-2">
+                          <label for="datetimepicker9">Periodo</label>
+                            <div class='input-group date' id='datetimepicker9'>
+                                <input type='text' class="form-control">
+                                <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-calendar">
+                                    </span>
+                                </span>
+                            </div>
                       </div>
 
                       <div class="form-group col-md-2">
                         <label>Visualizacion</label>
-                        <!-- <p>Seleccione el formato de Visualizacion</p> -->
                         <div class="radio">
-                          <label><input #dias25 type="radio" formControlName="visual" value="dias25"checked>Formato del 26 al 25</label>
+                          <label><input type="radio" name="tipo-mes" value="dias25" checked>Formato del 26 al 25</label>
                         </div>
                         <div class="radio">
-                          <label><input #mensual type="radio" formControlName="visual" value="mensual">Formato Mensual</label>
+                          <label><input type="radio" name="tipo-mes" value="mensual">Formato Mensual</label>
                         </div>
                       </div>
 
                       <div class="form-group col-md-2">
                         <br/>
-                        <button id="aceptar" (click)="onSubmit()" class="btn btn-primary">Aceptar</button>
+                        <button id="aceptar" onclick="mostrarCubrimiento()" class="btn btn-primary">Aceptar</button>
                       </div>
-                      </div>
-                    </form>
-                </div>
-              <br/>
 
-              <div id="panelPlantilla"class="panel panel-primary" style="display:none">
-                <div class="panel-heading">
-                  <!-- <h3 class="panel-title">{{cliente}} - {{objetivo}}</h3> -->
-                  <h3 class="panel-title"><span id=clienteTitulo></span> - <span id=objetivoTitulo></span></h3>
+                      </div>
+
+
                 </div>
-                <div class="row conf">
-                  <div  class="table-responsive">
-                    <table name="miTabla" id="miTabla" class="table table-condensed table-striped table-bordered table-hover rwd_auto text-nowrap">
-                    </table>
+                <br/>
+
+                <div id="panelPlantilla" class="panel panel-primary" style="display:none">
+                  <div class="panel-heading">
+                    <h3 class="panel-title">Resultados</h3>
                   </div>
+                  <br>
+                  <div id=espacio-resultados>
+                  </div>
+
                 </div>
-                <!-- <div class="row conf">
-                  <button (click)="cargarBotonesTS()" class="btn btn-primary">Cargar Diferencias</button>
-                </div> -->
+
+                <!-- Panel de Clanacion Modelo -->
+                <div class="container-fluid" id="container-clone" style="display:none">
+
+                  <div class="plateral plateral-danger" id="razon-social">
+                   <h3></h3>
+                  </div>
+                  <div class="panel panel-default">
+                    <div class="panel-heading">
+                      <h4 class="panel-title"><i class="far fa-building ml-7" style="color:#D6DBDF;" ></i><span class="ml-7" style="color:#34495E;" id=clienteTitulo></span> - <span id=objetivoTitulo></span></h4>
+                    </div>
+                  <div class="row conf" >
+                    <div  class="table-responsive">
+                      <table id="table-clone" class="table table-condensed table-striped table-bordered table-hover rwd_auto text-nowrap">
+                      </table>
+                    </div>
+                  </div>
+                 </div>
+                </div>
+
               </div>
 
-
-
-              <!-- Trigger the modal with a button -->
-              <!-- <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal" data-id="1234">Open Modal</button> -->
-
               </div>
-              <!-- ./container-fluid -->
-              <!-- </div> -->
 
-              <!-- </div> -->
-              <!-- /.row -->
-              </div>
-              <!-- ./box-body -->
               <div class="box-footer">
+                <!-- <button class="btn btn-primary"onclick="sortTable()">Sort</button> -->
               <div class="row">
 
             </div>
@@ -161,6 +138,9 @@
 
           </div>
           <!-- /.box-footer -->
+          <div class="loader loader-default" data-text="Cargando..." data-blink id="loader-state-cubrimiento">
+               <!-- <i class="fas fa-cog fa-spin"></i> -->
+          </div>
         </div>
         <!-- /.box -->
       </div>
@@ -173,7 +153,164 @@
 <!-- /.content-wrapper -->
 
 <!-- Modal Detalle Dia -->
-<div id="myModal" class="modal fade" role="dialog">
+<div id="detalle-dia" class="modal fade" role="dialog">
+  <div class="modal-dialog modal-lg">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+
+      <div class="modal-header bg-primary">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 id="titulo" class="modal-title">DIA - 143</h4>
+      </div>
+      <div class="modal-body modal-body-detalle">
+        <p class="text-center" style="color:white; font-size:20px;" id="nombreDetalleDia"></p>
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title" id="tituloPuesto">Puesto 1 - TM</h3>
+          </div>
+
+          <div class="card-contenedor" id="card-contenedor">
+
+            <div class="card">
+                <div class="card-image card3" style="background: url('assets/img/1_INGRESO.jpg'); background-size: cover"></div>
+                <div class="card-stats card3">
+                  <div class="stat">
+                    <div class="value"><b id="horaIngresoReal"></b></div>
+                  </div>
+                </div>
+            </div>
+
+            <div class="card">
+              <div class="card-image card2" style="background: url('assets/img/1_EGRESO.jpg'); background-size: cover"></div>
+              <div class="card-stats card2">
+                <div class="stat">
+                  <div class="value"><b id="horaEgresoReal"></b></div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="container-fluid">
+
+            <div class="conf">
+              <br>
+              <div id="horas-turno-detalle">
+                <h4 class="text-center m-5" title="Horas del Turno" id="horasTurnoDetalle">00:00</h4>
+                <h5 class="text-center text-muted m-5" title="Horas del Turno">HORAS TURNO</h5>
+              </div>
+              <input type="text" class="js-range-slider" name="my_range" id="range-slider-detalle" />
+            </div>
+
+            <div class="conf">
+              <br>
+                <h1 class="text-center m-5" title="Horas Registradas" id="horasRegitradasDetalle">00:00</h1>
+                <h5 class="text-center text-muted m-5" title="Horas Registradas">HORAS REGISTRADAS</h5>
+              <br>
+            </div>
+
+            <!-- Sector de Botones -->
+            <div id="mostrar-botones">
+
+              <div class="conf">
+
+                <div class="text-center">
+                  <div class="btn-group">
+                    <button type="button" class="btn btn-success button-fix" id="turnoOriginalDetalle" >Turno Original</button>
+                    <button type="button" class="btn btn-primary" id="completarTurnoDetalle" >Completar Turno</button>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-danger dropdown-toggle button-fix" data-toggle="dropdown" id="penalizarDetalle">
+                        Penalizar </button>
+                        <ul class="dropdown-menu" role="menu">
+                          <li><a href="javascript:void(0)" onclick="descontarHora();" >Descontar una Hora</a></li>
+                          <li><a href="javascript:void(0)" onclick="descontarTurno();" >Descontar Turno</a></li>
+                        </ul>
+                      </div>
+                  </div>
+
+                </div>
+
+              </div>
+              <div class="text-center text-muted m-10" title="Ver / Ocultar Informe" id="container-icon">
+                <i class="fas fa-angle-double-down" id="icon-informe"></i>
+              </div>
+              <div id="mostrarInforme" style="display:none">
+                <div class="row">
+                  <div class="col-md-5">
+
+                    <div class="form-group" id="ampliacionHoras" style="display:none">
+                      <label for="sel1">Motivo de ampliacion de horas</label>
+                      <select class="form-control">
+                        <option>Sin Internet</option>
+                        <option>Sin Celular</option>
+                        <option>Sin Aplicacion Instalada / Configurada</option>
+                        <option>Problemas con la Aplicacion</option>
+                        <option>Desconocimiento de Uso</option>
+                        <option>Olvido de Ingreso / Cierre del Servicio</option>
+                        <option>Otros</option>
+                      </select>
+                    </div>
+
+                    <div class="form-group" id="penalizacionHora" style="display:none">
+                      <label for="sel1">Motivo de reduccion de horas</label>
+                      <select class="form-control">
+                        <option>Foto Adulterada</option>
+                        <option>Foto Mal Sacada</option>
+                        <option>Foto y Persona No Coincidente</option>
+                        <option>No realiza el Ingreso / Cierre del Servicio</option>
+                        <option>Otros</option>
+                      </select>
+                    </div>
+
+                    <div class="form-group" id="penalizacionTurno" style="display:none">
+                      <label for="sel1">Motivo descuento de Turno</label>
+                      <select class="form-control">
+                        <option>Reincidencia de acciones fraudulentas</option>
+                        <option>Superposicion de Puesto sin Autorizacion</option>
+                        <option>Otros</option>
+                      </select>
+                    </div>
+
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-12">
+                    <div class="form-group">
+                      <label for="comment">Comentarios</label>
+                      <textarea class="form-control" rows="4" id="comment"></textarea>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+          <div class="panel-footer">
+            <div class="text-center">
+              <div class="btn-group">
+                <button type="button" class="btn btn-primary button-fix" id="boton-habilitar-turno" onclick="habilitarTurnoDetalle()" disabled>Habilitar Turno</button>
+                <button type="button" class="btn btn-danger button-fix" id="boton-eliminar-turno" onclick="eliminarTurnoDetalle()">Eliminar Turno</button>
+              </div>
+            </div>
+          </div>
+       </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary">Guardar Cambios</button>
+        <button type="button" class="btn" data-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Modal Detalle Personal -->
+<div id="detalle-personal" class="modal fade" role="dialog">
   <div class="modal-dialog">
 
     <!-- Modal content-->

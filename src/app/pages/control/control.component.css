@@ -12,10 +12,20 @@
   margin:7px;
 }
 
-.text-color {
-  color:
-}
-
 .foto-centrada {
   margin: auto;
 }
+
+/* Codigo para igualar columnas de bootstrap */
+.row.display-flex {
+  display: flex;
+  flex-wrap: wrap;
+}
+.row.display-flex > [class*='col-'] {
+  display: flex;
+  flex-direction: column;
+}
+.colConfig {
+  height: 100%;
+}
+/* FIN - Codigo para igualar columnas de bootstrap */

@@ -7,112 +7,212 @@ firebase.initializeApp({
 // Initialize Cloud Firestore through Firebase
 var db = firebase.firestore();
 
-function mostrarCubrimiento(visual,date,range){
+function mostrarCubrimiento(){
+
+  let nombreCliente = document.getElementById("selectClientes").value;
+  let nombreObjetivo = document.getElementById("selectObjetivos").value;
+  let visual = $("input:radio[name=tipo-mes]:checked").val();
+
   let primerDia="";
   let ultimoDia="";
-  let idCliente="";
-  let idObjetivo="";
-  if(visual == "mensual" && date!=""){
-    primerDia = new Date(date.getFullYear(), date.getMonth(), 1);
-    ultimoDia = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-  } else if(visual == "dias25" && date!=""){
-    primerDia = new Date(date.getFullYear(), date.getMonth()-1, 26);
-    ultimoDia = new Date(date.getFullYear(), date.getMonth(), 25);
+
+  let datePickerValue = $("#datetimepicker9").find("input").val();
+  let sep = datePickerValue.indexOf("/");
+  let month = parseInt(datePickerValue.substr(0,sep));
+  let year = parseInt(datePickerValue.substr(sep+1,4));
+
+  if(visual == "mensual" && datePickerValue!=""){
+    primerDia = new Date(year,(month-1),1);
+    ultimoDia = new Date(year,month,0);
+  } else if(visual == "dias25" && datePickerValue!=""){
+    primerDia = new Date(year, (month-1)-1, 26);
+    ultimoDia = new Date(year, (month-1), 25);
   }
 
   if(validarFormulario()){
 
-    let nombreCliente = document.getElementById("selectClientes").value;
-    let nombreObjetivo = document.getElementById("selectObjetivos").value;
+    loaderStateCubrimiento();
+    eliminarContenidoPanel();
 
-    $("#clienteTitulo").text(nombreCliente);
-    $("#objetivoTitulo").text(nombreObjetivo);
+   var promiseCubrimiento = new Promise(function(resolve,reject){
 
-    db.collection("clientes").where("nombreCliente","==",nombreCliente)
-      .get()
-      .then(function(querySnapshot) {
-          querySnapshot.forEach(function(doc) {
-            idCliente=doc.id;
+     if(nombreCliente=="Todos"){
 
-              db.collection("clientes").doc(idCliente).collection("objetivos").where("nombreObjetivo","==",nombreObjetivo)
-              .get()
-              .then(function(querySnapshot) {
-                  querySnapshot.forEach(function(doc) {
-                    idObjetivo=doc.id;
-                    generaTabla(primerDia,ultimoDia);
-                    cargarCobertura(idCliente,idObjetivo,primerDia,ultimoDia);
-                    cargaInicial(idCliente,idObjetivo,primerDia,ultimoDia);
+       const promises = [];
 
-                    //document.getElementById('panelPlantilla').style.visibility='visible';
-                    $("#panelPlantilla").show();
+       db.collection("clientes").where("vigente","==",true)
+         .get()
+         .then(function(querySnapshot) {
+           let idClienteTable=1;
+             querySnapshot.forEach(function(doc) {
+               let nomCliente = doc.data().nombreCliente;
+               let idCliente = doc.id;
+               let razonSocial = doc.data().razonSocial;
+               // Se tuvo que armar una funcion por afuera del querySnapshot porque al nombre cliente, se le insertaba otro distinto al que correspondia
+               // sin coincidir por la velocidad de las busquedas asincronicas
+               cargarCubrimientoObjetivos(idCliente,nomCliente,primerDia,ultimoDia,idClienteTable,razonSocial)
+               .then(function() {
+                 resolve();
+               })
+               .catch(function() {
+                 console.log("Error al cargar la funcion cargarCubrimientoObjetivos");
+                 reject();
+               });
+               idClienteTable++;
+             });
+         });
 
-                  });
-              });
-         })
-      });
+     } else {
 
-  } else{
-    $("#panelPlantilla").hide();
+       db.collection("clientes").where("nombreCliente","==",nombreCliente)
+         .get()
+         .then(function(querySnapshot) {
+             querySnapshot.forEach(function(doc) {
+               let idCliente=doc.id;
+               let nomCliente=doc.data().nombreCliente;
+               let razonSocial = doc.data().razonSocial;
+
+               if(nombreObjetivo=="Todos"){
+
+                 const promises = [];
+
+                 db.collection("clientes").doc(idCliente).collection("objetivos").where("vigente","==",true)
+                 .orderBy("nombreObjetivo","desc")
+                 .get()
+                 .then(function(querySnapshot) {
+                   let idTable=1;
+                     querySnapshot.forEach(function(doc) {
+                       let idObjetivo=doc.id;
+                       let nomObjetivo=doc.data().nombreObjetivo;
+                       promises.push( generaTabla(primerDia,ultimoDia,nomCliente,nomObjetivo,razonSocial,idTable) );
+                       promises.push( cargarCobertura(idCliente,idObjetivo,primerDia,ultimoDia,idTable) );
+                       promises.push( CargarCubrimiento(idCliente,idObjetivo,primerDia,ultimoDia,idTable) );
+                       razonSocial="";
+                       idTable++;
+                     });
+                     Promise.all(promises)
+                     .then(function() {
+                       resolve();
+                     })
+                     .catch(function(error) {
+                       console.log("Error al querer cargar funciones iniciales",error);
+                       reject();
+                     });
+                 });
+
+               } else {
+
+                 const promises = [];
+
+                 db.collection("clientes").doc(idCliente).collection("objetivos").where("nombreObjetivo","==",nombreObjetivo)
+                 .get()
+                 .then(function(querySnapshot) {
+                   let idTable=1;
+                     querySnapshot.forEach(function(doc) {
+                       let idObjetivo=doc.id;
+                       let nomObjetivo=doc.data().nombreObjetivo;
+                       promises.push( generaTabla(primerDia,ultimoDia,nomCliente,nomObjetivo,razonSocial,idTable) );
+                       promises.push( cargarCobertura(idCliente,idObjetivo,primerDia,ultimoDia,idTable) );
+                       promises.push( CargarCubrimiento(idCliente,idObjetivo,primerDia,ultimoDia,idTable) );
+                       razonSocial="";
+                     });
+                     Promise.all(promises)
+                     .then(function(result) {
+                       resolve(result);
+                     })
+                     .catch(function(error) {
+                       reject(error);
+                     });
+                 });
+              }
+             });
+         });
+     }
+
+   });
+
+   //Ejecuto la Promesa
+   promiseCubrimiento.then(function(result) {
+     $("#panelPlantilla").show();
+     loaderStateFinishCubrimiento();
+   }, function(error) {
+     loaderStateFinishCubrimiento();
+   });
   }
 
 }
 
-function cargaInicial(idCliente,idObjetivo,fechaInicial,fechaFinal){
+function cargarCubrimientoObjetivos(idCliente,nomCliente,primerDia,ultimoDia,idClienteTable,razonSocial){
 
-  let promise = new Promise(function(resolve, reject) {
+  return new Promise(function(resolve, reject) {
 
-  db.collection("clientes").doc(idCliente).collection("objetivos").doc(idObjetivo).collection("cobertura")
-  .where("fecha",">=",fechaInicial).where("fecha","<=",fechaFinal).orderBy("fecha")
-  .get()
-  .then(function(querySnapshot) {
-      const promises = []; //Creo el array de promesas a ejecutar
-      if (querySnapshot.empty) {
-        // Si no se ecuentran fechas en este rango no carga nada
-      } else {
-        querySnapshot.forEach((doc) => {
-          // doc.data() is never undefined for query doc snapshots
-          idDia = doc.id;
-          //cargarHorasDiarias(cliente,"TIENDA 143",idDia,fechaInicial,fechaFinal);
-          promises.push(cargarHorasDiarias(idCliente,idObjetivo,idDia,fechaInicial,fechaFinal));
+    const promises = [];
+    db.collection("clientes").doc(idCliente).collection("objetivos").where("vigente","==",true)
+    .get()
+    .then(function(querySnapshot) {
+      let idTable=1;
+        querySnapshot.forEach(function(doc) {
+          let idObjetivo=doc.id;
+          let nomObjetivo=doc.data().nombreObjetivo;
+          promises.push( generaTabla(primerDia,ultimoDia,nomCliente,nomObjetivo,razonSocial,idClienteTable+"-"+idTable) );
+          promises.push( cargarCobertura(idCliente,idObjetivo,primerDia,ultimoDia,idClienteTable+"-"+idTable) );
+          promises.push( CargarCubrimiento(idCliente,idObjetivo,primerDia,ultimoDia,idClienteTable+"-"+idTable) );
+          razonSocial="";
+          idTable++;
         });
-      } // fin else
-      //resolve("Carga Inicial Finalizada");
-      Promise.all(promises)
-      .then(value => resolve())
-      .catch(error => reject(Error("Se ha producido un error al ejecutar todas las Promesas cargarHorasDiarias")));
+        Promise.all(promises)
+        .then(function() {
+          resolve();
+        })
+        .catch(function() {
+          console.log("Error al cargar las funciones iniciales de la funcion cargarCubrimientoObjetivos");
+          reject();
+        });
+    });
+
+  });
+
+}
+
+function CargarCubrimiento(idCliente,idObjetivo,fechaInicial,fechaFinal,idTable){
+
+  return new Promise(function(resolve,reject) {
+
+    db.collection("clientes").doc(idCliente).collection("objetivos").doc(idObjetivo).collection("cobertura")
+    .where("fecha",">=",fechaInicial).where("fecha","<=",fechaFinal).orderBy("fecha")
+    .get()
+    .then(function(querySnapshot) {
+        const promises = []; //Creo el array de promesas a ejecutar
+        if (querySnapshot.empty) {
+          // Si no se ecuentran fechas en este rango no carga nada
+        } else {
+          querySnapshot.forEach(function(doc){
+            idDia = doc.id;
+            promises.push(cargarHorasDiarias(idCliente,idObjetivo,idDia,fechaInicial,fechaFinal,idTable));
+          });
+        }
+        Promise.all(promises)
+        .then(function() {
+          resolve();
+        })
+        .catch(function() {
+          reject();
+        });
     })
     .catch(function(error) {
         console.log("Error getting document:", error);
         reject();
     });
 
-  });
-
-  //Ejecuto la promesa
-  promise.then(function(result) {
-    //console.log(result); // "Carga Inicial Finalizada..."
-    cargarBotones();
-  }, function(err) {
-    //console.log(err); // Error: "It broke"
-  });
+    });
 
 }
 
-function cargarBotones(){
-  //$("#miTabla").tableExport();
-  $("#miTabla").tableExport({
-    //formats: ['xlsx', 'csv', 'txt'],
-    formats: ['xlsx'],
-    bootstrap: true
-  });
+function cargarHorasDiarias(idCliente,idObjetivo,idDia,fechaInicial,fechaFinal,idTable){
 
-}
-
-function cargarHorasDiarias(cliente,objetivo,idDia,fechaInicial,fechaFinal){
-  // Return a new promise.
   return new Promise(function(resolve, reject) {
 
-  db.collection("clientes").doc(cliente).collection("objetivos").doc(objetivo).collection("cobertura")
+  db.collection("clientes").doc(idCliente).collection("objetivos").doc(idObjetivo).collection("cobertura")
   .doc(idDia).collection("puestos")
   .get()
   .then(function(querySnapshot) {
@@ -120,20 +220,24 @@ function cargarHorasDiarias(cliente,objetivo,idDia,fechaInicial,fechaFinal){
     if (querySnapshot.empty) {
       // Si no se ecuentran la fecha
     } else {
-      querySnapshot.forEach((doc) => {
+      querySnapshot.forEach(function(doc) {
         // doc.data() is never undefined for query doc snapshots
         let puesto = doc.data();
         //No cargar hasta que no tenga hora de egreso
         if (puesto.horaEgreso.length>0){
-          //cargarHorasPersonal(puesto,fechaInicial,fechaFinal);
-          promises.push(cargarHorasPersonal(puesto,fechaInicial,fechaFinal));
+          promises.push(cargarHorasPersonal(puesto,fechaInicial,fechaFinal,idTable,idDia));
         }
       });
     } // fin else
-    //resolve(); // Una vez finalizada la carga de horas del Personal del idDia pasado como parametro retorna "resolve()"
+
     Promise.all(promises)
-    .then(value => resolve())
-    .catch(error => reject(Error("Se ha producido un error al ejecutar todas las Promesas CargaHorasPersonal")));
+    .then(function() {
+      resolve();
+    })
+    .catch(function() {
+      reject();
+    });
+
     })
     .catch(function(error) {
         console.log("Error getting document:", error);
@@ -141,41 +245,43 @@ function cargarHorasDiarias(cliente,objetivo,idDia,fechaInicial,fechaFinal){
     });
 
   });
+
 }
 
 function devolverNombre(idPersonal,columnaNombre) {
   // Return a new promise.
   return new Promise(function(resolve,reject) {
 
-  var docRef = db.collection("users").doc(idPersonal);
-    docRef.get()
-    .then(function(doc) {
-        if (doc.exists) {
-          columnaNombre.textContent = doc.data().nombre;
-          //console.log("Se creo una fila nueva del siguiente personal: "+doc.data().nombre);
-          resolve();
+    db.collection("users").where("idPersonal","==",idPersonal)
+    .get()
+    .then(function(querySnapshot) {
+        if (querySnapshot.empty) {
+          console.log("No such document!");
+          reject();
         } else {
-            // doc.data() will be undefined in this case
-            console.log("No such document!");
-            reject();
+          querySnapshot.forEach(function(doc) {
+          columnaNombre.textContent = doc.data().nombre;
+          resolve();
+          });
         }
     }).catch(function(error) {
         console.log("Error getting document:", error);
         reject();
     });
-
   });
 }
 
-function cargarNombrePersonal(nroLegajo) {
-var docRef = db.collection("users").doc(nroLegajo);
-  docRef.get()
-  .then(function(doc) {
-      if (doc.exists) {
-          $('#nombrePersonal').html("   "+doc.data().nombre);
-      } else {
-          // doc.data() will be undefined in this case
+function cargarNombrePersonal(nroLegajo,idElemento) {
+
+  db.collection("users").where("idPersonal","==",nroLegajo)
+  .get()
+  .then(function(querySnapshot) {
+      if (querySnapshot.empty) {
           console.log("No such document!");
+      } else {
+        querySnapshot.forEach(function(doc) {
+          $("#"+idElemento).html("   "+doc.data().nombre);
+        });
       }
   }).catch(function(error) {
       console.log("Error getting document:", error);
@@ -190,11 +296,13 @@ function posicionTabla(fechaCarga,fechaInicial){
   return resultado;
 }
 
-function cargarHorasPersonal(puesto,fechaInicial,fechaFinal){
+function cargarHorasPersonal(puesto,fechaInicial,fechaFinal,idTable,idDia){
 
-return new Promise(function(resolve,reject){
-	// obtenemos todas las filas del tbody y generamos un "Array de Filas" en la variable filas.
-	let filas=document.querySelectorAll("#miTabla tbody tr");
+  return new Promise(function(resolve,reject){
+
+  // obtenemos todas las filas del tbody y generamos un "Array de Filas" en la variable filas.
+	let tBody = document.getElementById("tBody-"+idTable);
+  let filas = tBody.querySelectorAll("tr");
 
   let ingresoReal = new Date( Date.parse(puesto.fechaIngreso+"T"+puesto.horaIngreso+":00") );
   let egresoReal = new Date( Date.parse(puesto.fechaEgreso+"T"+puesto.horaEgreso+":00") );
@@ -206,7 +314,6 @@ return new Promise(function(resolve,reject){
 
   let ingresoParam = ingresoParametrizado(ingresoPuesto,ingresoReal);
   let egresoParam = egresoParametrizado(egresoPuesto,egresoReal);
-
 
   let difHoras = totalHoras(ingresoParam,egresoParam);
   let horaIngresoParam = componerHorasDate(ingresoParam);
@@ -226,52 +333,55 @@ return new Promise(function(resolve,reject){
 			// Obtenemos las columnas de la fila recorrida y posiciono la busqueda del legajo en el primer elemento.
 			//TODO Ver si existe una funcion que devuelva la primera columna.
 			let columnas=e.querySelectorAll("td");
+      let variosPuestos=false;
 
 			if (columnas[0].textContent==puesto.idPersonal){
           let totalHoras = columnas[posDia].textContent;
+          if(totalHoras.length>0){ //Indica superposicion de horas
+            columnas[posDia].style.color="#c23321";
+            variosPuestos=true;
+          }
   				columnas[posDia].textContent= sumarHoras(totalHoras,horas);
           columnas[posDia].style.textAlign = "center";
           columnas[posDia].setAttribute("data-toggle", "modal");
-          columnas[posDia].setAttribute("data-target", "#myModal");
+          columnas[posDia].setAttribute("data-target", "#detalle-dia");
           columnas[posDia].addEventListener("click", function(){
-           mostrarModal(puesto.idPersonal,horas,puesto.nombrePuesto,puesto.ingresoPuesto,puesto.egresoPuesto,puesto.horaIngreso,puesto.horaEgreso,horaIngresoParam,horaEgresoParam);
-           cargarNombrePersonal(puesto.idPersonal);
+            mostrarModalDetalleDia(idDia,puesto,variosPuestos);
           });
           encontrado=true;
           // Se agrega un dia mas porque tiene horario internacional
-          actualizarTotales(fechaPuesto.getDate(),horas,puesto.idPersonal);
-          resolve(); //Si se actualizan correctamente las horas de un Legajo ya cargado devuleve resolve()
+          actualizarTotales(fechaPuesto.getDate(),horas,puesto.idPersonal,idTable);
+          resolve(); //Si se actualizan correctamente las horas de un Legajo ya cargado devuelve resolve()
 			}
 	});
 
 	if(!encontrado){
-	   crearFilaNueva(puesto.idPersonal,puesto.fechaPuesto,horas,puesto.nombrePuesto,puesto.ingresoPuesto,puesto.egresoPuesto,puesto.horaIngreso,puesto.horaEgreso,horaIngresoParam,horaEgresoParam,fechaInicial,fechaFinal)
+	   crearFilaNueva(puesto,puesto.idPersonal,puesto.fechaPuesto,horas,puesto.nombrePuesto,puesto.ingresoPuesto,puesto.egresoPuesto,puesto.horaIngreso,puesto.horaEgreso,horaIngresoParam,horaEgresoParam,fechaInicial,fechaFinal,idTable)
      .then(function(){
        resolve(); //Si la funcion crearFilaNueva funciona correctamente se devuelve resolve()
      })
-     .catch(function(error) {
-         console.log("Error al crear una fila nueva", error);
-         reject();
+     .catch(function() {
+       reject();
      });
   }
 
   });
+
 }
 
-function crearFilaNueva(nroLegajo,fechaCarga,horas,nombrePuesto,ingresoPuesto,egresoPuesto,ingresoReal,egresoReal,ingresoParam,egresoParam,fechaInicial,fechaFinal) {
+function crearFilaNueva(puesto,nroLegajo,fechaCarga,horas,nombrePuesto,ingresoPuesto,egresoPuesto,ingresoReal,egresoReal,ingresoParam,egresoParam,fechaInicial,fechaFinal,idTable) {
 
-return new Promise(function(resolve,reject){
+  return new Promise(function(resolve,reject){
 
-    var cantidadColumnasFijas=3;
-    var cantidadDias=cantidadDeDias(fechaInicial,fechaFinal);
-    var tamanioTabla=cantidadDias+cantidadColumnasFijas;
-    //var diaCarga = new Date(fechaCarga);
+    let cantidadColumnasFijas=3;
+    let cantidadDias=cantidadDeDias(fechaInicial,fechaFinal);
+    let tamanioTabla=cantidadDias+cantidadColumnasFijas;
     let fechaPuesto = new Date( Date.parse(fechaCarga+"T"+"00:00:00"));
-    //console.log("Dia Carga 2: "+diaCarga);
-    var posDia = posicionTabla(fechaPuesto,fechaInicial)-1; //Agregado -1 para corregir diferencia
+    let posDia = posicionTabla(fechaPuesto,fechaInicial)-1; //Agregado -1 para corregir diferencia
+    let variosPuestos=false;
 
-		var tBody = document.getElementById("tBody");
-    var row = tBody.insertRow();
+		let tBody = document.getElementById("tBody-"+idTable);
+    let row = tBody.insertRow();
 
 		//Rellenar con celdas vacias la fila
 		for (var i = 0; i < tamanioTabla; i++) {
@@ -286,10 +396,9 @@ return new Promise(function(resolve,reject){
 		 columnas[posDia].textContent=horas;
      columnas[posDia].style.textAlign = "center";
      columnas[posDia].setAttribute("data-toggle", "modal");
-     columnas[posDia].setAttribute("data-target", "#myModal");
+     columnas[posDia].setAttribute("data-target", "#detalle-dia");
      columnas[posDia].addEventListener("click", function(){
-      mostrarModal(nroLegajo,horas,nombrePuesto,ingresoPuesto,egresoPuesto,ingresoReal,egresoReal,ingresoParam,egresoParam);
-      cargarNombrePersonal(nroLegajo);
+       mostrarModalDetalleDia(idDia,puesto,variosPuestos);
      });
 
      //Genera la clase totalHs del Legajo y la inicializa en cero
@@ -297,28 +406,36 @@ return new Promise(function(resolve,reject){
      columnas[tamanioTabla-1].textContent="0:00";
      columnas[tamanioTabla-1].style.textAlign = "right";
      // Se agrega un dia mas porque tiene horario internacional
-     actualizarTotales(fechaPuesto.getDate(),horas,nroLegajo);
+     actualizarTotales(fechaPuesto.getDate(),horas,nroLegajo,idTable);
 
      //Busca el nombre en la BD segun el nroLegajo y lo carga en la Tabla
      devolverNombre(nroLegajo,columnas[1])
      .then(function(){
        resolve(); //Si la funcion devolverNombre funciona correctamente se devuelve resolve()
      })
-     .catch(function(error) {
-         console.log("Error al intentar devolver el Nombre", error);
-         reject();
+     .catch(function() {
+       console.log("Error al intentar devolver el Nombre");
+       reject();
      });
 
-     });
+  });
 }
 
-function recargar(){
-      var Table = document.getElementById("tBody");
-      Table.innerHTML = "";
-      cargaInicial();
-}
+function generaTabla(fecha1,fecha2,nomCliente,nomObjetivo,razonSocial,idTable) {
 
-function generaTabla(fecha1,fecha2) {
+  return new Promise(function(resolve,reject){
+
+  clonarTabla(idTable);
+
+  $("#cliente-titulo-"+idTable).text(nomCliente);
+  $("#objetivo-titulo-"+idTable).text(nomObjetivo);
+
+  if(razonSocial==""){
+    $("#razon-social-"+idTable).hide();
+  } else {
+    $("#razon-social-"+idTable+" h3").text(razonSocial);
+    $("#razon-social-"+idTable).show();
+  }
 
   let fechaGT = new Date(fecha1.getTime());
 
@@ -327,7 +444,7 @@ function generaTabla(fecha1,fecha2) {
   let tamanioTabla=cantidadDias+cantidadColumnasFijas;
 
   // Obtener la referencia del elemento body
-  let tabla = document.getElementsByTagName("table")[0];
+  let tabla = document.getElementById("table-"+idTable);
 
   // Crea un elemento <table> y un elemento <tbody>
   //var tabla   = document.createElement("table");
@@ -335,7 +452,7 @@ function generaTabla(fecha1,fecha2) {
   let tblBody = document.createElement("tbody");
   let tblFoot = document.createElement("tfoot");
   tblHead.setAttribute("id", "tHead");
-  tblBody.setAttribute("id", "tBody");
+  tblBody.setAttribute("id", "tBody-"+idTable);
   tblFoot.setAttribute("id", "tFoot");
 
   // Crea las celdas del thead NUMEROS DEL DIA
@@ -363,30 +480,27 @@ function generaTabla(fecha1,fecha2) {
 
     //Asignar valores iniciales
     let columnas=hilera.querySelectorAll("th");
-     columnas[0].textContent="Legajo";
+     columnas[0].innerHTML='<a style="cursor:pointer;" class="text-nowrap" >Legajo<i class="fas fa-arrows-alt-v sort-icon" ></i></a>';
      columnas[0].style.textAlign = "center";
      columnas[0].style.verticalAlign = "middle";
      columnas[0].rowSpan="2";
-     columnas[0].style.padding = "3px";
-     columnas[1].textContent="Nombre y Apellido";
+     columnas[0].style.padding = "6px";
+     columnas[0].setAttribute('onclick', 'sortTable(0,"int","tBody-'+idTable+'")');
+     columnas[1].innerHTML='<a style="cursor:pointer;" class="text-nowrap" >Nombre y Apellido<i class="fas fa-arrows-alt-v sort-icon" ></i></a>';
      columnas[1].style.textAlign = "center";
      columnas[1].style.verticalAlign = "middle";
      columnas[1].rowSpan="2";
-     // columnas[2].textContent="Puesto";
-     // columnas[2].style.textAlign = "center";
-     // columnas[2].style.verticalAlign = "middle";
-     // columnas[2].rowSpan="2";
-     // columnas[2].style.padding = "3px";
+     columnas[1].style.padding = "6px";
+     columnas[1].setAttribute('onclick', 'sortTable(1,"str","tBody-'+idTable+'")' );
      columnas[tamanioTabla-1].textContent="Total Hs";
      columnas[tamanioTabla-1].style.textAlign = "center";
      columnas[tamanioTabla-1].style.verticalAlign = "middle";
      columnas[tamanioTabla-1].rowSpan="2";
-     columnas[tamanioTabla-1].style.padding = "3px";
+     columnas[tamanioTabla-1].style.padding ="6px";
 
     // agrega la hilera al final de la tabla (al final del elemento tblbody)
     tblHead.appendChild(hilera);
   }
-
 
   // Crea las celdas del thead DIAS DE LA SEMANA
   fechaGT = new Date(fecha1.getTime()); // Se reinician la fecha a la inicial
@@ -412,7 +526,6 @@ function generaTabla(fecha1,fecha2) {
     // agrega la hilera al final de la tabla (al final del elemento tblbody)
     tblHead.appendChild(hilera);
   }
-
 
   // Crea las celdas del tfoot HORAS A LIQUIDAR
   fechaGT = new Date(fecha1.getTime()); // Se reinicia la fecha a la inicial
@@ -514,6 +627,11 @@ function generaTabla(fecha1,fecha2) {
   tabla.appendChild(tblHead);
   tabla.appendChild(tblBody);
   tabla.appendChild(tblFoot);
+
+  resolve();
+
+  });
+
 }
 
 function cantidadDeDias(fechaInicial,fechaFinal){
@@ -525,112 +643,74 @@ function cantidadDeDias(fechaInicial,fechaFinal){
 	return contdias;
 }
 
-function eliminarContenidoTabla(){
-  if(miTabla.rows.length>0){
-    var parent = document.getElementById("miTabla");
-    var tHead = document.getElementById("tHead");
-    var tBody = document.getElementById("tBody");
-    var tFoot = document.getElementById("tFoot");
-    parent.removeChild(tFoot);
-    parent.removeChild(tBody);
-    parent.removeChild(tHead);
-  }
-  $("#miTabla").tableExport().remove();
+function eliminarContenidoPanel(){
+  $("#espacio-resultados").empty();
 }
 
-function cargarListadoClientes(){
-  var listadoClientes = [];
+function listadoClientesCubrimiento(){
+  let listadoClientes = [];
   db.collection("clientes")
   .get()
   .then(function(querySnapshot) {
     querySnapshot.forEach(function(doc) {
-        // if (doc.exists){
-          let nombreCliente = doc.data().nombreCliente;
-          listadoClientes.push(nombreCliente);
-        // }
+          listadoClientes.push(doc.data().nombreCliente);
       });
-      cargarDesplegableClientes(listadoClientes);
+      desplegableClientesCubrimiento(listadoClientes);
     });
 }
 
-function cargarDesplegableClientes(listadoClientes){
+function desplegableClientesCubrimiento(listadoClientes){
   let selectClientes = document.getElementById('selectClientes');
+  selectClientes.options.add(new Option("Todos"));
   for(var i = 0; i < listadoClientes.length; i++){
-    var option = listadoClientes[i];
-    selectClientes.options.add( new Option(option) );
+    selectClientes.options.add(new Option(listadoClientes[i]));
   }
 }
 
-function cargarListadoObjetivos(){
+function listadoObjetivosCubrimiento(){
 
-  var listadoObjetivos = [];
-  var nombreCliente = document.getElementById("selectClientes").value;
+  let listadoObjetivos = [];
+  let nombreCliente = document.getElementById("selectClientes").value;
 
-  db.collection("clientes").where("nombreCliente","==",nombreCliente)
-    .get()
-    .then(function(querySnapshot) {
-      if(querySnapshot.empty){
-        console.log("No se econtro el Cliente");
-        cargarDesplegableObjetivos(listadoObjetivos);
-      }else{
-        querySnapshot.forEach(function(doc) {
-          idCliente=doc.id;
-            db.collection("clientes").doc(idCliente).collection("objetivos")
-            .get()
-            .then(function(querySnapshot) {
-              querySnapshot.forEach(function(doc) {
-                if (doc.exists){
-                  let nombreObjetivo = doc.data().nombreObjetivo;
-                  listadoObjetivos.push(nombreObjetivo);
-                }
+  if(nombreCliente=="Todos"){
+    let selectObjetivos = document.getElementById("selectObjetivos");
+    clearOptionsFast("selectObjetivos");
+    selectObjetivos.options.add(new Option("Todos"));
+  }else{
+    db.collection("clientes").where("nombreCliente","==",nombreCliente)
+      .get()
+      .then(function(querySnapshot) {
+        if(querySnapshot.empty){
+          desplegableObjetivosCubrimiento(listadoObjetivos);
+        }else{
+          querySnapshot.forEach(function(doc) {
+              db.collection("clientes").doc(doc.id).collection("objetivos")
+              .get()
+              .then(function(querySnapshot) {
+                querySnapshot.forEach(function(doc) {
+                      listadoObjetivos.push(doc.data().nombreObjetivo);
                 });
-                cargarDesplegableObjetivos(listadoObjetivos);
-            });
-       })
+                desplegableObjetivosCubrimiento(listadoObjetivos);
+              });
+          })
+        }
+      });
+  }
+}
+
+function desplegableObjetivosCubrimiento(listadoObjetivos){
+  let selectObjetivos = document.getElementById("selectObjetivos");
+  if(listadoObjetivos.length==0){
+    clearOptionsFast("selectObjetivos"); //Vacio las opciones del Select
+    selectObjetivos.options.add(new Option("Sin Objetivos",0)); //Cargo que no tiene Objetivos
+  } else if(listadoObjetivos.length>0){
+      clearOptionsFast("selectObjetivos"); //Vacio las opciones del Select
+      selectObjetivos.options.add(new Option("Seleccione un Objetivo",0));
+      selectObjetivos.options.add(new Option("Todos"));
+      for(var i = 0; i < listadoObjetivos.length; i++){
+        selectObjetivos.options.add(new Option(listadoObjetivos[i]));
       }
-
-    });
-
-}
-
-function cargarDesplegableObjetivos(listadoObjetivos){
-  var selectObjetivos = document.getElementById('selectObjetivos');
-
-  while (selectObjetivos.length > 1) {
-    selectObjetivos.remove(1);
-  }
-
-  // selectObjetivos.options.add( new Option("Todos") );
-
-  for(var i = 0; i < listadoObjetivos.length; i++){
-    let option = listadoObjetivos[i];
-    selectObjetivos.options.add( new Option(option) );
-  }
-}
-
-function limpiarSelect(idSelect) {
-   var select = document.getElementById(idSelect);
-   while (select.length > 0) {
-       select.remove(1);
-   }
-}
-
-function esconder_div(div_id){
-  if(document.getElementById(div_id)){
-    document.getElementById(div_id).style.display = "none";
-  }
-  else{
-    alert("no se encuentra id: "+div_id);
-  }
-}
-
-function mostrar_div(div_id){
-  if(document.getElementById(div_id)){
-    document.getElementById(div_id).style.display = "block";
-  }
-  else{
-    alert("no se encuentra id: "+div_id);
-  }
+    }
 }
 
 function mostrarModal(nroLegajo,totalHoras,nombrePuesto,ingresoPuesto,egresoPuesto,ingresoReal,egresoReal,ingresoParam,egresoParam){
@@ -648,3 +728,330 @@ function mostrarModal(nroLegajo,totalHoras,nombrePuesto,ingresoPuesto,egresoPues
 function createDateAsUTC(date) {
     return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds()));
 }
+
+function cargarDateTimePicker9(){
+  $('#datetimepicker9').datetimepicker({
+      defaultDate: new Date(),
+      locale: 'es',
+      viewMode: 'years',
+      useCurrent: true,
+      format: 'MM/YYYY',
+  });
+}
+
+function sortTable(n,type,idTable) {
+  //type 'str' or 'int'
+  var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+
+  table = document.getElementById(idTable);
+  switching = true;
+  //Set the sorting direction to ascending:
+  dir = "asc";
+
+  /*Make a loop that will continue until no switching has been done:*/
+  while (switching) {
+    //start by saying: no switching is done:
+    switching = false;
+    rows = table.rows;
+    /*Loop through all table rows (except the first, which contains table headers):*/
+    for (i = 0; i < (rows.length - 1); i++) {
+      //start by saying there should be no switching:
+      shouldSwitch = false;
+      /*Get the two elements you want to compare, one from current row and one from the next:*/
+      x = rows[i].getElementsByTagName("TD")[n];
+      y = rows[i + 1].getElementsByTagName("TD")[n];
+      /*check if the two rows should switch place, based on the direction, asc or desc:*/
+      if (dir == "asc") {
+        if ((type=="str" && x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) || (type=="int" && parseFloat(x.innerHTML) > parseFloat(y.innerHTML))) {
+          //if so, mark as a switch and break the loop:
+          shouldSwitch= true;
+          break;
+        }
+      } else if (dir == "desc") {
+        if ((type=="str" && x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) || (type=="int" && parseFloat(x.innerHTML) < parseFloat(y.innerHTML))) {
+          //if so, mark as a switch and break the loop:
+          shouldSwitch = true;
+          break;
+        }
+      }
+    }
+    if (shouldSwitch) {
+      /*If a switch has been marked, make the switch and mark that a switch has been done:*/
+      rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+      switching = true;
+      //Each time a switch is done, increase this count by 1:
+      switchcount ++;
+    } else {
+      /*If no switching has been done AND the direction is "asc", set the direction to "desc" and run the while loop again.*/
+      if (switchcount == 0 && dir == "asc") {
+        dir = "desc";
+        switching = true;
+      }
+    }
+  }
+}
+
+function clonarTabla(idTable) {
+
+  let containerClone = document.getElementById("container-clone");
+  let clon = containerClone.cloneNode("container-clone");
+  let containerIdName = "container-"+idTable;
+  clon.id = containerIdName;
+
+  let panelPlantilla = document.getElementById("espacio-resultados");
+  panelPlantilla.appendChild(clon);
+
+  $("#"+containerIdName).find("#table-clone").attr("id","table-"+idTable);
+  $("#"+containerIdName).find("#razon-social").attr("id","razon-social-"+idTable);
+  $("#"+containerIdName).find("#clienteTitulo").attr("id","cliente-titulo-"+idTable);
+  $("#"+containerIdName).find("#objetivoTitulo").attr("id","objetivo-titulo-"+idTable);
+
+  $("#"+containerIdName).show();
+
+}
+
+function loaderStateCubrimiento(){
+  $("#loader-state-cubrimiento").addClass("is-active");
+}
+
+function loaderStateFinishCubrimiento(){
+  $("#loader-state-cubrimiento").removeClass("is-active");
+}
+
+function cargarRangeSlider(){
+
+  $(".js-range-slider").ionRangeSlider({
+    grid: true,
+    type: 'double',
+    force_edges: true,
+    drag_interval: true,
+    step: 900000,
+    prettify: function (num) {
+    return moment(num).format('HH:mm');
+    },
+    onChange: function (data) {
+    // Called every time handle position is changed
+      let difHoras = totalHorasDetalle(new Date(data.from),new Date(data.to));
+      $("#horasRegitradasDetalle").text(difHoras);
+      document.getElementById('icon-informe').className = 'fas fa-angle-double-down open';
+      $("#mostrarInforme").show(300);
+      $("#ampliacionHoras").show(300);
+      $("#penalizacionHora").hide(300);
+      $("#penalizacionTurno").hide(300);
+    },
+    onUpdate: function (data) {
+    // Called then slider is changed using Update public method
+      let difHoras = totalHorasDetalle(new Date(data.from),new Date(data.to));
+      $("#horasRegitradasDetalle").text(difHoras);
+    },
+  });
+
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// FUNCIONES MODAL DETALLE DIA
+////////////////////////////////////////////////////////////////////////////////
+
+function mostrarModalDetalleDia(idDia,puesto,variosPuestos){
+
+  $("#card-contenedor").show();
+  $("#horas-turno-detalle").show();
+  $("#mostrar-botones").show();
+  $( "#boton-eliminar-turno" ).prop("disabled",false);
+  $( "#boton-habilitar-turno" ).prop("disabled",true);
+
+  if(variosPuestos==false){
+    cargarNombrePersonal(puesto.idPersonal,"nombreDetalleDia");
+    cargarDatosTurnos(puesto);
+    cargarRangeSliderDetalleDia(puesto);
+  } else {
+    //Si tiene mas de un puesto cargado en el dia tengo que recorrerlos y cargarlos
+
+
+  }
+
+}
+
+function cargarDatosTurnos(puesto){
+
+    let date = new Date();
+    let horaIngreso = new Date().setHours(puesto.ingresoPuesto.split(":")[0],puesto.ingresoPuesto.split(":")[1],0,0);
+    const tMRDesde = date.setHours(0,0,0,0); // Desde las 00:00
+    const tMRHasta = date.setHours(5,59,59,999); // Hasta las 05:59
+    const tMDesde = date.setHours(6,0,0,0); // Desde las 06:00
+    const tMHasta = date.setHours(11,59,59,999); // Hasta las 11:59
+    const tTDesde = date.setHours(12,0,0,0); // Desde las 12:00
+    const tTHasta = date.setHours(18,59,59,999); // Hasta las 18:59
+    const tNDesde = date.setHours(19,0,0,0); // Desde las 19:00
+    const tNHasta = date.setHours(23,59,59,999); // Hasta las 23:59
+
+    if(horaIngreso>=tMRDesde && horaIngreso<=tMRHasta){
+      $("#tituloPuesto").text(puesto.nombrePuesto+" - Turno Madrugada");
+    } else if(horaIngreso>=tMDesde && horaIngreso<=tMHasta){
+      $("#tituloPuesto").text(puesto.nombrePuesto+" - Turno Mañana");
+    } else if(horaIngreso>=tTDesde && horaIngreso<=tTHasta){
+      $("#tituloPuesto").text(puesto.nombrePuesto+" - Turno Tarde");
+    } else if(horaIngreso>=tNDesde && horaIngreso<=tNHasta){
+      $("#tituloPuesto").text(puesto.nombrePuesto+" - Turno Noche");
+    }
+
+    $("#horaIngresoReal").text(puesto.horaIngreso);
+    if(puesto.horaEgreso.length>0){
+      $("#horaEgresoReal").text(puesto.horaEgreso);
+    } else {
+      $("#horaEgresoReal").text("");
+    }
+
+    $("#horasTurnoDetalle").text(puesto.horasTurno);
+
+
+}
+
+function cargarRangeSliderDetalleDia(puesto){
+
+  // Save instance to variable
+  let my_range = $(".js-range-slider").data("ionRangeSlider");
+
+  let fechaIngresoPuesto = new Date(puesto.fechaPuesto+"T"+puesto.ingresoPuesto+":00");
+  let fechaEgresoPuesto = new Date(puesto.fechaPuesto+"T"+puesto.egresoPuesto+":00");
+  let fechaIngresoReal = new Date(puesto.fechaIngreso+"T"+puesto.horaIngreso+":00");
+  let fechaEgresoReal = new Date(puesto.fechaEgreso+"T"+puesto.horaEgreso+":00");
+
+  if(compararHorasString(puesto.ingresoPuesto,puesto.egresoPuesto)==-1){
+    fechaEgresoPuesto = new Date( fechaEgresoPuesto.getTime() + 24*60*60*1000 );
+  }
+
+  let ingresoParam = ingresoParametrizado(fechaIngresoPuesto,fechaIngresoReal);
+  let egresoParam = egresoParametrizado(fechaEgresoPuesto,fechaEgresoReal);
+
+  // Update range slider content (this will change handles positions)
+  my_range.update({
+    min: fechaIngresoPuesto.valueOf(),
+    max: fechaEgresoPuesto.valueOf(),
+    from: ingresoParam.valueOf(),
+    to: egresoParam.valueOf(),
+  });
+
+  let difHoras = totalHorasDetalle(ingresoParam,egresoParam);
+
+  $("#horasRegitradasDetalle").text(difHoras);
+
+  $("#completarTurnoDetalle").click(function() {
+    my_range.update({
+      from: fechaIngresoPuesto.valueOf(),
+      to: fechaEgresoPuesto.valueOf(),
+    });
+    document.getElementById('icon-informe').className = 'fas fa-angle-double-down open';
+    $("#mostrarInforme").show(300);
+    $("#ampliacionHoras").show(300);
+    $("#penalizacionHora").hide(300);
+    $("#penalizacionTurno").hide(300);
+  });
+
+  $("#turnoOriginalDetalle").click(function() {
+    if(puesto.turnoOriginal==undefined || puesto.turnoOriginal=="" ){
+      my_range.update({
+        from: ingresoParam.valueOf(),
+        to: egresoParam.valueOf(),
+      });
+      document.getElementById('icon-informe').className = 'fas fa-angle-double-down';
+      $("#mostrarInforme").hide(300);
+      $("#ampliacionHoras").hide(300);
+      $("#penalizacionHora").hide(300);
+      $("#penalizacionTurno").hide(300);
+    } else {
+
+    }
+  });
+
+  $("#container-icon").click(function() {
+    let icon = document.getElementById('icon-informe');
+    let open = $("#icon-informe").hasClass("open");
+    if(open){
+      icon.className = 'fas fa-angle-double-down';
+      $("#mostrarInforme").hide(300);
+    }else{
+      icon.className = 'fas fa-angle-double-down open';
+      $("#mostrarInforme").show(300);
+    }
+  });
+
+}
+
+function totalHorasDetalle(ingresoParam2,egresoParam2){
+  difMili = egresoParam2.getTime()-ingresoParam2.getTime();
+  let horas = Math.floor(difMili/1000/60/60);
+  let minutos = Math.floor(difMili/1000/60);
+  minutos = minutos - horas*60;
+  if (horas<10){horas="0"+horas;}
+  if (minutos<10){minutos="0"+minutos;}
+  return horas+":"+minutos;
+}
+
+function iconAnimation(){
+
+  let div = document.getElementById('container-icon');
+  let icon = document.getElementById('icon-informe');
+
+  div.addEventListener('click', function(){
+    let open = $("#icon-informe").hasClass("open");
+    if(open){
+      icon.className = 'fas fa-angle-double-down';
+      $("#mostrarInforme").hide(300);
+    }else{
+      icon.className = 'fas fa-angle-double-down open';
+      $("#mostrarInforme").show(300);
+    }
+    open = !open;
+  });
+}
+
+function descontarHora(){
+  let icon = document.getElementById('icon-informe');
+  icon.className = 'fas fa-angle-double-down open';
+  $("#mostrarInforme").show(300);
+  $("#ampliacionHoras").hide(300);
+  $("#penalizacionTurno").hide(300);
+  $("#penalizacionHora").show(300);
+}
+
+function descontarTurno(){
+  let icon = document.getElementById('icon-informe');
+  icon.className = 'fas fa-angle-double-down open';
+  $("#mostrarInforme").show(300);
+  $("#ampliacionHoras").hide(300);
+  $("#penalizacionHora").hide(300);
+  $("#penalizacionTurno").show(300);
+}
+
+function eliminarTurnoDetalle(){
+  let my_range = $(".js-range-slider").data("ionRangeSlider");
+  $("#card-contenedor").hide(300);
+  $("#horas-turno-detalle").hide(300);
+  $("#mostrar-botones").hide(300);
+  $( "#boton-eliminar-turno" ).prop( "disabled", true );
+  $( "#boton-habilitar-turno" ).prop( "disabled", false );
+
+  my_range.update({
+      disable: true,
+  });
+
+}
+
+function habilitarTurnoDetalle(){
+  let my_range = $(".js-range-slider").data("ionRangeSlider");
+  $("#card-contenedor").show(300);
+  $("#horas-turno-detalle").show(300);
+  $("#mostrar-botones").show(300);
+  $( "#boton-eliminar-turno" ).prop( "disabled", false );
+  $( "#boton-habilitar-turno" ).prop( "disabled", true );
+
+  my_range.update({
+      disable: false,
+  });
+
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// END FUNCIONES MODAL DETALLE DIA
+////////////////////////////////////////////////////////////////////////////////

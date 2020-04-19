@@ -2,13 +2,21 @@
   margin-left:7px;
 }
 
+.mr-7 {
+  margin-right:7px;
+}
+
 .conf {
   margin:7px;
 }
 
+.p-16{
+  padding:16px;
+}
+
 .linea
 {
-    display: inline-block;
+  display: inline-block;
 }
 
 body {

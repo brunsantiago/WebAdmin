@@ -12,10 +12,33 @@
   margin:7px;
 }
 
-.text-color {
-  color:
-}
-
 .foto-centrada {
   margin: auto;
+}
+
+.button-fix {
+  width: 120px;
+}
+
+.modal-body-detalle {
+  background-color: #85929E;
+}
+
+.m-5{
+  margin: 5px !important;
+}
+
+.m-10{
+  margin: 10px !important;
+}
+
+/* Icon Informe Detalle */
+.fa-angle-double-down{
+  transform: rotate(0deg);
+  transition: transform 0.3s linear;
+}
+
+.fa-angle-double-down.open{
+  transform: rotate(180deg);
+  transition: transform 0.3s linear;
 }

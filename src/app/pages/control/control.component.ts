@@ -9,10 +9,10 @@ declare var $: any;
 //declare var recargar: any;
 declare var generarTablaAsistencia: any;
 //declare var eliminarContenidoTabla: any;
-declare var cargarListadoClientes2: any;
+declare var listadoClientesAsistencia: any;
 //declare var mostrarCubrimiento: any;
-//declare var cargaInicialAsistencia: any;
-//declare var crearFilaNuevaAsistencia: any;
+// declare var cargarResizeSensor: any;
+// declare var equalHeight: any;
 declare var cargarBSDateTimePicker: any;
 
 @Component({
@@ -49,10 +49,10 @@ export class ControlComponent implements OnInit {
       range: new FormControl('')
     });
 
-    cargarListadoClientes2();
+    listadoClientesAsistencia();
     generarTablaAsistencia();
-    //cargaInicialAsistencia();
     cargarBSDateTimePicker();
+
   }
 
 }

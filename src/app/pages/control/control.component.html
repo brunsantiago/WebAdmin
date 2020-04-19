@@ -38,101 +38,148 @@
               <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
             </div>
           </div>
-          <!-- /.box-header -->
 
           <div class="box-body">
 
            <div class="container-fluid my-3">
 
-             <div class="panel panel-primary" >
-               <div class="panel-heading">
-                 <h3 class="panel-title">Opciones</h3>
+             <div class="row display-flex">
+
+               <div class="col-md-12" id="col-opciones" >
+
+                 <div class="panel panel-primary colConfig" id="panelOpciones" >
+
+                   <div class="panel-heading">
+                     <h3 class="panel-title">Opciones</h3>
+                   </div>
+                   <br/>
+
+                   <form [formGroup]="form">
+
+                     <div class="row conf">
+
+                       <div class="form-group col-sm-4 col-md-4 col-lg-3">
+                         <label for="selectClientes">Cliente</label>
+                         <select class="form-control"  name="selectClientes" id="selectClientes2" onchange="listadoObjetivosAsistencia()">
+                           <option value="0" selected>Seleccione un Cliente</option>
+                         </select>
+                       </div>
+                       <div class="form-group col-sm-4 col-md-4 col-lg-3">
+                         <label for="selectObjetivos">Objetivo</label>
+                         <select class="form-control" name="selectObjetivos" id="selectObjetivos2">
+                           <option value="0" selected>Seleccione un Objetivo</option>
+                         </select>
+                       </div>
+                       <div class="form-group col-sm-2 col-md-2 col-lg-2">
+                         <label for="datetimepicker3">Hora Desde</label>
+                         <div class="input-group date" id="datetimepicker1">
+                             <input type="text" class="form-control" value="00:00"/>
+                             <span class="input-group-addon">
+                                 <span class="glyphicon glyphicon-time"></span>
+                             </span>
+                         </div>
+                       </div>
+                       <div class="form-group col-sm-2 col-md-2 col-lg-2">
+                         <label for="datetimepicker4">Hora Hasta</label>
+                         <div class="input-group date" id="datetimepicker2">
+                             <input type="text" class="form-control" value="23:00"/>
+                             <span class="input-group-addon">
+                                 <span class="glyphicon glyphicon-time"></span>
+                             </span>
+                         </div>
+                       </div>
+
+                     </div>
+
+                   </form>
+
+                   <div class="box-footer">
+                    <div class="conf">
+                       <button type="button" id="btnSample1" class="btn btn-success" name="btncargarAsistencia" value="ingreso" onclick="cargarPuestosAsistencia(this)">Control de Ingresos</button>
+                       <button type="button" class="btn btn-danger ml-7" name="btncargarAsistencia" value="egreso" onclick="cargarPuestosAsistencia(this)">Control de Egresos</button>
+                    </div>
+                   </div>
+                   <br/>
+                 </div>
+
                </div>
-               <br/>
-               <form [formGroup]="form">
+
+               <div class="col-md-3" id="col-referencias" style="display:none">
+
+                 <div class="panel panel-primary colConfig" id="panelReferencias">
+
+                   <div class="panel-heading">
+                    <h3 class="panel-title">Referencias</h3>
+                   </div>
+
+                   <div class="row conf">
+
+                       <div id="visualizar-ingreso" class="ml-7" style="display:none">
+                         <h6 style="color:#ABB2B9;">Control de Ingresos</h6>
+                        <div class="checkbox">
+                          <label style="color:#000000;"><input type="checkbox" name="checkbox-ingreso" id="ingreso-cubierto"  onchange="visualizarIngresoCubierto()" checked>Cubierto</label>
+                        </div>
+                        <div class="checkbox">
+                          <label style="color:#558B2F;"><input type="checkbox" name="checkbox-ingreso" id="ingreso-no-iniciado" onchange="visualizarIngresoNoIniciado()" checked>No iniciado</label>
+                        </div>
+                        <div class="checkbox">
+                          <label style="color:#AD1457;"><input type="checkbox" name="checkbox-ingreso" id="ingreso-cubierto-tarde"  onchange="visualizarIngresoCubiertoTarde()" checked>Cubierto Tarde</label>
+                        </div>
+                        <div class="checkbox">
+                          <label style="color:#FF6347;"><input type="checkbox" name="checkbox-ingreso" id="ingreso-descubierto" onchange="visualizarIngresoDescubierto()" checked>Descubierto</label>
+                        </div>
+                       </div>
+                       <div id="visualizar-egreso" class="ml-7" style="display:none">
+                         <h6 style="color:#ABB2B9;" >Control de Egresos</h6>
+                         <div class="checkbox">
+                           <label style="color:#000000;"><input type="checkbox" name="checkbox-egreso" id="egreso-cerrado"  onchange="visualizarEgresoCerrado()" checked>Cerrado</label>
+                         </div>
+                         <div class="checkbox">
+                           <label style="color:#558B2F;"><input type="checkbox" name="checkbox-egreso" id="egreso-no-iniciado" onchange="visualizarEgresoNoIniciado()" checked>No iniciado</label>
+                         </div>
+                         <div class="checkbox">
+                           <label style="color:#AD1457;"><input type="checkbox" name="checkbox-egreso" id="egreso-cierre-anticipado" onchange="visualizarEgresoCierreAnticipado()" checked>Cierre Anticipado</label>
+                         </div>
+                         <div class="checkbox">
+                           <label style="color:#3498DB;"><input type="checkbox" name="checkbox-egreso" id="egreso-cubriendose" onchange="visualizarEgresoCubriendose()" checked>Cubriendose</label>
+                         </div>
+                         <div class="checkbox">
+                           <label style="color:#76448A;"><input type="checkbox" name="checkbox-egreso" id="egreso-no-cerrado" onchange="visualizarEgresoNoCerrado()" checked>No Cerrado</label>
+                         </div>
+                         <div class="checkbox">
+                           <label style="color:#FF6347;"><input type="checkbox" name="checkbox-egreso" id="egreso-descubierto" onchange="visualizarEgresoDescubierto()" checked>Descubierto</label>
+                         </div>
+                       </div>
+
+                   </div>
+
+                 </div>
+
+               </div>
+
+             </div>
+
+               <div class="panel panel-primary" id="panelResultado" style="display:none">
+                 <div class="panel-heading">
+                   <h3 class="panel-title">Resultado
+                   </h3>
+                 </div>
+
+                 <h3 style="text-align:center; color:#ABB2B9;; margin-bottom:13px;" id="titulo-control"></h3>
 
                  <div class="row conf">
-
-                   <div class="col-md-1">
+                   <div  class="table-responsive">
+                     <table name="miTabla2" id="miTabla2" class="table table-condensed table-striped table-bordered table-hover rwd_auto text-nowrap">
+                     </table>
                    </div>
+                 </div>
 
-                   <div class="form-group col-md-2">
-                     <label for="selectClientes">Cliente</label>
-                     <select class="form-control"  name="selectClientes" id="selectClientes2" onchange="cargarListadoObjetivos2()">
-                       <option value="0" selected>Seleccione un Cliente</option>
-                     </select>
-                   </div>
-                   <div class="form-group col-md-2">
-                     <label for="selectObjetivos">Objetivo</label>
-                     <select class="form-control"  name="selectObjetivos" id="selectObjetivos2">
-                       <option value="0" selected>Seleccione un Objetivo</option>
-                     </select>
-                   </div>
-
-                   <div class="form-group col-md-1">
-                     <label for="datetimepicker3">Hora Desde</label>
-                     <div class="input-group date" id="datetimepicker1">
-                         <input type="text" class="form-control" value="00:00"/>
-                         <span class="input-group-addon">
-                             <span class="glyphicon glyphicon-time"></span>
-                         </span>
-                     </div>
-                   </div>
-
-                   <div class="form-group col-md-1">
-                     <label for="datetimepicker4">Hora Hasta</label>
-                     <div class="input-group date" id="datetimepicker2">
-                         <input type="text" class="form-control" value="23:00"/>
-                         <span class="input-group-addon">
-                             <span class="glyphicon glyphicon-time"></span>
-                         </span>
-                     </div>
-                   </div>
-
-                   <div class="form-group col-md-1">
-                     <label>Visualizacion</label>
-                     <div class="radio">
-                       <label><input type="radio" name="radio-group" value="ingreso" checked>Ingresos</label>
-                     </div>
-                     <div class="radio">
-                       <label><input type="radio" name="radio-group" value="egreso">Egresos</label>
-                     </div>
-                   </div>
-
-                   <div class="form-group col-md-1">
-                     <br/>
-                     <button type="button" class="btn btn-primary" id="btncargarPuestosAsistencia" onclick="cargarPuestosAsistencia()">Aceptar</button>
-                   </div>
-
-                   </div>
-
-                 </form>
-             </div>
-           <br/>
-
-           <div class="panel panel-primary" id="panelResultado" style="display:none">
-             <div class="panel-heading">
-               <h3 class="panel-title">Resultado</h3>
-             </div>
-             <br/>
-             <div class="row conf">
-               <div  class="table-responsive">
-                 <table name="miTabla2" id="miTabla2" class="table table-condensed table-striped table-bordered table-hover rwd_auto text-nowrap">
-                 </table>
+                 <br/>
                </div>
-             </div>
-           </div>
-
-         <br/>
-
 
             </div>
-            <!-- ./container-fluid -->
 
-            <!-- </div> -->
-            <!-- /.row -->
           </div>
-          <!-- ./box-body -->
 
           <div class="box-footer">
             <div class="row">
@@ -140,7 +187,9 @@
             <!-- /.row -->
           </div>
           <!-- /.box-footer -->
-
+          <div class="loader loader-default" data-text="Cargando..." data-blink id="loader-state">
+               <!-- <i class="fas fa-cog fa-spin"></i> -->
+          </div>
         </div>
         <!-- /.box -->
       </div>

@@ -9,176 +9,109 @@
     <ol class="breadcrumb">
       <li><a routerLink="/layouts/home"><i class="fa fa-calendar"></i> Home</a></li>
       <li class="active">Configuracion</li>
-      <li class="active">Objetivos</li>
+      <li class="active">Cobertura de Objetivos</li>
     </ol>
   </section>
 
   <!-- Main content -->
   <section class="content">
+    <div class="container-fluid my-3">
+      <!-- START CUSTOM TABS -->
+      <div class="row">
+          <!-- Custom Tabs -->
+          <div class="nav-tabs-custom">
+            <ul class="nav nav-tabs">
+              <li class="active"><a href="#tab_1" data-toggle="tab">Esquemas de Cobertura</a></li>
+              <li><a href="#tab_2" data-toggle="tab">Dias Temporales</a></li>
+            </ul>
+            <div class="tab-content">
 
-    <div class="row">
-      <div class="col-md-12">
+              <!-- TAB ESQUEMA COBERTURA -->
+              <div class="tab-pane active" id="tab_1">
+               <div class="container-fluid">
+                <!-- Panel Opciones -->
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                      <h3 class="panel-title">Opciones</h3>
+                    </div>
+                    <br/>
+                    <div class="container-fluid">
 
-        <div class="box box-danger">
-          <!-- box-header -->
-          <div class="box-header with-border">
-            <h3 class="box-title">Objetivos</h3>
+                         <div class="conf">
+                             <div class="row">
+                               <div class="col-md-1">
+                               </div>
+                             </div>
+                             <div class="row">
+                               <div class="form-group col-md-2 ml-7">
+                                 <label for="selectClientes">Cliente</label>
+                                 <select class="form-control"  name="selectClientes" id="selectClientes" onchange="listadoObjetivosEsquema()">
+                                   <option value="0" selected>Seleccione un Cliente</option>
+                                 </select>
+                               </div>
+                               <div class="form-group col-md-2 ml-7">
+                                 <label for="selectObjetivos">Objetivo</label>
+                                 <select class="form-control"  name="selectObjetivos" id="selectObjetivos">
+                                   <option value="0" selected>Seleccione un Objetivo</option>
+                                 </select>
+                               </div>
+                             </div>
+                           </div>
 
-            <div class="box-tools pull-right">
-              <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
-              <div class="btn-group">
-                <button type="button" class="btn btn-box-tool dropdown-toggle" data-toggle="dropdown">
-                  <i class="fa fa-wrench"></i></button>
-                <ul class="dropdown-menu" role="menu">
-                  <li><a href="#">Elegir un periodo</a></li>
-                  <li><a href="#">Cambiar Servicio</a></li>
-                  <li class="divider"></li>
-                  <li><a href="#">Cubrimiento</a></li>
-                </ul>
-              </div>
-              <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
-            </div>
-          </div>
-          <!-- /.box-header -->
-
-          <div class="box-body">
-
-           <div class="container-fluid my-3">
-
-             <div class="panel panel-primary">
-               <div class="panel-heading">
-                 <h3 class="panel-title">Opciones</h3>
-               </div>
-
-              <div class="container-fluid">
-                <form>
-                  <div class="conf">
-                      <div class="row">
-                        <div class="col-md-1">
-                        </div>
-                      </div>
-                      <div class="row">
-                        <div class="form-group col-md-2 ml-7">
-                          <label for="selectClientes">Cliente</label>
-                          <select class="form-control"  name="selectClientes" id="selectClientes" onchange="cargarListadoObjetivos()">
-                            <option value="0" selected>Seleccione un Cliente</option>
-                          </select>
-                        </div>
-                        <div class="form-group col-md-2 ml-7">
-                          <label for="selectObjetivos">Objetivo</label>
-                          <select class="form-control"  name="selectObjetivos" id="selectObjetivos">
-                            <option value="0" selected>Seleccione un Objetivo</option>
-                          </select>
-                        </div>
-                        <div class="form-group col-md-6 ml-7">
-                          <label style="visibility: hidden">Opciones</label>
-                          <form class="form-inline">
-                              <div class="form-group">
-                                <button type="button" class="btn btn-primary" onclick="cargarPuestosSetting()">Esquema Vigente</button>
-                                <button type="button" class="btn btn-success ml-7" onclick="cargarEsquemaNuevo()">Nuevo Esquema</button>
-                                <button type="button" class="btn btn-warning ml-7" onclick="tablaDiasEspeciales()">Dias Especiales</button>
-                                <button type="button" class="btn btn-danger ml-7" onclick="cargarHistorial()">Historial de Esquemas</button>
-                              </div>
-                          </form>
-                        </div>
+                    </div>
+                    <div class="box-footer">
+                      <div class="conf">
+                        <button type="button" class="btn btn-primary" onclick="cargarPuestosSetting()">Esquema Vigente</button>
+                        <button type="button" class="btn btn-danger ml-7" onclick="cargarHistorial()">Historial de Esquemas</button>
+                        <button type="button" class="btn btn-success ml-7" onclick="cargarEsquemaNuevo()">Nuevo Esquema</button>
                       </div>
                     </div>
-                  </form>
-              </div>
 
-             </div>
-
-          </div>
-          <!-- ./container-fluid -->
-          </div>
-          <!-- ./box-body -->
-
-          <div class="box-footer">
-            <div class="row">
-            </div>
-            <!-- /.row -->
-          </div>
-          <!-- /.box-footer -->
-
-        </div>
-        <!-- /.box -->
-      </div>
-      <!-- /.col -->
-    </div>
-    <!-- /.row -->
-
-    <!-- Datos del Objetivo box -->
-    <div class="box box-default" id="datosObjetivo" style="display:none">
-      <div class="box-header with-border">
-        <h3 class="box-title">Datos del Objetivo</h3>
-
-        <div class="box-tools pull-right">
-          <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
-            <i class="fa fa-minus"></i></button>
-            <div class="btn-group">
-              <button type="button" class="btn btn-box-tool dropdown-toggle" data-toggle="dropdown">
-                <i class="fa fa-wrench"></i></button>
-              <ul class="dropdown-menu" role="menu">
-                <li><a href="#">Elegir un periodo</a></li>
-                <li><a href="#">Cambiar Servicio</a></li>
-                <li class="divider"></li>
-                <li><a href="#">Cubrimiento</a></li>
-              </ul>
-            </div>
-          <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
-            <i class="fa fa-times"></i></button>
-        </div>
-      </div>
-      <div class="box-body">
-
-        <div class="container-fluid">
-          <dl>
-            <dt>Cliente: </dt>
-            <dd id="nombreCliente"></dd>
-            <dt>Objetivo: </dt>
-            <dd id="nombreObjetivo"></dd>
-            <dt>Supervisor: </dt>
-            <dd id="nombreSupervisor">QUINTELA, Nestor Fabian</dd>
-          </dl>
-        </div>
-
-        <!-- Esquema de Cobertura box -->
-        <div class="box box-danger" id="esquemaCobertura" style="display:none">
-
-          <div class="box-header with-border">
-            <h3 class="box-title">Esquema de Cobertura</h3>
-
-            <div class="box-tools pull-right">
-              <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
-                <i class="fa fa-minus"></i></button>
-                <div class="btn-group">
-                  <button type="button" class="btn btn-box-tool dropdown-toggle" data-toggle="dropdown">
-                    <i class="fa fa-wrench"></i></button>
-                  <ul class="dropdown-menu" role="menu">
-                    <li><a href="#">Elegir un periodo</a></li>
-                    <li><a href="#">Cambiar Servicio</a></li>
-                    <li class="divider"></li>
-                    <li><a href="#">Cubrimiento</a></li>
-                  </ul>
                 </div>
-              <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
-                <i class="fa fa-times"></i></button>
-            </div>
-          </div>
+                <!-- Panel Esquema Vigente -->
+                <div class="panel panel-primary" id="esquemaCobertura" style="display:none">
+                  <div class="panel-heading">
+                    <h3 class="panel-title" id="tituloResultadoEsquema">Esquema Vigente</h3>
+                  </div>
+                   <!-- Datos del Objetivo -->
+                   <div id="datosObjetivo" style="display:none">
+                      <div class="row conf" style="background-color:#FBFCFC;">
 
-          <div class="box-body">
+                        <div class="col-md-4" style="text-align: center;">
+                          <br>
+                          <span style="color:#34495E;">
+                            <h3 style="color:#D6DBDF;">CLIENTE</h3>
+                            <i class="far fa-handshake fa-3x"></i>
+                          </span>
+                          <div><h2 id="nombreCliente"></h2></div>
+                        </div>
+                        <div class="col-md-4" style="text-align: center;">
+                          <br>
+                          <span style="color:#34495E ; ">
+                            <h3 style="color:#D6DBDF;">OBJETIVO</h3>
+                            <i class="far fa-building fa-3x"></i>
+                          </span>
+                          <div><h2 id="nombreObjetivo"></h2></div>
+                        </div>
+                        <div class="col-md-4" style="text-align: center">
+                          <br>
+                          <span style="color:#34495E ;">
+                            <h3 style="color:#D6DBDF;">SUPERVISOR</h3>
+                            <i class="fas fa-user-shield fa-3x"></i>
+                          </span>
+                          <div><h2 id="nombreSupervisor"></h2></div>
+                        </div>
 
-              <div class="container-fluid" >
-
-                   <div id="contenedorEsquema" style="display:none">
+                      </div>
+                   </div>
+                   <!-- Datos del Esquema -->
+                   <div class="p-16" id="contenedorEsquema" style="display:none">
                      <div class="row">
                        <div class="col-sm-4 border-right">
                          <div class="description-block">
-                           <!-- <h5 class="description-header">3,200</h5>
-                           <span class="description-text">SALES</span> -->
                            <div class="col-md-12 col-sm-12 col-xs-12">
                            <div class="info-box bg-green">
-                             <span class="info-box-icon"><i class="fa fa-calendar"></i></span>
+                             <span class="info-box-icon"><i class="far fa-calendar-alt"></i></span>
                              <div class="info-box-content">
                                <span class="info-box-text">Fecha Desde</span>
                                <span class="info-box-number" id="fechaDesde"></span>
@@ -194,11 +127,9 @@
                        <!-- /.col -->
                        <div class="col-sm-4 border-right">
                          <div class="description-block">
-                           <!-- <h5 class="description-header">13,000</h5>
-                           <span class="description-text">FOLLOWERS</span> -->
                            <div class="col-md-12 col-sm-12 col-xs-12">
                            <div class="info-box bg-red">
-                             <span class="info-box-icon"><i class="fa fa-calendar"></i></span>
+                             <span class="info-box-icon"><i class="far fa-calendar-alt"></i></span>
                              <div class="info-box-content">
                                <span class="info-box-text">Fecha Hasta</span>
                                <span class="info-box-number" id="fechaHasta"></span>
@@ -214,8 +145,6 @@
                        <!-- /.col -->
                        <div class="col-sm-4">
                          <div class="description-block">
-                           <!-- <h5 class="description-header">35</h5>
-                           <span class="description-text">PRODUCTS</span> -->
                            <div class="col-md-12 col-sm-12 col-xs-12">
                              <div class="info-box">
                                <span class="info-box-icon bg-aqua"><i class="glyphicon glyphicon-check"></i></span>
@@ -234,8 +163,8 @@
                        <!-- /.col -->
                      </div>
                    </div>
-
-                   <div id="sinEsquema" style="display:none">
+                   <!-- Sin Esquema -->
+                   <div class="p-16" id="sinEsquema" style="display:none">
                      <div class="row">
                       <h3><p class="text-muted text-center">No hay esquema vigente</p></h3>
                       <br>
@@ -245,378 +174,398 @@
                      </div>
                      <br>
                    </div>
+                   <!-- Dias del Esquema -->
+                   <div class="p-16" id="acordionEsquema" style="display:none">
+                     <div class="accordion-option">
+                       <h3 class="title">Esquema de cobertura semanal</h3>
+                       <a href="javascript:void(0)" class="toggle-accordion" accordion-id="#accordion"></a>
+                     </div>
+                     <div class="clearfix">
+                       <br>
+                     </div>
+                     <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+                       <div class="panel panel-default">
+                         <div class="panel-heading" role="tab" id="headingOne">
+                           <h4 class="panel-title">
+                           <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                             Lunes
+                           </a>
+                         </h4>
+                         </div>
+                         <div id="collapseOne" class="panel-collapse collapse multi-collapse" role="tabpanel" aria-labelledby="headingOne">
+                           <div class="panel-body">
+                             <div  class="table-responsive">
+                               <table name="miTabla" id="miTabla" class="table table-condensed table-striped table-bordered table-hover rwd_auto text-nowrap align-center">
+                                 <thead>
+                                   <tr >
+                                     <th class="align-center text-nowrap" onclick='sortTable(0,"str","table_body_1")' style="cursor:pointer;"><a>Nombre Puesto</a><i class="fas fa-arrows-alt-v sort-icon" ></i></th>
+                                     <th class="align-center text-nowrap" onclick='sortTable(1,"str","table_body_1")' style="cursor:pointer;"><a>Nombre Turno</a><i class="fas fa-arrows-alt-v sort-icon" ></i></th>
+                                     <th class="align-center text-nowrap" onclick='sortTable(2,"str","table_body_1")' style="cursor:pointer;"><a>Hora Ingreso</a><i class="fas fa-arrows-alt-v sort-icon" ></i></th>
+                                     <th class="align-center text-nowrap" onclick='sortTable(3,"str","table_body_1")' style="cursor:pointer;"><a>Hora Egreso</a><i class="fas fa-arrows-alt-v sort-icon" ></i></th>
+                                     <th class="align-center text-nowrap" onclick='sortTable(4,"str","table_body_1")' style="cursor:pointer;"><a>Total Horas</a><i class="fas fa-arrows-alt-v sort-icon" ></i></th>
+                                     <th class="align-center text-nowrap" onclick='sortTable(5,"str","table_body_1")' style="cursor:pointer;"><a>Estado</a><i class="fas fa-arrows-alt-v sort-icon" ></i></th>
+                                     <th class="align-center">Editar</th>
+                                     <th class="align-center">Eliminar</th>
+                                   </tr>
+                                 </thead>
+                                 <tbody id="table_body_1">
+                                 </tbody>
+                               </table>
+                             </div>
 
-                   <div id="acordionEsquema" style="display:none">
+                           </div>
+                         </div>
+                       </div>
+                       <div class="panel panel-default">
+                         <div class="panel-heading" role="tab" id="headingTwo">
+                           <h4 class="panel-title">
+                           <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
+                             Martes
+                           </a>
+                         </h4>
+                         </div>
+                         <div id="collapseTwo" class="panel-collapse collapse multi-collapse" role="tabpanel" aria-labelledby="headingTwo">
+                           <div class="panel-body">
 
-                    <div class="accordion-option">
-                      <h3 class="title">Esquema de cobertura semanal</h3>
-                      <a href="javascript:void(0)" class="toggle-accordion" accordion-id="#accordion"></a>
-                    </div>
-                    <div class="clearfix">
-                      <br>
-                      <br>
-                    </div>
-                    <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
-                      <div class="panel panel-default">
-                        <div class="panel-heading" role="tab" id="headingOne">
-                          <h4 class="panel-title">
-                          <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                            Lunes
-                          </a>
-                        </h4>
-                        </div>
-                        <div id="collapseOne" class="panel-collapse collapse multi-collapse" role="tabpanel" aria-labelledby="headingOne">
-                          <div class="panel-body">
-                            <div  class="table-responsive">
-                              <table name="miTabla" id="miTabla" class="table table-condensed table-striped table-bordered table-hover rwd_auto text-nowrap align-center">
-                                <thead>
-                                  <tr >
-                                    <th class="align-center">Nombre Puesto</th>
-                                    <th class="align-center">Nombre Turno</th>
-                                    <th class="align-center">Hora Ingreso</th>
-                                    <th class="align-center">Hora Egreso</th>
-                                    <th class="align-center">Total Horas</th>
-                                    <th class="align-center">Estado</th>
-                                    <th class="align-center">Editar</th>
-                                    <th class="align-center">Eliminar</th>
-                                  </tr>
-                                </thead>
-                                <tbody id="table_body_1">
-                                </tbody>
-                              </table>
-                            </div>
+                             <div  class="table-responsive">
+                               <table name="miTabla" id="miTabla" class="table table-condensed table-striped table-bordered table-hover rwd_auto text-nowrap align-center">
+                                 <thead>
+                                   <tr >
+                                     <th class="align-center text-nowrap" onclick='sortTable(0,"str","table_body_2")' style="cursor:pointer;"><a>Legajo</a><i class="fas fa-arrows-alt-v sort-icon" ></i></th>
+                                     <th class="align-center text-nowrap" onclick='sortTable(1,"str","table_body_2")' style="cursor:pointer;"><a>Nombre Turno</a><i class="fas fa-arrows-alt-v sort-icon" ></i></th>
+                                     <th class="align-center text-nowrap" onclick='sortTable(2,"str","table_body_2")' style="cursor:pointer;"><a>Hora Ingreso</a><i class="fas fa-arrows-alt-v sort-icon" ></i></th>
+                                     <th class="align-center text-nowrap" onclick='sortTable(3,"str","table_body_2")' style="cursor:pointer;"><a>Hora Egreso</a><i class="fas fa-arrows-alt-v sort-icon" ></i></th>
+                                     <th class="align-center text-nowrap" onclick='sortTable(4,"str","table_body_2")' style="cursor:pointer;"><a>Total Horas</a><i class="fas fa-arrows-alt-v sort-icon" ></i></th>
+                                     <th class="align-center text-nowrap" onclick='sortTable(5,"str","table_body_2")' style="cursor:pointer;"><a>Estado</a><i class="fas fa-arrows-alt-v sort-icon" ></i></th>
+                                     <th class="align-center">Editar</th>
+                                     <th class="align-center">Eliminar</th>
+                                   </tr>
+                                 </thead>
+                                 <tbody id="table_body_2">
+                                 </tbody>
+                               </table>
+                             </div>
 
-                          </div>
-                        </div>
-                      </div>
-                      <div class="panel panel-default">
-                        <div class="panel-heading" role="tab" id="headingTwo">
-                          <h4 class="panel-title">
-                          <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
-                            Martes
-                          </a>
-                        </h4>
-                        </div>
-                        <div id="collapseTwo" class="panel-collapse collapse multi-collapse" role="tabpanel" aria-labelledby="headingTwo">
-                          <div class="panel-body">
+                           </div>
+                         </div>
+                       </div>
+                       <div class="panel panel-default">
+                         <div class="panel-heading" role="tab" id="headingThree">
+                           <h4 class="panel-title">
+                           <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseThree" aria-expanded="true" aria-controls="collapseThree">
+                             Miercoles
+                           </a>
+                         </h4>
+                         </div>
+                         <div id="collapseThree" class="panel-collapse collapse multi-collapse" role="tabpanel" aria-labelledby="headingThree">
+                           <div class="panel-body">
 
-                            <div  class="table-responsive">
-                              <table name="miTabla" id="miTabla" class="table table-condensed table-striped table-bordered table-hover rwd_auto text-nowrap align-center">
-                                <thead>
-                                  <tr >
-                                    <th class="align-center">Nombre Puesto</th>
-                                    <th class="align-center">Nombre Turno</th>
-                                    <th class="align-center">Hora Ingreso</th>
-                                    <th class="align-center">Hora Egreso</th>
-                                    <th class="align-center">Total Horas</th>
-                                    <th class="align-center">Estado</th>
-                                    <th class="align-center">Editar</th>
-                                    <th class="align-center">Eliminar</th>
-                                  </tr>
-                                </thead>
-                                <tbody id="table_body_2">
+                             <div  class="table-responsive">
+                               <table name="miTabla" id="miTabla" class="table table-condensed table-striped table-bordered table-hover rwd_auto text-nowrap align-center">
+                                 <thead>
+                                   <tr >
+                                     <th class="align-center text-nowrap" onclick='sortTable(0,"str","table_body_3")' style="cursor:pointer;"><a>Legajo</a><i class="fas fa-arrows-alt-v sort-icon" ></i></th>
+                                     <th class="align-center text-nowrap" onclick='sortTable(1,"str","table_body_3")' style="cursor:pointer;"><a>Nombre Turno</a><i class="fas fa-arrows-alt-v sort-icon" ></i></th>
+                                     <th class="align-center text-nowrap" onclick='sortTable(2,"str","table_body_3")' style="cursor:pointer;"><a>Hora Ingreso</a><i class="fas fa-arrows-alt-v sort-icon" ></i></th>
+                                     <th class="align-center text-nowrap" onclick='sortTable(3,"str","table_body_3")' style="cursor:pointer;"><a>Hora Egreso</a><i class="fas fa-arrows-alt-v sort-icon" ></i></th>
+                                     <th class="align-center text-nowrap" onclick='sortTable(4,"str","table_body_3")' style="cursor:pointer;"><a>Total Horas</a><i class="fas fa-arrows-alt-v sort-icon" ></i></th>
+                                     <th class="align-center text-nowrap" onclick='sortTable(5,"str","table_body_3")' style="cursor:pointer;"><a>Estado</a><i class="fas fa-arrows-alt-v sort-icon" ></i></th>
+                                     <th class="align-center">Editar</th>
+                                     <th class="align-center">Eliminar</th>
+                                   </tr>
+                                 </thead>
+                                 <tbody id="table_body_3">
+                                 </tbody>
+                               </table>
+                             </div>
 
-                                </tbody>
-                              </table>
-                            </div>
+                           </div>
+                         </div>
+                       </div>
+                       <div class="panel panel-default">
+                         <div class="panel-heading" role="tab" id="headingFour">
+                           <h4 class="panel-title">
+                           <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseFour" aria-expanded="true" aria-controls="collapseFour">
+                             Jueves
+                           </a>
+                         </h4>
+                         </div>
+                         <div id="collapseFour" class="panel-collapse collapse multi-collapse" role="tabpanel" aria-labelledby="headingFour">
+                           <div class="panel-body">
 
-                          </div>
-                        </div>
-                      </div>
-                      <div class="panel panel-default">
-                        <div class="panel-heading" role="tab" id="headingThree">
-                          <h4 class="panel-title">
-                          <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseThree" aria-expanded="true" aria-controls="collapseThree">
-                            Miercoles
-                          </a>
-                        </h4>
-                        </div>
-                        <div id="collapseThree" class="panel-collapse collapse multi-collapse" role="tabpanel" aria-labelledby="headingThree">
-                          <div class="panel-body">
+                             <div  class="table-responsive">
+                               <table name="miTabla" id="miTabla" class="table table-condensed table-striped table-bordered table-hover rwd_auto text-nowrap align-center">
+                                 <thead>
+                                   <tr >
+                                     <th class="align-center text-nowrap" onclick='sortTable(0,"str","table_body_4")' style="cursor:pointer;"><a>Legajo</a><i class="fas fa-arrows-alt-v sort-icon" ></i></th>
+                                     <th class="align-center text-nowrap" onclick='sortTable(1,"str","table_body_4")' style="cursor:pointer;"><a>Nombre Turno</a><i class="fas fa-arrows-alt-v sort-icon" ></i></th>
+                                     <th class="align-center text-nowrap" onclick='sortTable(2,"str","table_body_4")' style="cursor:pointer;"><a>Hora Ingreso</a><i class="fas fa-arrows-alt-v sort-icon" ></i></th>
+                                     <th class="align-center text-nowrap" onclick='sortTable(3,"str","table_body_4")' style="cursor:pointer;"><a>Hora Egreso</a><i class="fas fa-arrows-alt-v sort-icon" ></i></th>
+                                     <th class="align-center text-nowrap" onclick='sortTable(4,"str","table_body_4")' style="cursor:pointer;"><a>Total Horas</a><i class="fas fa-arrows-alt-v sort-icon" ></i></th>
+                                     <th class="align-center text-nowrap" onclick='sortTable(5,"str","table_body_4")' style="cursor:pointer;"><a>Estado</a><i class="fas fa-arrows-alt-v sort-icon" ></i></th>
+                                     <th class="align-center">Editar</th>
+                                     <th class="align-center">Eliminar</th>
+                                   </tr>
+                                 </thead>
+                                 <tbody id="table_body_4">
 
-                            <div  class="table-responsive">
-                              <table name="miTabla" id="miTabla" class="table table-condensed table-striped table-bordered table-hover rwd_auto text-nowrap align-center">
-                                <thead>
-                                  <tr >
-                                    <th class="align-center">Nombre Puesto</th>
-                                    <th class="align-center">Nombre Turno</th>
-                                    <th class="align-center">Hora Ingreso</th>
-                                    <th class="align-center">Hora Egreso</th>
-                                    <th class="align-center">Total Horas</th>
-                                    <th class="align-center">Estado</th>
-                                    <th class="align-center">Editar</th>
-                                    <th class="align-center">Eliminar</th>
-                                  </tr>
-                                </thead>
-                                <tbody id="table_body_3">
+                                 </tbody>
+                               </table>
+                             </div>
 
-                                </tbody>
-                              </table>
-                            </div>
+                           </div>
+                         </div>
+                       </div>
+                       <div class="panel panel-default">
+                         <div class="panel-heading" role="tab" id="headingFive">
+                           <h4 class="panel-title">
+                           <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseFive" aria-expanded="true" aria-controls="collapseFive">
+                             Viernes
+                           </a>
+                         </h4>
+                         </div>
+                         <div id="collapseFive" class="panel-collapse collapse multi-collapse" role="tabpanel" aria-labelledby="headingFive">
+                           <div class="panel-body">
 
-                          </div>
-                        </div>
-                      </div>
-                      <div class="panel panel-default">
-                        <div class="panel-heading" role="tab" id="headingFour">
-                          <h4 class="panel-title">
-                          <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseFour" aria-expanded="true" aria-controls="collapseFour">
-                            Jueves
-                          </a>
-                        </h4>
-                        </div>
-                        <div id="collapseFour" class="panel-collapse collapse multi-collapse" role="tabpanel" aria-labelledby="headingFour">
-                          <div class="panel-body">
+                             <div  class="table-responsive">
+                               <table name="miTabla" id="miTabla" class="table table-condensed table-striped table-bordered table-hover rwd_auto text-nowrap align-center">
+                                 <thead>
+                                   <tr >
+                                     <th class="align-center text-nowrap" onclick='sortTable(0,"str","table_body_5")' style="cursor:pointer;"><a>Legajo</a><i class="fas fa-arrows-alt-v sort-icon" ></i></th>
+                                     <th class="align-center text-nowrap" onclick='sortTable(1,"str","table_body_5")' style="cursor:pointer;"><a>Nombre Turno</a><i class="fas fa-arrows-alt-v sort-icon" ></i></th>
+                                     <th class="align-center text-nowrap" onclick='sortTable(2,"str","table_body_5")' style="cursor:pointer;"><a>Hora Ingreso</a><i class="fas fa-arrows-alt-v sort-icon" ></i></th>
+                                     <th class="align-center text-nowrap" onclick='sortTable(3,"str","table_body_5")' style="cursor:pointer;"><a>Hora Egreso</a><i class="fas fa-arrows-alt-v sort-icon" ></i></th>
+                                     <th class="align-center text-nowrap" onclick='sortTable(4,"str","table_body_5")' style="cursor:pointer;"><a>Total Horas</a><i class="fas fa-arrows-alt-v sort-icon" ></i></th>
+                                     <th class="align-center text-nowrap" onclick='sortTable(5,"str","table_body_5")' style="cursor:pointer;"><a>Estado</a><i class="fas fa-arrows-alt-v sort-icon" ></i></th>
+                                     <th class="align-center">Editar</th>
+                                     <th class="align-center">Eliminar</th>
+                                   </tr>
+                                 </thead>
+                                 <tbody id="table_body_5">
 
-                            <div  class="table-responsive">
-                              <table name="miTabla" id="miTabla" class="table table-condensed table-striped table-bordered table-hover rwd_auto text-nowrap align-center">
-                                <thead>
-                                  <tr >
-                                    <th class="align-center">Nombre Puesto</th>
-                                    <th class="align-center">Nombre Turno</th>
-                                    <th class="align-center">Hora Ingreso</th>
-                                    <th class="align-center">Hora Egreso</th>
-                                    <th class="align-center">Total Horas</th>
-                                    <th class="align-center">Estado</th>
-                                    <th class="align-center">Editar</th>
-                                    <th class="align-center">Eliminar</th>
-                                  </tr>
-                                </thead>
-                                <tbody id="table_body_4">
+                                 </tbody>
+                               </table>
+                             </div>
 
-                                </tbody>
-                              </table>
-                            </div>
+                           </div>
+                         </div>
+                       </div>
+                       <div class="panel panel-default">
+                         <div class="panel-heading" role="tab" id="headingSix">
+                           <h4 class="panel-title">
+                           <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseSix" aria-expanded="true" aria-controls="collapseSix">
+                             Sabado
+                           </a>
+                         </h4>
+                         </div>
+                         <div id="collapseSix" class="panel-collapse collapse multi-collapse" role="tabpanel" aria-labelledby="headingSix">
+                           <div class="panel-body">
 
-                          </div>
-                        </div>
-                      </div>
-                      <div class="panel panel-default">
-                        <div class="panel-heading" role="tab" id="headingFive">
-                          <h4 class="panel-title">
-                          <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseFive" aria-expanded="true" aria-controls="collapseFive">
-                            Viernes
-                          </a>
-                        </h4>
-                        </div>
-                        <div id="collapseFive" class="panel-collapse collapse multi-collapse" role="tabpanel" aria-labelledby="headingFive">
-                          <div class="panel-body">
+                             <div  class="table-responsive">
+                               <table name="miTabla" id="miTabla" class="table table-condensed table-striped table-bordered table-hover rwd_auto text-nowrap align-center">
+                                 <thead>
+                                   <tr >
+                                     <th class="align-center text-nowrap" onclick='sortTable(0,"str","table_body_6")' style="cursor:pointer;"><a>Legajo</a><i class="fas fa-arrows-alt-v sort-icon" ></i></th>
+                                     <th class="align-center text-nowrap" onclick='sortTable(1,"str","table_body_6")' style="cursor:pointer;"><a>Nombre Turno</a><i class="fas fa-arrows-alt-v sort-icon" ></i></th>
+                                     <th class="align-center text-nowrap" onclick='sortTable(2,"str","table_body_6")' style="cursor:pointer;"><a>Hora Ingreso</a><i class="fas fa-arrows-alt-v sort-icon" ></i></th>
+                                     <th class="align-center text-nowrap" onclick='sortTable(3,"str","table_body_6")' style="cursor:pointer;"><a>Hora Egreso</a><i class="fas fa-arrows-alt-v sort-icon" ></i></th>
+                                     <th class="align-center text-nowrap" onclick='sortTable(4,"str","table_body_6")' style="cursor:pointer;"><a>Total Horas</a><i class="fas fa-arrows-alt-v sort-icon" ></i></th>
+                                     <th class="align-center text-nowrap" onclick='sortTable(5,"str","table_body_6")' style="cursor:pointer;"><a>Estado</a><i class="fas fa-arrows-alt-v sort-icon" ></i></th>
+                                     <th class="align-center">Editar</th>
+                                     <th class="align-center">Eliminar</th>
+                                   </tr>
+                                 </thead>
+                                 <tbody id="table_body_6">
 
-                            <div  class="table-responsive">
-                              <table name="miTabla" id="miTabla" class="table table-condensed table-striped table-bordered table-hover rwd_auto text-nowrap align-center">
-                                <thead>
-                                  <tr >
-                                    <th class="align-center">Nombre Puesto</th>
-                                    <th class="align-center">Nombre Turno</th>
-                                    <th class="align-center">Hora Ingreso</th>
-                                    <th class="align-center">Hora Egreso</th>
-                                    <th class="align-center">Total Horas</th>
-                                    <th class="align-center">Estado</th>
-                                    <th class="align-center">Editar</th>
-                                    <th class="align-center">Eliminar</th>
-                                  </tr>
-                                </thead>
-                                <tbody id="table_body_5">
+                                 </tbody>
+                               </table>
+                             </div>
 
-                                </tbody>
-                              </table>
-                            </div>
+                           </div>
+                         </div>
+                       </div>
+                       <div class="panel panel-default">
+                         <div class="panel-heading" role="tab" id="headingSeven">
+                           <h4 class="panel-title">
+                           <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseSeven" aria-expanded="true" aria-controls="collapseSeven">
+                             Domingo
+                           </a>
+                         </h4>
+                         </div>
+                         <div id="collapseSeven" class="panel-collapse collapse multi-collapse" role="tabpanel" aria-labelledby="headingSeven">
+                           <div class="panel-body">
 
-                          </div>
-                        </div>
-                      </div>
-                      <div class="panel panel-default">
-                        <div class="panel-heading" role="tab" id="headingSix">
-                          <h4 class="panel-title">
-                          <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseSix" aria-expanded="true" aria-controls="collapseSix">
-                            Sabado
-                          </a>
-                        </h4>
-                        </div>
-                        <div id="collapseSix" class="panel-collapse collapse multi-collapse" role="tabpanel" aria-labelledby="headingSix">
-                          <div class="panel-body">
+                             <div  class="table-responsive">
+                               <table name="miTabla" id="miTabla" class="table table-condensed table-striped table-bordered table-hover rwd_auto text-nowrap align-center">
+                                 <thead>
+                                   <tr >
+                                     <th class="align-center text-nowrap" onclick='sortTable(0,"str","table_body_7")' style="cursor:pointer;"><a>Legajo</a><i class="fas fa-arrows-alt-v sort-icon" ></i></th>
+                                     <th class="align-center text-nowrap" onclick='sortTable(1,"str","table_body_7")' style="cursor:pointer;"><a>Nombre Turno</a><i class="fas fa-arrows-alt-v sort-icon" ></i></th>
+                                     <th class="align-center text-nowrap" onclick='sortTable(2,"str","table_body_7")' style="cursor:pointer;"><a>Hora Ingreso</a><i class="fas fa-arrows-alt-v sort-icon" ></i></th>
+                                     <th class="align-center text-nowrap" onclick='sortTable(3,"str","table_body_7")' style="cursor:pointer;"><a>Hora Egreso</a><i class="fas fa-arrows-alt-v sort-icon" ></i></th>
+                                     <th class="align-center text-nowrap" onclick='sortTable(4,"str","table_body_7")' style="cursor:pointer;"><a>Total Horas</a><i class="fas fa-arrows-alt-v sort-icon" ></i></th>
+                                     <th class="align-center text-nowrap" onclick='sortTable(5,"str","table_body_7")' style="cursor:pointer;"><a>Estado</a><i class="fas fa-arrows-alt-v sort-icon" ></i></th>
+                                     <th class="align-center">Editar</th>
+                                     <th class="align-center">Eliminar</th>
+                                   </tr>
+                                 </thead>
+                                 <tbody id="table_body_0">
 
-                            <div  class="table-responsive">
-                              <table name="miTabla" id="miTabla" class="table table-condensed table-striped table-bordered table-hover rwd_auto text-nowrap align-center">
-                                <thead>
-                                  <tr >
-                                    <th class="align-center">Nombre Puesto</th>
-                                    <th class="align-center">Nombre Turno</th>
-                                    <th class="align-center">Hora Ingreso</th>
-                                    <th class="align-center">Hora Egreso</th>
-                                    <th class="align-center">Total Horas</th>
-                                    <th class="align-center">Estado</th>
-                                    <th class="align-center">Editar</th>
-                                    <th class="align-center">Eliminar</th>
-                                  </tr>
-                                </thead>
-                                <tbody id="table_body_6">
+                                 </tbody>
+                               </table>
+                             </div>
 
-                                </tbody>
-                              </table>
-                            </div>
-
-                          </div>
-                        </div>
-                      </div>
-                      <div class="panel panel-default">
-                        <div class="panel-heading" role="tab" id="headingSeven">
-                          <h4 class="panel-title">
-                          <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseSeven" aria-expanded="true" aria-controls="collapseSeven">
-                            Domingo
-                          </a>
-                        </h4>
-                        </div>
-                        <div id="collapseSeven" class="panel-collapse collapse multi-collapse" role="tabpanel" aria-labelledby="headingSeven">
-                          <div class="panel-body">
-
-                            <div  class="table-responsive">
-                              <table name="miTabla" id="miTabla" class="table table-condensed table-striped table-bordered table-hover rwd_auto text-nowrap align-center">
-                                <thead>
-                                  <tr >
-                                    <th class="align-center">Nombre Puesto</th>
-                                    <th class="align-center">Nombre Turno</th>
-                                    <th class="align-center">Hora Ingreso</th>
-                                    <th class="align-center">Hora Egreso</th>
-                                    <th class="align-center">Total Horas</th>
-                                    <th class="align-center">Estado</th>
-                                    <th class="align-center">Editar</th>
-                                    <th class="align-center">Eliminar</th>
-                                  </tr>
-                                </thead>
-                                <tbody id="table_body_0">
-
-                                </tbody>
-                              </table>
-                            </div>
-
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="form-group text-center">
-                       <button type="button" class="btn btn-primary linea ml-7"  onclick="cargarModalPuestos()">Cargar Puestos</button>
-                    </div>
-
+                           </div>
+                         </div>
+                       </div>
+                     </div>
+                     <div class="form-group text-center">
+                        <button type="button" class="btn btn-primary linea ml-7"  onclick="cargarModalPuestos()">Cargar Puestos</button>
+                        <button type="button" class="btn btn-success linea ml-7"  onclick="cargarModalModFechas()">Modificar Fechas</button>
+                     </div>
                    </div>
-
+                </div>
                </div>
-               <!-- ./container-fluid -->
-
-          </div>
-          <!-- /.box-body -->
-          <!-- <div class="box-footer">
-          </div> -->
-          <!-- /.box-footer-->
-        </div>
-        <!-- /.box Esquema de Cobertura -->
-
-        <!-- Dias Especiales box -->
-        <div class="box box-danger" id="diasEspeciales" style="display:none">
-          <div class="box-header with-border">
-            <h3 class="box-title">Dias Especiales</h3>
-
-            <div class="box-tools pull-right">
-              <button type="button" class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse">
-                <i class="fa fa-minus"></i></button>
-                <div class="btn-group">
-                  <button type="button" class="btn btn-box-tool dropdown-toggle" data-toggle="dropdown">
-                    <i class="fa fa-wrench"></i></button>
-                  <ul class="dropdown-menu" role="menu">
-                    <li><a href="#">Elegir un periodo</a></li>
-                    <li><a href="#">Cambiar Servicio</a></li>
-                    <li class="divider"></li>
-                    <li><a href="#">Cubrimiento</a></li>
-                  </ul>
-                </div>
-              <button type="button" class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove">
-                <i class="fa fa-times"></i></button>
-            </div>
-          </div>
-          <div class="box-body">
-
-          <div class="container-fluid">
-
-            <div id="sinDiasEspeciales" style="display:none">
-              <div class="row">
-                  <h3><p class="text-muted text-center">No hay dias especiales en el mes</p></h3>
               </div>
-              <br>
-            </div>
+              <!-- /.tab-pane -->
 
-            <div id="acordionDiasEspeciales" style="display:none">
-
-              <div class="accordion-option">
-                <h3 class="title" id="tituloDiasEspeciales"></h3>
-                <a href="javascript:void(0)" class="toggle-accordion" accordion-id="#accordion2"></a>
-              </div>
-              <div class="clearfix">
-              <br>
-              <br>
-              </div>
-              <div class="panel-group" id="accordion2" role="tablist" aria-multiselectable="true">
-              </div>
-
-              <!-- Fecha a Clonar -->
-              <div class="panel panel-default" id="panelFecha" style="display:none">
-                <div class="panel-heading" role="tab" id="heading">
-                  <h4 class="panel-title">
-                  <a role="button" data-toggle="collapse" data-parent="#accordion2" href="#collapse" aria-expanded="true" aria-controls="collapse" id="titleHeading">
-
-                  </a>
-                </h4>
-                </div>
-                <div id="collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading">
-                  <div class="panel-body">
-
-                    <div  class="table-responsive">
-                      <table name="miTabla" id="miTabla" class="table table-condensed table-striped table-bordered table-hover rwd_auto text-nowrap align-center">
-                        <thead>
-                          <tr >
-                            <th class="align-center">Nombre Puesto</th>
-                            <th class="align-center">Nombre Turno</th>
-                            <th class="align-center">Hora Ingreso</th>
-                            <th class="align-center">Hora Egreso</th>
-                            <th class="align-center">Total Horas</th>
-                            <th class="align-center">Estado</th>
-                            <th class="align-center">Editar</th>
-                            <th class="align-center">Eliminar</th>
-                          </tr>
-                        </thead>
-                        <tbody id="table_body">
-                        </tbody>
-                      </table>
+              <!-- TAB DIAS TEMPORALES -->
+              <div class="tab-pane" id="tab_2">
+                <div class="container-fluid my-3">
+                  <!-- Panel Opciones -->
+                  <div class="panel panel-primary">
+                      <div class="panel-heading">
+                        <h3 class="panel-title">Opciones</h3>
+                      </div>
+                      <br/>
+                      <div class="container-fluid">
+                         <form>
+                           <div class="conf">
+                               <div class="row">
+                                 <div class="col-md-1">
+                                 </div>
+                               </div>
+                               <div class="row">
+                                 <div class="form-group col-md-2 ml-7">
+                                   <label for="selectClientes">Cliente</label>
+                                   <select class="form-control"  name="selectClientes" id="selectClientes2" onchange="cargarListadoObjetivos2()">
+                                     <option value="0" selected>Seleccione un Cliente</option>
+                                   </select>
+                                 </div>
+                                 <div class="form-group col-md-2 ml-7">
+                                   <label for="selectObjetivos">Objetivo</label>
+                                   <select class="form-control"  name="selectObjetivos" id="selectObjetivos2">
+                                     <option value="0" selected>Seleccione un Objetivo</option>
+                                   </select>
+                                 </div>
+                                    <div class="form-group col-md-2 ml-7">
+                                      <label for="datetimepicker10">Periodo</label>
+                                        <div class='input-group date' id='datetimepicker10'>
+                                            <input type='text' class="form-control" />
+                                            <span class="input-group-addon">
+                                                <span class="glyphicon glyphicon-calendar">
+                                                </span>
+                                            </span>
+                                        </div>
+                                    </div>
+                               </div>
+                             </div>
+                           </form>
+                      </div>
+                      <div class="box-footer">
+                        <div class="conf">
+                         <button type="button" class="btn btn-warning ml-7" onclick="tablaDiasEspeciales()">Ver Dias Especiales</button>
+                        </div>
+                      </div>
+                  </div>
+                  <!-- Panel Dias Especiales -->
+                  <div class="panel panel-primary" id="diasEspeciales" style="display:none">
+                    <div class="panel-heading">
+                      <h3 class="panel-title">Dias Especiales</h3>
                     </div>
 
+                    <div class="container-fluid">
+                      <!-- Sin Dias Especiales -->
+                      <div id="sinDiasEspeciales" style="display:none">
+                        <br>
+                        <div class="row">
+                            <h3><p class="text-muted text-center">No hay dias especiales en el mes</p></h3>
+                        </div>
+                        <br>
+                      </div>
+                      <!-- Dias Especiales -->
+                      <div id="acordionDiasEspeciales" style="display:none">
+                        <!-- <div class="accordion-option"> -->
+                          <h3 class="ml-7" id="tituloDiasEspeciales"></h3>
+                          <!-- <a href="javascript:void(0)" class="toggle-accordion" accordion-id="#accordion2"></a>
+                        </div> -->
+                        <div class="clearfix">
+                        </div>
+
+                        <div class="panel-group" id="accordion2" role="tablist" aria-multiselectable="true">
+                        </div>
+
+                        <!-- Fecha a Clonar -->
+                        <div class="panel panel-default" id="panelFecha" style="display:none">
+                          <!-- style="display:none" -->
+                          <div class="panel-heading" role="tab" id="heading">
+                            <h4 class="panel-title">
+                            <a role="button" data-toggle="collapse" data-parent="#accordion2" href="#collapse" aria-expanded="true" aria-controls="collapse" id="titleHeading">
+
+                            </a>
+                          </h4>
+                          </div>
+                          <div id="collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading">
+                            <div class="panel-body">
+
+                              <div  class="table-responsive">
+                                <table name="miTabla" id="miTabla" class="table table-condensed table-striped table-bordered table-hover rwd_auto text-nowrap align-center">
+                                  <thead>
+                                    <tr >
+                                      <th class="align-center">Nombre Puesto</th>
+                                      <th class="align-center">Nombre Turno</th>
+                                      <th class="align-center">Hora Ingreso</th>
+                                      <th class="align-center">Hora Egreso</th>
+                                      <th class="align-center">Total Horas</th>
+                                      <th class="align-center">Estado</th>
+                                      <th class="align-center">Editar</th>
+                                      <th class="align-center">Eliminar</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody id="table_body">
+                                  </tbody>
+                                </table>
+                              </div>
+
+                            </div>
+                          </div>
+                        </div>
+
+
+                      </div>
+                      <!-- Boton Cargar Dias Especiales  -->
+                      <div class="form-group text-center">
+                         <button type="button" class="btn btn-success linea ml-7"  onclick="cargarDiasEspeciales()">Cargar Dias Especiales</button>
+                      </div>
+                    </div>
                   </div>
                 </div>
+                <!-- ./container-fluid -->
               </div>
-
+              <!-- /.tab-pane -->
             </div>
-            <!-- Boton Cargar Dias Especiales  -->
-            <div class="form-group text-center">
-               <button type="button" class="btn btn-success linea ml-7"  onclick="cargarDiasEspeciales()">Cargar Dias Especiales</button>
-            </div>
-
+            <!-- /.tab-content -->
           </div>
-
-
-
-          </div>
-          <!-- /.box-body -->
-          <!-- <div class="box-footer">
-          </div> -->
-          <!-- /.box-footer-->
-        </div>
-        <!-- /.box Dias Especiales-->
-
+          <!-- nav-tabs-custom -->
+        <!-- </div> -->
+        <!-- /.col -->
       </div>
-      <!-- /.box-body -->
-      <!-- <div class="box-footer">
-      </div> -->
-      <!-- /.box-footer-->
-    </div>
-    <!-- /.box datos del Objetivo -->
+      <!-- /.row -->
+      <!-- END CUSTOM TABS -->
+   </div>
+   <!-- ./container-fluid -->
+
+
 
   </section>
   <!-- /.content -->
@@ -624,477 +573,638 @@
 <!-- /.content-wrapper -->
 
 
+<!-- MODAL SECTION  -->
 
+    <!-- Modal Modificar Turno -->
+    <div id="editar-puesto" class="modal fade" role="dialog">
+      <div class="modal-dialog">
 
-<!-- Modal Modificar Turno -->
-<div id="editar-puesto" class="modal fade" role="dialog">
-  <div class="modal-dialog">
+      <!-- Modal content-->
+      <div class="modal-content">
 
-  <!-- Modal content-->
-  <div class="modal-content">
+        <div class="modal-header bg-primary">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 id="titulo" class="modal-title"><i class="fa fa-building-o"></i>   DIA - TIENDA 143</h4>
+        </div>
 
-    <div class="modal-header bg-primary">
-      <button type="button" class="close" data-dismiss="modal">&times;</button>
-      <h4 id="titulo" class="modal-title"><i class="fa fa-building-o"></i>   DIA - TIENDA 143</h4>
-    </div>
+        <form name="formModificarTurno">
 
-    <div class="modal-body">
+          <div class="modal-body">
 
-    <div class="row">
-      <div class="row col-md-6 ml-7">
+          <div class="container-fluid">
+            <div class="row">
+              <div class="col-md-8">
 
-        <div>
-          <div>
-              <i class="fa fa-street-view"></i><label class="conf">Nombre del Puesto: </label>
-              <input class="form-control" type="text"  id="nombrePuesto">
+                <div class="form-group">
+                    <i class="fa fa-street-view"></i><label class="conf">Nombre del Puesto: </label>
+                    <input type="text" class="form-control"  name="nombrePuesto"  id="nombrePuesto">
+                </div>
+
+                <div class="form-group">
+                    <i class="fa fa-folder-open"></i><label class="conf">Nombre del Turno: </label>
+                    <input class="form-control" type="text"  id="nombreTurno" disabled>
+                </div>
+
+                <div class="form-group">
+                  <i class="glyphicon glyphicon-log-in"></i><label class="conf" for="datetimepickerHIMod">Hora Ingreso: </label>
+                  <div class="input-group" id="datetimepickerHIMod">
+                      <input type="text" class="form-control" name="horaIngreso" id="horaIngreso"/>
+                      <span class="input-group-addon">
+                          <span class="glyphicon glyphicon-time"></span>
+                      </span>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <i class="glyphicon glyphicon-log-out"></i><label class="conf" for="datetimepickerHEMod">Hora Egreso: </label>
+                  <div class="input-group" id="datetimepickerHEMod">
+                      <input type="text" class="form-control" name="horaEgreso" id="horaEgreso"/>
+                      <span class="input-group-addon">
+                          <span class="glyphicon glyphicon-time"></span>
+                      </span>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                    <i class="glyphicon glyphicon-time"></i><label class="conf">Total Horas: </label>
+                    <input class="form-control" type="text"  id="horasTurno" disabled>
+                </div>
+
+                <div class="form-group">
+                  <i class="glyphicon glyphicon-check"></i><label class="conf">Estado: </label>
+                  <select class="form-control" id="estado">
+                    <option selected>Habilitado</option>
+                    <option >Deshabilitado</option>
+                  </select>
+                </div>
+
+              </div>
+            </div>
           </div>
-          <h5>Datos del Turno: </h5>
-        </div>
 
-        <div>
-            <i class="fa fa-folder-open"></i><label class="conf">Nombre del Turno: </label>
-            <input class="form-control" type="text"  id="nombreTurno">
-        </div>
+          </div>
 
-        <div>
-            <i class="glyphicon glyphicon-log-in"></i><label class="conf">Datos de Ingreso: </label>
-            <input class="form-control" type="text"  id="horaIngreso">
-        </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">Modificar</button>
+            <button type="submit" class="btn"  data-dismiss="modal" onclick="disableValidateFormModificarTurno();">Cerrar</button>
+          </div>
 
-        <div>
-            <i class="glyphicon glyphicon-log-out"></i><label class="conf">Datos de Egreso: </label>
-            <input class="form-control" type="text"  id="horaEgreso">
-        </div>
+        </form>
 
-        <div>
-            <i class="glyphicon glyphicon-time"></i><label class="conf">Total Horas: </label>
-            <input class="form-control" type="text"  id="horasTurno">
-        </div>
-
-        <div>
-            <i class="glyphicon glyphicon-check"></i><label class="conf">Estado: </label>
-            <input class="form-control" type="text"  id="estado">
-        </div>
 
       </div>
 
+      </div>
     </div>
 
+    <!-- Modal Carga Puesto -->
+    <div id="carga-puesto" class="modal fade" role="dialog">
+      <div class="modal-dialog modal-lg">
+
+      <!-- Modal content-->
+      <div class="modal-content">
+
+        <div class="modal-header bg-primary">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <i class="fa fa-building-o"></i><label class="ml-7"><h4>DIA - TIENDA 143</h4></label>
+        </div>
+
+        <form name="formCargarPuesto">
+
+          <div class="modal-body">
+
+          <div class="container-fluid">
+            <div class="row">
+              <div class="col-md-4">
+
+                  <div class="form-group">
+                    <i class="fa fa-street-view"></i><label class="conf">Nombre del Puesto: </label>
+                      <input type="text" class="form-control"  name="nombrePuesto1"  id="nombrePuesto1">
+                  </div>
+
+                  <div class="form-group">
+                      <i class="fa fa-folder-open"></i><label class="conf">Nombre del Turno: </label>
+                      <input type="text" class="form-control" name="nombreTurno1" id="nombreTurno1" disabled>
+                  </div>
+
+                  <div class="form-group">
+                    <i class="glyphicon glyphicon-log-in"></i><label for="datetimepickerHI" class="conf">Hora Ingreso: </label>
+                    <div class="input-group" id="datetimepickerHI">
+                        <input type="text" class="form-control" name="horaIngreso1" id="horaIngreso1"/>
+                        <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-time"></span>
+                        </span>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <i class="glyphicon glyphicon-log-out"></i><label for="datetimepickerHE" class="conf">Hora Egreso: </label>
+                    <div class="input-group" id="datetimepickerHE">
+                        <input type="text" class="form-control" name="horaEgreso1" id="horaEgreso1"/>
+                        <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-time"></span>
+                        </span>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                      <i class="glyphicon glyphicon-time"></i><label class="conf">Total Horas: </label>
+                      <input class="form-control" type="text"  id="horasTurno1" disabled>
+                  </div>
+
+                  <div class="form-group">
+                    <i class="glyphicon glyphicon-check"></i><label class="conf">Estado: </label>
+                    <select class="form-control" id="estado1">
+                      <option selected>Habilitado</option>
+                      <option >Deshabilitado</option>
+                    </select>
+                  </div>
+
+              </div>
+
+              <div class="col-md-4">
+
+                <div class="form-group requestTypeGroup">
+                  <i class="glyphicon glyphicon-calendar"></i><label class="conf" for="dias">Dias de la semana:</label>
+
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" value=1 name="diasSeleccionados" id="lunesCheck">
+                  <label class="form-check-label ml-7" for="lunesCheck">
+                    Lunes
+                  </label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" value=2 name="diasSeleccionados" id="martesCheck">
+                  <label class="form-check-label ml-7" for="martesCheck">
+                    Martes
+                  </label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" value=3 name="diasSeleccionados" id="miercolesCheck">
+                  <label class="form-check-label ml-7" for="miercolesCheck">
+                    Miercoles
+                  </label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" value=4 name="diasSeleccionados" id="juevesCheck">
+                  <label class="form-check-label ml-7" for="juevesCheck">
+                    Jueves
+                  </label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" value=5 name="diasSeleccionados" id="viernesCheck">
+                  <label class="form-check-label ml-7" for="viernesCheck">
+                    Viernes
+                  </label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" value=6 name="diasSeleccionados" id="sabadoCheck">
+                  <label class="form-check-label ml-7" for="sabadoCheck">
+                    Sabado
+                  </label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" value=0 name="diasSeleccionados" id="domingoCheck">
+                  <label class="form-check-label ml-7" for="domingoCheck">
+                    Domingo
+                  </label>
+                  <p></p>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" value="todos" name="diasSeleccionados" id="todosCheck">
+                  <label class="form-check-label ml-7" for="todosCheck">
+                    Todos los dias
+                  </label>
+                </div>
+
+                </div> <!-- </div> .requestTypeGroup-->
+
+              </div>
+
+            </div>
+
+          </div>
+
+          </div>
+
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">Cargar</button>
+            <button type="button" class="btn" data-dismiss="modal" onclick="disableValidateFormCargarTurno();">Cerrar</button>
+          </div>
+
+    </form>
+
+      </div>
+
+      </div>
     </div>
-    <div class="modal-footer">
-      <button type="button" onclick="cambiarPuestosSetting()" class="btn btn-primary">Modificar</button>
-      <button type="button" class="btn" data-dismiss="modal">Cerrar</button>
+
+    <!-- Modal Borrar Turno -->
+    <div id="confirm-delete" class="modal fade"  tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="myModalLabel">Confirmar Eliminacion</h4>
+                </div>
+
+                <div class="modal-body">
+                    <p>Esta seguro que desea eliminar el turno?</p>
+                    <p class="debug-url"></p>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                    <a class="btn btn-danger btn-ok" onclick="eliminarTurno()">Eliminar</a>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
 
-  </div>
-</div>
+    <!-- Modal Validar Formulario -->
+    <div id="select-validate" class="modal fade"  tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
 
-<!-- Modal Carga Puesto -->
-<div id="carga-puesto" class="modal fade" role="dialog">
-  <div class="modal-dialog modal-lg">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="myModalLabel">Seleccionar</h4>
+                </div>
 
-  <!-- Modal content-->
-  <div class="modal-content">
+                <div class="modal-body">
+                    <p>Debe seleccionar un Cliente / Objetivo</p>
+                    <p class="debug-url"></p>
+                </div>
 
-    <div class="modal-header bg-primary">
-      <button type="button" class="close" data-dismiss="modal">&times;</button>
-      <i class="fa fa-building-o"></i><label class="ml-7"><h4>DIA - TIENDA 143</h4></label>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Aceptar</button>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div class="modal-body">
+    <!-- Modal Cargar Esquema -->
+    <div id="cargar-esquema" class="modal fade" role="dialog">
+      <div class="modal-dialog">
 
-    <div class="container">
-    <div class="row">
-        <div class="col-md-4">
-            <div class="form-group">
-                <i class="fa fa-street-view"></i><label class="conf">Nombre del Puesto: </label>
-                <input class="form-control" type="text"  id="nombrePuesto1">
+      <!-- Modal content-->
+      <div class="modal-content">
+
+        <div class="modal-header bg-primary">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 id="tituloCargarEsquema" class="modal-title"></h4>
+        </div>
+        <form name="formEsquemaNuevo">
+
+          <div class="modal-body">
+
+          <div class="row">
+            <div class="col-md-6 ml-7">
+               <div>
+                    <div class="form-group">
+                        <label for="datetimepicker8">Fecha Desde: </label>
+                          <div class="input-group date" id="datetimepicker7">
+                              <input type="text" class="form-control" name="fechaDesdeNuevoEsquema" id="fechaDesdeNuevoEsquema">
+                              <span class="input-group-addon">
+                                  <span class="glyphicon glyphicon-calendar"></span>
+                              </span>
+                          </div>
+                    </div>
+              </div>
+
+              <div>
+                  <div class="form-group">
+                      <label for="datetimepicker7">Fecha Hasta: </label>
+                        <div class="input-group date" id="datetimepicker8">
+                            <input type="text" class="form-control" name="fechaHastaNuevoEsquema" id="fechaHastaNuevoEsquema">
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
+                  </div>
+              </div>
+
+              <div>
+                  <i class="glyphicon glyphicon-check"></i><label class="conf">Estado: </label>
+                  <input class="form-control" type="text"  id="estadoNuevo" disabled>
+              </div>
+
+            </div>
+          </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">Agregar</button>
+            <button type="submit" class="btn" data-dismiss="modal" onclick="disableValidateFormEsquemaNuevo();">Cerrar</button>
+          </div>
+
+        </form>
+
+
+
+      </div>
+
+      </div>
+    </div>
+
+    <!-- Modal Modificar Fechas Esquema -->
+    <div id="modificar-fecha-esquema" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+
+      <!-- Modal content-->
+      <div class="modal-content">
+
+        <div class="modal-header bg-primary">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 id="tituloModFechasEsquema" class="modal-title"></h4>
+        </div>
+      <form name="formModFechasEsquema" >
+        <div class="modal-body">
+
+        <div class="row">
+          <div class="col-md-6 ml-7">
+             <div>
+                  <div class="form-group">
+                      <label for="dtmModFechaEsquemaFD">Fecha Desde: </label>
+                        <div class="input-group date" id="dtmModFechaEsquemaFD">
+                            <input type="text" class="form-control" name="fechaDesdeModEsquema" id="fechaDesdeModEsquema">
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
+                  </div>
             </div>
 
-            <div class="form-group">
-                <i class="fa fa-folder-open"></i><label class="conf">Nombre del Turno: </label>
-                <input class="form-control" type="text"  id="nombreTurno1">
+            <div>
+                <div class="form-group">
+                    <label for="dtmModFechaEsquemaFH">Fecha Hasta: </label>
+                      <div class="input-group date" id="dtmModFechaEsquemaFH">
+                          <input type="text" class="form-control" name="fechaHastaModEsquema" id="fechaHastaModEsquema">
+                          <span class="input-group-addon">
+                              <span class="glyphicon glyphicon-calendar"></span>
+                          </span>
+                      </div>
+                </div>
             </div>
 
-            <div class="form-group">
-                <i class="glyphicon glyphicon-log-in"></i><label class="conf">Hora Ingreso: </label>
-                <input class="form-control" type="text"  id="ingresoPuesto1">
-            </div>
-
-            <div class="form-group">
-                <i class="glyphicon glyphicon-log-out"></i><label class="conf">Hora Egreso: </label>
-                <input class="form-control" type="text"  id="egresoPuesto1">
-            </div>
-
-            <div class="form-group">
-                <i class="glyphicon glyphicon-time"></i><label class="conf">Total Horas: </label>
-                <input class="form-control" type="text"  id="horasTurno1">
-            </div>
-
-            <div class="form-group">
+            <div>
                 <i class="glyphicon glyphicon-check"></i><label class="conf">Estado: </label>
-                <input class="form-control" type="text"  id="estado1">
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="form-group">
-              <i class="glyphicon glyphicon-calendar"></i><label class="conf" for="dias">Dias de la semana:</label>
+                <input class="form-control" type="text"  id="estadoNuevoModFecha" disabled>
             </div>
 
-            <div class="form-check">
-              <input class="form-check-input" type="checkbox" value=1 name="diasSeleccionados" id="lunesCheck">
-              <label class="form-check-label ml-7" for="lunesCheck">
-                Lunes
-              </label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="checkbox" value=2 name="diasSeleccionados" id="martesCheck">
-              <label class="form-check-label ml-7" for="martesCheck">
-                Martes
-              </label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="checkbox" value=3 name="diasSeleccionados" id="miercolesCheck">
-              <label class="form-check-label ml-7" for="miercolesCheck">
-                Miercoles
-              </label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="checkbox" value=4 name="diasSeleccionados" id="juevesCheck">
-              <label class="form-check-label ml-7" for="juevesCheck">
-                Jueves
-              </label>
-            </div>
-            <div class="form-check form-check-inline">
-              <input class="form-check-input" type="checkbox" value=5 name="diasSeleccionados" id="viernesCheck">
-              <label class="form-check-label ml-7" for="viernesCheck">
-                Viernes
-              </label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="checkbox" value=6 name="diasSeleccionados" id="sabadoCheck">
-              <label class="form-check-label ml-7" for="sabadoCheck">
-                Sabado
-              </label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="checkbox" value=0 name="diasSeleccionados" id="domingoCheck">
-              <label class="form-check-label ml-7" for="domingoCheck">
-                Domingo
-              </label>
-              <p></p>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="checkbox" value="todos" name="diasSeleccionados" id="todosCheck">
-              <label class="form-check-label ml-7" for="todosCheck">
-                Todos los dias
-              </label>
-            </div>
-
-        </div>
-      </div><!-- </div> .row-->
-    </div><!-- </div> .container-->
-    </div>
-    <div class="modal-footer">
-      <button type="button" class="btn btn-primary" onclick="cargarPuestosEsquema()">Cargar</button>
-      <button type="button" class="btn" data-dismiss="modal">Cerrar</button>
-    </div>
-  </div>
-
-  </div>
-</div>
-
-<!-- Modal Borrar Turno -->
-<div id="confirm-delete" class="modal fade"  tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title" id="myModalLabel">Confirmar Eliminacion</h4>
-            </div>
-
-            <div class="modal-body">
-                <p>Esta seguro que desea eliminar el turno?</p>
-                <p class="debug-url"></p>
-            </div>
-
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
-                <a class="btn btn-danger btn-ok" onclick="eliminarTurno()">Eliminar</a>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal Validar Formulario -->
-<div id="select-validate" class="modal fade"  tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title" id="myModalLabel">Seleccionar</h4>
-            </div>
-
-            <div class="modal-body">
-                <p>Debe seleccionar un Cliente / Objetivo</p>
-                <p class="debug-url"></p>
-            </div>
-
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Aceptar</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal Cargar Esquema -->
-<div id="cargar-esquema" class="modal fade" role="dialog">
-  <div class="modal-dialog">
-
-  <!-- Modal content-->
-  <div class="modal-content">
-
-    <div class="modal-header bg-primary">
-      <button type="button" class="close" data-dismiss="modal">&times;</button>
-      <h4 id="titulo" class="modal-title"><i class="fa fa-building-o"></i>   DIA - TIENDA 143</h4>
-    </div>
-
-    <div class="modal-body">
-
-    <div class="row">
-      <div class="row col-md-6 ml-7">
-
-        <div>
-          <div>
-              <i class="glyphicon glyphicon-calendar"></i><label class="conf">Fecha Desde: </label>
-              <input class="form-control" type="text"  id="fechaDesdeNuevo">
           </div>
         </div>
 
-        <div>
-            <i class="glyphicon glyphicon-calendar"></i><label class="conf">Fecha Hasta: </label>
-            <input class="form-control" type="text"  id="fechaHastaNuevo">
         </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Modificar</button>
+          <button type="submit" class="btn" data-dismiss="modal" onclick="disableValidateFormModFechasEsquema()">Cerrar</button>
+        </div>
+      </form>
 
-        <div>
-            <i class="glyphicon glyphicon-check"></i><label class="conf">Estado: </label>
-            <input class="form-control" type="text"  id="estadoNuevo">
-        </div>
+
 
       </div>
 
+      </div>
     </div>
 
-    </div>
-    <div class="modal-footer">
-      <button type="button" onclick="cargarEsquemaServer()" class="btn btn-primary">Agregar</button>
-      <button type="button" class="btn" data-dismiss="modal">Cerrar</button>
-    </div>
-  </div>
+    <!-- Modal Cargar Historial de Esquemas -->
+    <div id="cargar-historial" class="modal fade" role="dialog">
+      <div class="modal-dialog modal-lg">
 
-  </div>
-</div>
+      <!-- Modal content-->
+      <div class="modal-content">
 
-<!-- Modal Cargar Historial de Esquemas -->
-<div id="cargar-historial" class="modal fade" role="dialog">
-  <div class="modal-dialog modal-lg">
+        <div class="modal-header bg-primary">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 id="tituloModalHistorial" class="modal-title"></h4>
+        </div>
 
-  <!-- Modal content-->
-  <div class="modal-content">
+        <div class="modal-body">
 
-    <div class="modal-header bg-primary">
-      <button type="button" class="close" data-dismiss="modal">&times;</button>
-      <h4 id="titulo" class="modal-title"><i class="fa fa-building-o"></i>   DIA - TIENDA 143</h4>
-    </div>
+        <div class="container-fluid">
+          <div class="row">
+            <div  class="table-responsive">
+              <table name="tablaHistorialEsquemas" id="tablaHistorialEsquemas" class="table table-condensed table-striped table-bordered table-hover rwd_auto text-nowrap align-center">
+                <thead>
+                  <tr >
+                    <th class="align-center">Fecha Desde</th>
+                    <th class="align-center">Fecha Hasta</th>
+                    <th class="align-center">Dias</th>
+                    <th class="align-center">Horas Mensuales</th>
+                    <th class="align-center">Estado</th>
+                    <th class="align-center">Editar</th>
+                    <th class="align-center">Eliminar</th>
+                  </tr>
+                </thead>
+                <tbody id="table_body_historial">
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <!-- /.container -->
 
-    <div class="modal-body">
-
-    <div class="container-fluid">
-      <div class="row">
-        <div  class="table-responsive">
-          <table name="tablaHistorialEsquemas" id="tablaHistorialEsquemas" class="table table-condensed table-striped table-bordered table-hover rwd_auto text-nowrap align-center">
-            <thead>
-              <tr >
-                <th class="align-center">Fecha Desde</th>
-                <th class="align-center">Fecha Hasta</th>
-                <th class="align-center">Dias</th>
-                <th class="align-center">Horas Mensuales</th>
-                <th class="align-center">Estado</th>
-                <th class="align-center">Editar</th>
-                <th class="align-center">Eliminar</th>
-              </tr>
-            </thead>
-            <tbody id="table_body_historial">
-            </tbody>
-          </table>
+          </div>
+        <div class="modal-footer">
+          <button type="button" class="btn" data-dismiss="modal">Cerrar</button>
         </div>
       </div>
-    </div>
-    <!-- /.container -->
-
       </div>
-    <div class="modal-footer">
-      <button type="button" class="btn" data-dismiss="modal">Cerrar</button>
     </div>
-  </div>
-  </div>
-  </div>
 
-<!-- Modal Borrar Esquema -->
-<div id="confirm-delete-esquema" class="modal fade"  tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
+    <!-- Modal Borrar Esquema -->
+    <div id="confirm-delete-esquema" class="modal fade"  tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
 
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title" id="myModalLabel">Confirmar Eliminacion</h4>
-            </div>
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="myModalLabel">Confirmar Eliminacion</h4>
+                </div>
 
-            <div class="modal-body">
-                <p>Esta seguro que desea eliminar el esquema de bobertura?</p>
-                <p>NOTA: Esta accion no se puede restablecer.</p>
-                <p class="debug-url"></p>
-            </div>
+                <div class="modal-body">
+                    <p>Esta seguro que desea eliminar el esquema de bobertura?</p>
+                    <p>NOTA: Esta accion no se puede restablecer.</p>
+                    <p class="debug-url"></p>
+                </div>
 
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
-                <a class="btn btn-danger btn-ok" onclick="eliminarEsquema()">Eliminar</a>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                    <a class="btn btn-danger btn-ok" onclick="eliminarEsquema()">Eliminar</a>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Modal Carga Dias Especiales -->
-<div id="carga-dias" class="modal fade" role="dialog">
-  <div class="modal-dialog modal-lg">
+    <!-- Modal Carga Dias Especiales -->
+    <div id="carga-dias" class="modal fade" role="dialog">
+      <div class="modal-dialog modal-lg">
 
-  <!-- Modal content-->
-  <div class="modal-content">
+      <!-- Modal content-->
+      <div class="modal-content">
 
-    <div class="modal-header bg-primary">
-      <button type="button" class="close" data-dismiss="modal">&times;</button>
-      <i class="fa fa-building-o"></i><label class="ml-7"><h4>DIA - TIENDA 143</h4></label>
-    </div>
+        <div class="modal-header bg-primary">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <i class="fa fa-building-o"></i><label class="ml-7"><h4>DIA - TIENDA 143</h4></label>
+        </div>
 
-    <div class="modal-body">
+        <form name="formDiasEspeciales">
 
-    <div class="container">
-    <div class="row">
-        <div class="col-md-4">
-            <div class="form-group">
-                <i class="fa fa-street-view"></i><label class="conf">Nombre del Puesto: </label>
-                <input class="form-control" type="text"  id="nombrePuesto2">
-            </div>
+          <div class="modal-body">
 
-            <div class="form-group">
-                <i class="fa fa-folder-open"></i><label class="conf">Nombre del Turno: </label>
-                <input class="form-control" type="text"  id="nombreTurno2">
-            </div>
+          <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-5">
 
-            <div class="form-group">
-                <i class="glyphicon glyphicon-log-in"></i><label class="conf">Hora Ingreso: </label>
-                <input class="form-control" type="text"  id="ingresoPuesto2">
-            </div>
+                    <div class="form-group">
+                        <i class="fa fa-street-view"></i><label class="conf">Nombre del Puesto: </label>
+                        <input class="form-control" type="text"  name="nombrePuesto2" id="nombrePuesto2">
+                    </div>
 
-            <div class="form-group">
-                <i class="glyphicon glyphicon-log-out"></i><label class="conf">Hora Egreso: </label>
-                <input class="form-control" type="text"  id="egresoPuesto2">
-            </div>
+                    <div class="form-group">
+                        <i class="fa fa-folder-open"></i><label class="conf">Nombre del Turno: </label>
+                        <input class="form-control" type="text" name="nombreTurno2" id="nombreTurno2" disabled>
+                    </div>
 
-            <div class="form-group">
-                <i class="glyphicon glyphicon-time"></i><label class="conf">Total Horas: </label>
-                <input class="form-control" type="text"  id="horasTurno2">
-            </div>
+                    <div class="form-group">
+                      <i class="glyphicon glyphicon-log-in"></i><label for="datetimepickerHIEspecial" class="conf">Hora Ingreso: </label>
+                      <div class="input-group" id="datetimepickerHIEspecial">
+                          <input type="text" class="form-control" name="horaIngresoEspecial" id="horaIngresoEspecial"/>
+                          <span class="input-group-addon">
+                              <span class="glyphicon glyphicon-time"></span>
+                          </span>
+                      </div>
+                    </div>
 
-            <div class="form-group">
-                <i class="glyphicon glyphicon-check"></i><label class="conf">Estado: </label>
-                <input class="form-control" type="text"  id="estado2">
-            </div>
+                    <div class="form-group">
+                      <i class="glyphicon glyphicon-log-out"></i><label for="datetimepickerHEEspecial" class="conf">Hora Egreso: </label>
+                      <div class="input-group" id="datetimepickerHEEspecial">
+                          <input type="text" class="form-control" name="horaEgresoEspecial" id="horaEgresoEspecial"/>
+                          <span class="input-group-addon">
+                              <span class="glyphicon glyphicon-time"></span>
+                          </span>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                        <i class="glyphicon glyphicon-time"></i><label class="conf">Total Horas: </label>
+                        <input class="form-control" type="text"  name="horasTurno2" id="horasTurno2" disabled>
+                    </div>
+
+                    <div class="form-group">
+                      <i class="glyphicon glyphicon-check"></i><label class="conf">Estado: </label>
+                      <select class="form-control" id="estado2">
+                        <option selected>Habilitado</option>
+                        <option >Deshabilitado</option>
+                      </select>
+                    </div>
+
+                </div>
+                <div class="col-md-5">
+
+                  <div class="input-group datepicker">
+                    <i class="glyphicon glyphicon-calendar"></i><label class="conf" for="datepicker">Dias Calendario:</label>
+                      <input type="text" class="form-control" name="datepicker" id='datepicker' placeholder='Seleccione las fechas ... '>
+                  </div>
+
+                </div>
+            </div><!-- </div> .row-->
+          </div><!-- </div> .container-->
           </div>
 
-          <div class="col-md-4">
-            <div class="input-group datepicker">
-              <i class="glyphicon glyphicon-calendar"></i><label class="conf" for="datepicker">Dias Calendario:</label>
-              <input type="text" class="form-control" id='datepicker' placeholder='Seleccione las fechas ... '>
-            </div>
-          </div>
-      </div><!-- </div> .row-->
-    </div><!-- </div> .container-->
-    </div>
-    <div class="modal-footer">
-      <button type="button" class="btn btn-primary" onclick="cargarPuestoTemporal()">Cargar</button>
-      <button type="button" class="btn" data-dismiss="modal">Cerrar</button>
-    </div>
-  </div>
-
-  </div>
-</div>
-
-<!-- Modal Modificar Dias Especiales -->
-<div id="modificar-dias" class="modal fade" role="dialog">
-  <div class="modal-dialog modal-lg">
-
-  <!-- Modal content-->
-  <div class="modal-content">
-
-    <div class="modal-header bg-primary">
-      <button type="button" class="close" data-dismiss="modal">&times;</button>
-      <i class="fa fa-building-o"></i><label class="ml-7"><h4>DIA - TIENDA 143</h4></label>
-    </div>
-
-    <div class="modal-body">
-
-    <div class="container">
-    <div class="row">
-        <div class="col-md-4">
-            <div class="form-group">
-                <i class="fa fa-street-view"></i><label class="conf">Nombre del Puesto: </label>
-                <input class="form-control" type="text"  id="nombrePuesto3">
-            </div>
-
-            <div class="form-group">
-                <i class="fa fa-folder-open"></i><label class="conf">Nombre del Turno: </label>
-                <input class="form-control" type="text"  id="nombreTurno3">
-            </div>
-
-            <div class="form-group">
-                <i class="glyphicon glyphicon-log-in"></i><label class="conf">Hora Ingreso: </label>
-                <input class="form-control" type="text"  id="ingresoPuesto3">
-            </div>
-
-            <div class="form-group">
-                <i class="glyphicon glyphicon-log-out"></i><label class="conf">Hora Egreso: </label>
-                <input class="form-control" type="text"  id="egresoPuesto3">
-            </div>
-
-            <div class="form-group">
-                <i class="glyphicon glyphicon-time"></i><label class="conf">Total Horas: </label>
-                <input class="form-control" type="text"  id="horasTurno3">
-            </div>
-
-            <div class="form-group">
-                <i class="glyphicon glyphicon-check"></i><label class="conf">Estado: </label>
-                <input class="form-control" type="text"  id="estado3">
-            </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">Cargar</button>
+            <button type="submit" class="btn" data-dismiss="modal" onclick="disableValidateFormDiasEspeciales()" >Cerrar</button>
           </div>
 
-          <!-- <div class="col-md-4">
-            <div class="input-group datepicker">
-              <i class="glyphicon glyphicon-calendar"></i><label class="conf" for="datepicker">Dias Calendario:</label>
-              <input type="text" class="form-control" id='datepicker' placeholder='Seleccione las fechas ... '>
+        </form>
+
+      </div>
+
+      </div>
+    </div>
+
+    <!-- Modal Modificar Dias Especiales -->
+    <div id="modificar-dias" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+    <!-- Modal content-->
+    <div class="modal-content">
+
+      <div class="modal-header bg-primary">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <i class="fa fa-building-o"></i><label class="ml-7"><h4>DIA - TIENDA 143</h4></label>
+      </div>
+
+      <form name="formModDiasEspeciales">
+
+        <div class="modal-body">
+
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col-md-5">
+
+                <div class="form-group">
+                    <i class="fa fa-street-view"></i><label class="conf">Nombre del Puesto: </label>
+                    <input class="form-control" type="text"  name="nombrePuesto3" id="nombrePuesto3">
+                </div>
+
+                <div class="form-group">
+                    <i class="fa fa-folder-open"></i><label class="conf">Nombre del Turno: </label>
+                    <input class="form-control" type="text" namePanel="nombreTurno3" id="nombreTurno3" disabled>
+                </div>
+
+                <div class="form-group">
+                  <i class="glyphicon glyphicon-log-in"></i><label for="datetimepickerHIModEsp" class="conf">Hora Ingreso: </label>
+                  <div class="input-group" id="datetimepickerHIModEsp">
+                      <input type="text" class="form-control" name="horaIngresoModEsp" id="horaIngresoModEsp"/>
+                      <span class="input-group-addon">
+                          <span class="glyphicon glyphicon-time"></span>
+                      </span>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <i class="glyphicon glyphicon-log-out"></i><label for="datetimepickerHEModEsp" class="conf">Hora Egreso: </label>
+                  <div class="input-group" id="datetimepickerHEModEsp">
+                      <input type="text" class="form-control" name="horaEgresoModEsp" id="horaEgresoModEsp"/>
+                      <span class="input-group-addon">
+                          <span class="glyphicon glyphicon-time"></span>
+                      </span>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                    <i class="glyphicon glyphicon-time"></i><label class="conf">Total Horas: </label>
+                    <input class="form-control" type="text"  id="horasTurno3" disabled>
+                </div>
+
+                <div class="form-group">
+                  <i class="glyphicon glyphicon-check"></i><label class="conf">Estado: </label>
+                  <select class="form-control" id="estado3">
+                    <option selected>Habilitado</option>
+                    <option >Deshabilitado</option>
+                  </select>
+                </div>
+
             </div>
-          </div> -->
-      </div><!-- </div> .row-->
-    </div><!-- </div> .container-->
+          </div>
+        </div>
+
+        </div>
+
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Modificar</button>
+          <button type="submit" class="btn" data-dismiss="modal" onclick="disableValidateFormModDiasEspeciales()" >Cerrar</button>
+        </div>
+
+      </form>
+
+
+
     </div>
-    <div class="modal-footer">
-      <button type="button" class="btn btn-primary" onclick="modificarPuestoTemporal()">Modificar</button>
-      <button type="button" class="btn" data-dismiss="modal">Cerrar</button>
-    </div>
-  </div>
 
   </div>
-</div>
+    </div>

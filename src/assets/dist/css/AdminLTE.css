@@ -4455,7 +4455,8 @@ table.text-center th {
 .alert-error,
 .label-danger,
 .modal-danger .modal-body {
-  background-color: #dd4b39 !important;
+  background-color: #dd4b39 ;
+  /* Se retiro el !important */
 }
 .bg-yellow,
 .callout.callout-warning,

@@ -5,11 +5,9 @@ import {FormControl, FormGroup} from '@angular/forms';
 declare var jQuery: any;
 declare var $: any;
 declare var toggleAccordion: any;
-declare var cargarListadoClientes: any;
-declare var cargarDatePicker: any;
-
-//declare var datepicker: any; // Declaro la funcion datepicker
-
+declare var listadoClientesEsquema: any;
+declare var cargarListadoClientes2: any;
+declare var cargarTodosDatePicker: any;
 
 @Component({
   selector: 'app-setting',
@@ -21,10 +19,11 @@ export class SettingComponent implements OnInit {
   constructor(){ }
 
   ngOnInit(){
-    cargarListadoClientes();
+    listadoClientesEsquema();
+    cargarListadoClientes2();
     $('.box').boxWidget();
-    cargarDatePicker(); // Bootstrap Datepicker
     toggleAccordion();
+    cargarTodosDatePicker();
   }
 
 }
