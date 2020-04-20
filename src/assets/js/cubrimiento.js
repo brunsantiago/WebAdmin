@@ -86,7 +86,7 @@ function mostrarCubrimiento(){
                        let nomObjetivo=doc.data().nombreObjetivo;
                        promises.push( generaTabla(primerDia,ultimoDia,nomCliente,nomObjetivo,razonSocial,idTable) );
                        promises.push( cargarCobertura(idCliente,idObjetivo,primerDia,ultimoDia,idTable) );
-                       promises.push( CargarCubrimiento(idCliente,idObjetivo,primerDia,ultimoDia,idTable) );
+                       promises.push( cargarCubrimiento(idCliente,idObjetivo,primerDia,ultimoDia,idTable) );
                        razonSocial="";
                        idTable++;
                      });
@@ -113,7 +113,7 @@ function mostrarCubrimiento(){
                        let nomObjetivo=doc.data().nombreObjetivo;
                        promises.push( generaTabla(primerDia,ultimoDia,nomCliente,nomObjetivo,razonSocial,idTable) );
                        promises.push( cargarCobertura(idCliente,idObjetivo,primerDia,ultimoDia,idTable) );
-                       promises.push( CargarCubrimiento(idCliente,idObjetivo,primerDia,ultimoDia,idTable) );
+                       promises.push( cargarCubrimiento(idCliente,idObjetivo,primerDia,ultimoDia,idTable) );
                        razonSocial="";
                      });
                      Promise.all(promises)
@@ -156,7 +156,7 @@ function cargarCubrimientoObjetivos(idCliente,nomCliente,primerDia,ultimoDia,idC
           let nomObjetivo=doc.data().nombreObjetivo;
           promises.push( generaTabla(primerDia,ultimoDia,nomCliente,nomObjetivo,razonSocial,idClienteTable+"-"+idTable) );
           promises.push( cargarCobertura(idCliente,idObjetivo,primerDia,ultimoDia,idClienteTable+"-"+idTable) );
-          promises.push( CargarCubrimiento(idCliente,idObjetivo,primerDia,ultimoDia,idClienteTable+"-"+idTable) );
+          promises.push( cargarCubrimiento(idCliente,idObjetivo,primerDia,ultimoDia,idClienteTable+"-"+idTable) );
           razonSocial="";
           idTable++;
         });
@@ -174,7 +174,7 @@ function cargarCubrimientoObjetivos(idCliente,nomCliente,primerDia,ultimoDia,idC
 
 }
 
-function CargarCubrimiento(idCliente,idObjetivo,fechaInicial,fechaFinal,idTable){
+function cargarCubrimiento(idCliente,idObjetivo,fechaInicial,fechaFinal,idTable){
 
   return new Promise(function(resolve,reject) {
 
@@ -225,7 +225,7 @@ function cargarHorasDiarias(idCliente,idObjetivo,idDia,fechaInicial,fechaFinal,i
         let puesto = doc.data();
         //No cargar hasta que no tenga hora de egreso
         if (puesto.horaEgreso.length>0){
-          promises.push(cargarHorasPersonal(puesto,fechaInicial,fechaFinal,idTable,idDia));
+          promises.push(cargarHorasPersonal(idCliente,idObjetivo,puesto,fechaInicial,fechaFinal,idTable,idDia));
         }
       });
     } // fin else
@@ -271,23 +271,6 @@ function devolverNombre(idPersonal,columnaNombre) {
   });
 }
 
-function cargarNombrePersonal(nroLegajo,idElemento) {
-
-  db.collection("users").where("idPersonal","==",nroLegajo)
-  .get()
-  .then(function(querySnapshot) {
-      if (querySnapshot.empty) {
-          console.log("No such document!");
-      } else {
-        querySnapshot.forEach(function(doc) {
-          $("#"+idElemento).html("   "+doc.data().nombre);
-        });
-      }
-  }).catch(function(error) {
-      console.log("Error getting document:", error);
-  });
-}
-
 function posicionTabla(fechaCarga,fechaInicial){
   // Se pasa una fecha de consulta junto con la fecha desde donde
   // inicia la tabla hasta la fecha donde termina y devuelve la posicion
@@ -296,7 +279,7 @@ function posicionTabla(fechaCarga,fechaInicial){
   return resultado;
 }
 
-function cargarHorasPersonal(puesto,fechaInicial,fechaFinal,idTable,idDia){
+function cargarHorasPersonal(idCliente,idObjetivo,puesto,fechaInicial,fechaFinal,idTable,idDia){
 
   return new Promise(function(resolve,reject){
 
@@ -346,7 +329,7 @@ function cargarHorasPersonal(puesto,fechaInicial,fechaFinal,idTable,idDia){
           columnas[posDia].setAttribute("data-toggle", "modal");
           columnas[posDia].setAttribute("data-target", "#detalle-dia");
           columnas[posDia].addEventListener("click", function(){
-            mostrarModalDetalleDia(idDia,puesto,variosPuestos);
+            mostrarModalDetalleDia(idCliente,idObjetivo,idDia,puesto,variosPuestos);
           });
           encontrado=true;
           // Se agrega un dia mas porque tiene horario internacional
@@ -356,7 +339,7 @@ function cargarHorasPersonal(puesto,fechaInicial,fechaFinal,idTable,idDia){
 	});
 
 	if(!encontrado){
-	   crearFilaNueva(puesto,puesto.idPersonal,puesto.fechaPuesto,horas,puesto.nombrePuesto,puesto.ingresoPuesto,puesto.egresoPuesto,puesto.horaIngreso,puesto.horaEgreso,horaIngresoParam,horaEgresoParam,fechaInicial,fechaFinal,idTable)
+	   crearFilaNueva(idCliente,idObjetivo,puesto,puesto.idPersonal,puesto.fechaPuesto,horas,puesto.nombrePuesto,puesto.ingresoPuesto,puesto.egresoPuesto,puesto.horaIngreso,puesto.horaEgreso,horaIngresoParam,horaEgresoParam,fechaInicial,fechaFinal,idTable)
      .then(function(){
        resolve(); //Si la funcion crearFilaNueva funciona correctamente se devuelve resolve()
      })
@@ -369,7 +352,7 @@ function cargarHorasPersonal(puesto,fechaInicial,fechaFinal,idTable,idDia){
 
 }
 
-function crearFilaNueva(puesto,nroLegajo,fechaCarga,horas,nombrePuesto,ingresoPuesto,egresoPuesto,ingresoReal,egresoReal,ingresoParam,egresoParam,fechaInicial,fechaFinal,idTable) {
+function crearFilaNueva(idCliente,idObjetivo,puesto,nroLegajo,fechaCarga,horas,nombrePuesto,ingresoPuesto,egresoPuesto,ingresoReal,egresoReal,ingresoParam,egresoParam,fechaInicial,fechaFinal,idTable) {
 
   return new Promise(function(resolve,reject){
 
@@ -398,7 +381,7 @@ function crearFilaNueva(puesto,nroLegajo,fechaCarga,horas,nombrePuesto,ingresoPu
      columnas[posDia].setAttribute("data-toggle", "modal");
      columnas[posDia].setAttribute("data-target", "#detalle-dia");
      columnas[posDia].addEventListener("click", function(){
-       mostrarModalDetalleDia(idDia,puesto,variosPuestos);
+       mostrarModalDetalleDia(idCliente,idObjetivo,idDia,puesto,variosPuestos);
      });
 
      //Genera la clase totalHs del Legajo y la inicializa en cero
@@ -820,7 +803,7 @@ function loaderStateFinishCubrimiento(){
 
 function cargarRangeSlider(){
 
-  $(".js-range-slider").ionRangeSlider({
+  $("#slider-detalle").ionRangeSlider({
     grid: true,
     type: 'double',
     force_edges: true,
@@ -852,27 +835,61 @@ function cargarRangeSlider(){
 // FUNCIONES MODAL DETALLE DIA
 ////////////////////////////////////////////////////////////////////////////////
 
-function mostrarModalDetalleDia(idDia,puesto,variosPuestos){
-
-  $("#card-contenedor").show();
-  $("#horas-turno-detalle").show();
-  $("#mostrar-botones").show();
-  $( "#boton-eliminar-turno" ).prop("disabled",false);
-  $( "#boton-habilitar-turno" ).prop("disabled",true);
+function mostrarModalDetalleDia(idCliente,idObjetivo,idDia,puesto,variosPuestos){
 
   if(variosPuestos==false){
     cargarNombrePersonal(puesto.idPersonal,"nombreDetalleDia");
-    cargarDatosTurnos(puesto);
-    cargarRangeSliderDetalleDia(puesto);
+    generarPanel(puesto,"1");
+    // cargarDatosTurnos(puesto,"1");
+    // cargarRangeSliderDetalleDia(puesto,"1");
   } else {
     //Si tiene mas de un puesto cargado en el dia tengo que recorrerlos y cargarlos
+    cargarNombrePersonal(puesto.idPersonal,"nombreDetalleDia");
 
+    db.collection("clientes").doc(idCliente).collection("objetivos").doc(idObjetivo).collection("cobertura")
+    .doc(idDia).collection("puestos")
+    .get()
+    .then(function(querySnapshot) {
+          if (querySnapshot.empty) {
+            // Si no se ecuentran la fecha
+          } else {
+            let idPanel=1;
+            querySnapshot.forEach(function(doc) {
+              let puesto = doc.data();
+              //No cargar hasta que no tenga hora de egreso
+              if (puesto.horaEgreso.length>0){
+                generarPanel(puesto,idPanel);
+                idPanel++;
+              }
+            });
+          }
 
+    })
+    .catch(function(error) {
+        console.log("Error getting document:", error);
+    });
   }
 
 }
 
-function cargarDatosTurnos(puesto){
+function cargarNombrePersonal(nroLegajo,idElemento) {
+
+  db.collection("users").where("idPersonal","==",nroLegajo)
+  .get()
+  .then(function(querySnapshot) {
+      if (querySnapshot.empty) {
+          console.log("No such document!");
+      } else {
+        querySnapshot.forEach(function(doc) {
+          $("#"+idElemento).html("   "+doc.data().nombre);
+        });
+      }
+  }).catch(function(error) {
+      console.log("Error getting document:", error);
+  });
+}
+
+function cargarDatosTurnos(puesto,idPanel){
 
     let date = new Date();
     let horaIngreso = new Date().setHours(puesto.ingresoPuesto.split(":")[0],puesto.ingresoPuesto.split(":")[1],0,0);
@@ -886,31 +903,58 @@ function cargarDatosTurnos(puesto){
     const tNHasta = date.setHours(23,59,59,999); // Hasta las 23:59
 
     if(horaIngreso>=tMRDesde && horaIngreso<=tMRHasta){
-      $("#tituloPuesto").text(puesto.nombrePuesto+" - Turno Madrugada");
+      $("#tituloPuesto-"+idPanel).text(puesto.nombrePuesto+" - Turno Madrugada");
     } else if(horaIngreso>=tMDesde && horaIngreso<=tMHasta){
-      $("#tituloPuesto").text(puesto.nombrePuesto+" - Turno Mañana");
+      $("#tituloPuesto-"+idPanel).text(puesto.nombrePuesto+" - Turno Mañana");
     } else if(horaIngreso>=tTDesde && horaIngreso<=tTHasta){
-      $("#tituloPuesto").text(puesto.nombrePuesto+" - Turno Tarde");
+      $("#tituloPuesto-"+idPanel).text(puesto.nombrePuesto+" - Turno Tarde");
     } else if(horaIngreso>=tNDesde && horaIngreso<=tNHasta){
-      $("#tituloPuesto").text(puesto.nombrePuesto+" - Turno Noche");
+      $("#tituloPuesto-"+idPanel).text(puesto.nombrePuesto+" - Turno Noche");
     }
 
-    $("#horaIngresoReal").text(puesto.horaIngreso);
+    $("#horaIngresoReal-"+idPanel).text(puesto.horaIngreso);
     if(puesto.horaEgreso.length>0){
-      $("#horaEgresoReal").text(puesto.horaEgreso);
+      $("#horaEgresoReal-"+idPanel).text(puesto.horaEgreso);
     } else {
-      $("#horaEgresoReal").text("");
+      $("#horaEgresoReal-"+idPanel).text("");
     }
 
-    $("#horasTurnoDetalle").text(puesto.horasTurno);
+    $("#horasTurnoDetalle-"+idPanel).text(puesto.horasTurno);
 
 
 }
 
-function cargarRangeSliderDetalleDia(puesto){
+function cargarRangeSliderDetalleDia(puesto,idPanel){
+
+  //Initialise range slider instance
+  $("#slider-detalle-"+idPanel).ionRangeSlider({
+  grid: true,
+  type: 'double',
+  force_edges: true,
+  drag_interval: true,
+  step: 900000,
+  prettify: function (num) {
+  return moment(num).format('HH:mm');
+  },
+  onChange: function (data) {
+  // Called every time handle position is changed
+    let difHoras = totalHorasDetalle(new Date(data.from),new Date(data.to));
+    $("#horasRegitradasDetalle-"+idPanel).text(difHoras);
+    document.getElementById('icon-informe-'+idPanel).className = 'fas fa-angle-double-down open';
+    $("#mostrarInforme-"+idPanel).show(300);
+    $("#ampliacionHoras-"+idPanel).show(300);
+    $("#penalizacionHora-"+idPanel).hide(300);
+    $("#penalizacionTurno-"+idPanel).hide(300);
+  },
+  onUpdate: function (data) {
+  // Called then slider is changed using Update public method
+    let difHoras = totalHorasDetalle(new Date(data.from),new Date(data.to));
+    $("#horasRegitradasDetalle-"+idPanel).text(difHoras);
+  },
+});
 
   // Save instance to variable
-  let my_range = $(".js-range-slider").data("ionRangeSlider");
+  let my_range = $("#slider-detalle-"+idPanel).data("ionRangeSlider");
 
   let fechaIngresoPuesto = new Date(puesto.fechaPuesto+"T"+puesto.ingresoPuesto+":00");
   let fechaEgresoPuesto = new Date(puesto.fechaPuesto+"T"+puesto.egresoPuesto+":00");
@@ -930,52 +974,86 @@ function cargarRangeSliderDetalleDia(puesto){
     max: fechaEgresoPuesto.valueOf(),
     from: ingresoParam.valueOf(),
     to: egresoParam.valueOf(),
+    disable: false,
   });
 
   let difHoras = totalHorasDetalle(ingresoParam,egresoParam);
 
-  $("#horasRegitradasDetalle").text(difHoras);
+  $("#horasRegitradasDetalle-"+idPanel).text(difHoras);
 
-  $("#completarTurnoDetalle").click(function() {
+  $("#completarTurnoDetalle-"+idPanel).click(function() {
     my_range.update({
       from: fechaIngresoPuesto.valueOf(),
       to: fechaEgresoPuesto.valueOf(),
     });
-    document.getElementById('icon-informe').className = 'fas fa-angle-double-down open';
-    $("#mostrarInforme").show(300);
-    $("#ampliacionHoras").show(300);
-    $("#penalizacionHora").hide(300);
-    $("#penalizacionTurno").hide(300);
+    document.getElementById("icon-informe-"+idPanel).className = "fas fa-angle-double-down open";
+    $("#mostrarInforme-"+idPanel).show(300);
+    $("#ampliacionHoras-"+idPanel).show(300);
+    $("#penalizacionHora-"+idPanel).hide(300);
+    $("#penalizacionTurno-"+idPanel).hide(300);
+    $("select").val("0"); // Limitar
+    $("textarea").val(""); // Limitar
   });
 
-  $("#turnoOriginalDetalle").click(function() {
+  $("#turnoOriginalDetalle-"+idPanel).click(function() {
     if(puesto.turnoOriginal==undefined || puesto.turnoOriginal=="" ){
       my_range.update({
         from: ingresoParam.valueOf(),
         to: egresoParam.valueOf(),
       });
-      document.getElementById('icon-informe').className = 'fas fa-angle-double-down';
-      $("#mostrarInforme").hide(300);
-      $("#ampliacionHoras").hide(300);
-      $("#penalizacionHora").hide(300);
-      $("#penalizacionTurno").hide(300);
+      document.getElementById('icon-informe-'+idPanel).className = 'fas fa-angle-double-down';
+      $("#mostrarInforme-"+idPanel).hide(300);
+      $("#ampliacionHoras-"+idPanel).hide(300);
+      $("#penalizacionHora-"+idPanel).hide(300);
+      $("#penalizacionTurno-"+idPanel).hide(300);
+      $("select").val("0"); // Limitar
+      $("textarea").val(""); // Limitar
     } else {
 
     }
   });
 
-  $("#container-icon").click(function() {
-    let icon = document.getElementById('icon-informe');
-    let open = $("#icon-informe").hasClass("open");
-    if(open){
-      icon.className = 'fas fa-angle-double-down';
-      $("#mostrarInforme").hide(300);
-    }else{
-      icon.className = 'fas fa-angle-double-down open';
-      $("#mostrarInforme").show(300);
-    }
+  $("#boton-eliminar-turno-"+idPanel).click(function() {
+    $("#card-contenedor-"+idPanel).hide(300);
+    $("#horas-turno-detalle-"+idPanel).hide(300);
+    $("#mostrar-botones-"+idPanel).hide(300);
+    $( "#boton-eliminar-turno-"+idPanel ).prop( "disabled", true );
+    $( "#boton-habilitar-turno-"+idPanel ).prop( "disabled", false );
+
+    my_range.update({
+        from: ingresoParam.valueOf(),
+        to: egresoParam.valueOf(),
+        disable: true,
+    });
+
   });
 
+  $("#boton-habilitar-turno-"+idPanel).click(function() {
+    $("#card-contenedor-"+idPanel).show(300);
+    $("#horas-turno-detalle-"+idPanel).show(300);
+    $("#mostrar-botones-"+idPanel).show(300);
+    $( "#boton-eliminar-turno-"+idPanel ).prop( "disabled", false );
+    $( "#boton-habilitar-turno-"+idPanel ).prop( "disabled", true );
+
+    my_range.update({
+        from: ingresoParam.valueOf(),
+        to: egresoParam.valueOf(),
+        disable: false,
+    });
+  });
+
+}
+
+function mostrarInformeDetalle(){
+  let icon = document.getElementById('icon-informe');
+  let open = $("#icon-informe").hasClass("open");
+  if(open){
+    icon.className = 'fas fa-angle-double-down';
+    $("#mostrarInforme").hide(300);
+  }else{
+    icon.className = 'fas fa-angle-double-down open';
+    $("#mostrarInforme").show(300);
+  }
 }
 
 function totalHorasDetalle(ingresoParam2,egresoParam2){
@@ -988,25 +1066,9 @@ function totalHorasDetalle(ingresoParam2,egresoParam2){
   return horas+":"+minutos;
 }
 
-function iconAnimation(){
-
-  let div = document.getElementById('container-icon');
-  let icon = document.getElementById('icon-informe');
-
-  div.addEventListener('click', function(){
-    let open = $("#icon-informe").hasClass("open");
-    if(open){
-      icon.className = 'fas fa-angle-double-down';
-      $("#mostrarInforme").hide(300);
-    }else{
-      icon.className = 'fas fa-angle-double-down open';
-      $("#mostrarInforme").show(300);
-    }
-    open = !open;
-  });
-}
-
 function descontarHora(){
+  $("select").val("0");
+  $("textarea").val("");
   let icon = document.getElementById('icon-informe');
   icon.className = 'fas fa-angle-double-down open';
   $("#mostrarInforme").show(300);
@@ -1016,6 +1078,8 @@ function descontarHora(){
 }
 
 function descontarTurno(){
+  $("select").val("0");
+  $("textarea").val("");
   let icon = document.getElementById('icon-informe');
   icon.className = 'fas fa-angle-double-down open';
   $("#mostrarInforme").show(300);
@@ -1024,31 +1088,66 @@ function descontarTurno(){
   $("#penalizacionTurno").show(300);
 }
 
-function eliminarTurnoDetalle(){
-  let my_range = $(".js-range-slider").data("ionRangeSlider");
-  $("#card-contenedor").hide(300);
-  $("#horas-turno-detalle").hide(300);
-  $("#mostrar-botones").hide(300);
-  $( "#boton-eliminar-turno" ).prop( "disabled", true );
-  $( "#boton-habilitar-turno" ).prop( "disabled", false );
-
-  my_range.update({
-      disable: true,
-  });
-
-}
-
-function habilitarTurnoDetalle(){
-  let my_range = $(".js-range-slider").data("ionRangeSlider");
+function inicializarFormulario(){
+  $("select").val("0");
+  $("textarea").val("");
   $("#card-contenedor").show(300);
   $("#horas-turno-detalle").show(300);
   $("#mostrar-botones").show(300);
   $( "#boton-eliminar-turno" ).prop( "disabled", false );
   $( "#boton-habilitar-turno" ).prop( "disabled", true );
+  document.getElementById('icon-informe').className = 'fas fa-angle-double-down';
+  $("#mostrarInforme").hide(300);
+  $("#ampliacionHoras").hide(300);
+  $("#penalizacionHora").hide(300);
+  $("#penalizacionTurno").hide(300);
+}
 
-  my_range.update({
-      disable: false,
-  });
+function clonarPanelDetalle(idPanel) {
+
+  //Se clona el elemento y se le cambia el id
+  let panelClone = document.getElementById("panel-clone");
+  let clon = panelClone.cloneNode("panel-clone");
+  let panelIdName = "panel-"+idPanel;
+  clon.id = panelIdName;
+
+  //Se inserta el elemento clonado, debajo del ultimo elemento del padre
+  let modalBody = document.getElementById("modal-body-detalle");
+  modalBody.appendChild(clon);
+
+  //Se modifican los id de cada elemento a utilizar
+  $("#"+panelIdName).find("#tituloPuesto").attr("id","tituloPuesto-"+idPanel);
+  $("#"+panelIdName).find("#horaIngresoReal").attr("id","horaIngresoReal-"+idPanel);
+  $("#"+panelIdName).find("#horaEgresoReal").attr("id","horaEgresoReal-"+idPanel);
+  $("#"+panelIdName).find("#horasTurnoDetalle").attr("id","horasTurnoDetalle-"+idPanel);
+  $("#"+panelIdName).find("#horasRegitradasDetalle").attr("id","horasRegitradasDetalle-"+idPanel);
+  $("#"+panelIdName).find("#completarTurnoDetalle").attr("id","completarTurnoDetalle-"+idPanel);
+  $("#"+panelIdName).find("#mostrarInforme").attr("id","mostrarInforme-"+idPanel);
+  $("#"+panelIdName).find("#ampliacionHoras").attr("id","ampliacionHoras-"+idPanel);
+  $("#"+panelIdName).find("#penalizacionHora").attr("id","penalizacionHora-"+idPanel);
+  $("#"+panelIdName).find("#penalizacionTurno").attr("id","penalizacionTurno-"+idPanel);
+  $("#"+panelIdName).find("#turnoOriginalDetalle").attr("id","turnoOriginalDetalle-"+idPanel);
+  $("#"+panelIdName).find("#boton-eliminar-turno").attr("id","boton-eliminar-turno-"+idPanel);
+  $("#"+panelIdName).find("#card-contenedor").attr("id","card-contenedor-"+idPanel);
+  $("#"+panelIdName).find("#horas-turno-detalle").attr("id","horas-turno-detalle-"+idPanel);
+  $("#"+panelIdName).find("#mostrar-botones").attr("id","mostrar-botones-"+idPanel);
+  $("#"+panelIdName).find("#boton-eliminar-turno").attr("id","boton-eliminar-turno-"+idPanel);
+  $("#"+panelIdName).find("#boton-habilitar-turno").attr("id","boton-habilitar-turno-"+idPanel);
+  $("#"+panelIdName).find("#boton-habilitar-turno").attr("id","boton-habilitar-turno-"+idPanel);
+  $("#"+panelIdName).find("#icon-informe").attr("id","icon-informe-"+idPanel);
+  $("#"+panelIdName).find("#slider-detalle").attr("id","slider-detalle-"+idPanel);
+
+  $("#"+panelIdName).show();
+
+}
+
+function generarPanel(puesto,idPanel){
+
+  clonarPanelDetalle(idPanel);
+
+  cargarDatosTurnos(puesto,idPanel);
+
+  cargarRangeSliderDetalleDia(puesto,idPanel);
 
 }
 

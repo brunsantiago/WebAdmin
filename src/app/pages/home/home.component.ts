@@ -11,7 +11,7 @@ declare var eliminarContenidoTabla: any;
 declare var listadoClientesCubrimiento: any;
 declare var mostrarCubrimiento: any;
 declare var cargarDateTimePicker9: any;
-declare var cargarRangeSlider: any;
+// declare var cargarRangeSlider: any;
 
 @Component({
   selector: 'app-home',
@@ -28,7 +28,7 @@ export class HomeComponent implements OnInit {
     listadoClientesCubrimiento();
     cargarDateTimePicker9();
     $('.box').boxWidget();
-    cargarRangeSlider();
+    // cargarRangeSlider();
 
   }
 

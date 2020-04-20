@@ -10,3 +10,38 @@ Setting.js
 Falla al cargar Puesto TT masivo el en diferentes dias. Posible problema se actualiza al mismo tiempo que se carga
 
 Falta Limpiar pantalla al eliminar un esquema, en caso de ser el mismo que esta mostrandose
+
+
+
+
+$("#tituloPuesto")
+$("#horaIngresoReal")
+$("#horaEgresoReal")
+$("#horasTurnoDetalle")
+
+
+$(".js-range-slider") // cambiar clase por id
+$("#horasRegitradasDetalle")
+
+$("#completarTurnoDetalle")
+
+$("#mostrarInforme").show(300);
+$("#ampliacionHoras").show(300);
+$("#penalizacionHora").hide(300);
+$("#penalizacionTurno").hide(300);
+$("select").val("0");
+$("textarea").val("");
+
+$("#turnoOriginalDetalle")
+
+$("#boton-eliminar-turno")
+$("#card-contenedor")
+$("#horas-turno-detalle")
+$("#mostrar-botones")
+$("#boton-eliminar-turno")
+$("#boton-habilitar-turno")
+
+$("#boton-habilitar-turno")
+
+document.getElementById('icon-informe');
+$("#icon-informe")
