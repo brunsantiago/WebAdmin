@@ -163,9 +163,26 @@
         <button type="button" class="close" data-dismiss="modal">&times;</button>
         <h4 id="titulo" class="modal-title">DIA - 143</h4>
       </div>
-      <div class="modal-body modal-body-detalle" id="modal-body-detalle">
-        <p class="text-center" style="color:white; font-size:20px;" id="nombreDetalleDia"></p>
+      <div class="modal-body modal-body-detalle" >
+        <!-- <p class="text-center" style="color:white; font-size:20px;" id="nombreDetalleDia"></p> -->
+        <div class="container-fluid" style="margin-bottom:7px;">
+          <div class="row">
+            <div class="col-md-4">
+              <!-- vacia -->
+            </div>
+            <div class="col-md-4">
+              <div style="text-align:center; color:white; font-size:20px;" id="nombreDetalleDia"></div>
+            </div>
+            <div class="col-md-4">
+              <div style="text-align:right; color:white; font-size:20px;"><i class="fas fa-bars"></i></div>
+            </div>
+          </div>
+        </div>
+
         <!-- Zona a cargarse los panel detalle -->
+        <div id="modal-body-detalle">
+        </div>
+
       </div>
 
       <!-- Panel a Clonar -->
@@ -227,8 +244,8 @@
                       <button type="button" class="btn btn-danger dropdown-toggle button-fix" data-toggle="dropdown" id="penalizarDetalle">
                       Penalizar </button>
                       <ul class="dropdown-menu" role="menu">
-                        <li><a href="javascript:void(0)" onclick="descontarHora();" >Descontar una Hora</a></li>
-                        <li><a href="javascript:void(0)" onclick="descontarTurno();" >Descontar Turno</a></li>
+                        <li><a href="javascript:void(0)" id="descontar-hora">Descontar una Hora</a></li>
+                        <li><a href="javascript:void(0)" id="descontar-turno" >Descontar Turno</a></li>
                       </ul>
                     </div>
                 </div>
@@ -237,15 +254,15 @@
 
             </div>
             <div class="text-center text-muted m-10" title="Ver / Ocultar Informe" id="container-icon">
-              <i class="fas fa-angle-double-down" id="icon-informe" onclick="mostrarInformeDetalle()"></i>
+              <i class="fas fa-angle-double-down" id="icon-informe"></i>
             </div>
             <div id="mostrarInforme" style="display:none">
               <div class="row">
                 <div class="col-md-5">
 
-                  <div class="form-group" id="ampliacionHoras" style="display:none">
+                  <div class="form-group" id="variacion-horas" style="display:none">
                     <label for="sel1">Motivo de variacion de horas</label>
-                    <select class="form-control" id="sel1">
+                    <select class="form-control" name="select">
                       <option value="0">Sin Internet</option>
                       <option value="1">Sin Celular</option>
                       <option value="2">Sin Aplicacion Instalada / Configurada</option>
@@ -258,7 +275,7 @@
 
                   <div class="form-group" id="penalizacionHora" style="display:none">
                     <label for="sel2">Motivo de reduccion de horas</label>
-                    <select class="form-control" id="sel2">
+                    <select class="form-control" name="select">
                       <option value="0">Foto Adulterada</option>
                       <option value="1">Foto Mal Sacada</option>
                       <option value="2">Foto y Persona No Coincidente</option>
@@ -269,7 +286,7 @@
 
                   <div class="form-group" id="penalizacionTurno" style="display:none">
                     <label for="sel3">Motivo descuento de Turno</label>
-                    <select class="form-control" id="sel3">
+                    <select class="form-control" name="select">
                       <option value="0">Reincidencia de acciones fraudulentas</option>
                       <option value="1">Superposicion de Puesto sin Autorizacion</option>
                       <option value="2">Otros</option>
@@ -301,10 +318,10 @@
           </div>
         </div>
       </div>
-      
+
       <div class="modal-footer">
         <button type="button" class="btn btn-primary">Guardar Cambios</button>
-        <button type="button" class="btn" data-dismiss="modal" onclick="inicializarFormulario()">Cerrar</button>
+        <button type="button" class="btn" data-dismiss="modal">Cerrar</button>
       </div>
     </div>
 

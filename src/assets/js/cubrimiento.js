@@ -324,13 +324,13 @@ function cargarHorasPersonal(idCliente,idObjetivo,puesto,fechaInicial,fechaFinal
             columnas[posDia].style.color="#c23321";
             variosPuestos=true;
           }
-  				columnas[posDia].textContent= sumarHoras(totalHoras,horas);
-          columnas[posDia].style.textAlign = "center";
           columnas[posDia].setAttribute("data-toggle", "modal");
           columnas[posDia].setAttribute("data-target", "#detalle-dia");
-          columnas[posDia].addEventListener("click", function(){
+          columnas[posDia].onclick = function () {
             mostrarModalDetalleDia(idCliente,idObjetivo,idDia,puesto,variosPuestos);
-          });
+          };
+  				columnas[posDia].textContent= sumarHoras(totalHoras,horas);
+          columnas[posDia].style.textAlign = "center";
           encontrado=true;
           // Se agrega un dia mas porque tiene horario internacional
           actualizarTotales(fechaPuesto.getDate(),horas,puesto.idPersonal,idTable);
@@ -380,9 +380,9 @@ function crearFilaNueva(idCliente,idObjetivo,puesto,nroLegajo,fechaCarga,horas,n
      columnas[posDia].style.textAlign = "center";
      columnas[posDia].setAttribute("data-toggle", "modal");
      columnas[posDia].setAttribute("data-target", "#detalle-dia");
-     columnas[posDia].addEventListener("click", function(){
+     columnas[posDia].onclick = function () {
        mostrarModalDetalleDia(idCliente,idObjetivo,idDia,puesto,variosPuestos);
-     });
+     };
 
      //Genera la clase totalHs del Legajo y la inicializa en cero
      columnas[tamanioTabla-1].className="ltotalHs"+nroLegajo;
@@ -818,7 +818,7 @@ function cargarRangeSlider(){
       $("#horasRegitradasDetalle").text(difHoras);
       document.getElementById('icon-informe').className = 'fas fa-angle-double-down open';
       $("#mostrarInforme").show(300);
-      $("#ampliacionHoras").show(300);
+      $("#variacion-horas").show(300);
       $("#penalizacionHora").hide(300);
       $("#penalizacionTurno").hide(300);
     },
@@ -837,17 +837,18 @@ function cargarRangeSlider(){
 
 function mostrarModalDetalleDia(idCliente,idObjetivo,idDia,puesto,variosPuestos){
 
+  clearOptionsFast("modal-body-detalle");
+  $("#nombreDetalleDia").text("");
+
   if(variosPuestos==false){
     cargarNombrePersonal(puesto.idPersonal,"nombreDetalleDia");
     generarPanel(puesto,"1");
-    // cargarDatosTurnos(puesto,"1");
-    // cargarRangeSliderDetalleDia(puesto,"1");
   } else {
     //Si tiene mas de un puesto cargado en el dia tengo que recorrerlos y cargarlos
     cargarNombrePersonal(puesto.idPersonal,"nombreDetalleDia");
 
     db.collection("clientes").doc(idCliente).collection("objetivos").doc(idObjetivo).collection("cobertura")
-    .doc(idDia).collection("puestos")
+    .doc(idDia).collection("puestos").orderBy("horaIngreso","asc")
     .get()
     .then(function(querySnapshot) {
           if (querySnapshot.empty) {
@@ -855,10 +856,9 @@ function mostrarModalDetalleDia(idCliente,idObjetivo,idDia,puesto,variosPuestos)
           } else {
             let idPanel=1;
             querySnapshot.forEach(function(doc) {
-              let puesto = doc.data();
-              //No cargar hasta que no tenga hora de egreso
-              if (puesto.horaEgreso.length>0){
-                generarPanel(puesto,idPanel);
+              let puestoDoc = doc.data();
+              if (puestoDoc.idPersonal==puesto.idPersonal){
+                generarPanel(puestoDoc,idPanel);
                 idPanel++;
               }
             });
@@ -942,7 +942,7 @@ function cargarRangeSliderDetalleDia(puesto,idPanel){
     $("#horasRegitradasDetalle-"+idPanel).text(difHoras);
     document.getElementById('icon-informe-'+idPanel).className = 'fas fa-angle-double-down open';
     $("#mostrarInforme-"+idPanel).show(300);
-    $("#ampliacionHoras-"+idPanel).show(300);
+    $("#variacion-horas-"+idPanel).show(300);
     $("#penalizacionHora-"+idPanel).hide(300);
     $("#penalizacionTurno-"+idPanel).hide(300);
   },
@@ -988,11 +988,11 @@ function cargarRangeSliderDetalleDia(puesto,idPanel){
     });
     document.getElementById("icon-informe-"+idPanel).className = "fas fa-angle-double-down open";
     $("#mostrarInforme-"+idPanel).show(300);
-    $("#ampliacionHoras-"+idPanel).show(300);
+    $("#variacion-horas-"+idPanel).show(300);
     $("#penalizacionHora-"+idPanel).hide(300);
     $("#penalizacionTurno-"+idPanel).hide(300);
-    $("select").val("0"); // Limitar
-    $("textarea").val(""); // Limitar
+    $("select[name=select-"+idPanel+"]").val("0");
+    $("#comment-"+idPanel).val("");
   });
 
   $("#turnoOriginalDetalle-"+idPanel).click(function() {
@@ -1003,13 +1003,48 @@ function cargarRangeSliderDetalleDia(puesto,idPanel){
       });
       document.getElementById('icon-informe-'+idPanel).className = 'fas fa-angle-double-down';
       $("#mostrarInforme-"+idPanel).hide(300);
-      $("#ampliacionHoras-"+idPanel).hide(300);
+      $("#variacion-horas-"+idPanel).hide(300);
       $("#penalizacionHora-"+idPanel).hide(300);
       $("#penalizacionTurno-"+idPanel).hide(300);
-      $("select").val("0"); // Limitar
-      $("textarea").val(""); // Limitar
+      $("select[name=select-"+idPanel+"]").val("0");
+      $("#comment-"+idPanel).val("");
     } else {
 
+    }
+  });
+
+  $("#descontar-hora-"+idPanel).click(function() {
+    $("select[name=select-"+idPanel+"]").val("0");
+    $("#comment-"+idPanel).val("");
+    let icon = document.getElementById("icon-informe-"+idPanel);
+    icon.className = 'fas fa-angle-double-down open';
+    $("#mostrarInforme-"+idPanel).show(300);
+    $("#variacion-horas-"+idPanel).hide(300);
+    $("#penalizacionTurno-"+idPanel).hide(300);
+    $("#penalizacionHora-"+idPanel).show(300);
+  });
+
+  $("#descontar-turno-"+idPanel).click(function() {
+    $("select[name=select-"+idPanel+"]").val("0");
+    $("#comment-"+idPanel).val("");
+    let icon = document.getElementById("icon-informe-"+idPanel);
+    icon.className = 'fas fa-angle-double-down open';
+    $("#mostrarInforme-"+idPanel).show(300);
+    $("#variacion-horas-"+idPanel).hide(300);
+    $("#penalizacionHora-"+idPanel).hide(300);
+    $("#penalizacionTurno-"+idPanel).show(300);
+  });
+
+
+  $("#icon-informe-"+idPanel).click(function() {
+    let icon = document.getElementById("icon-informe-"+idPanel);
+    let open = $("#icon-informe-"+idPanel).hasClass("open");
+    if(open){
+      icon.className = 'fas fa-angle-double-down';
+      $("#mostrarInforme-"+idPanel).hide(300);
+    }else{
+      icon.className = 'fas fa-angle-double-down open';
+      $("#mostrarInforme-"+idPanel).show(300);
     }
   });
 
@@ -1017,23 +1052,28 @@ function cargarRangeSliderDetalleDia(puesto,idPanel){
     $("#card-contenedor-"+idPanel).hide(300);
     $("#horas-turno-detalle-"+idPanel).hide(300);
     $("#mostrar-botones-"+idPanel).hide(300);
-    $( "#boton-eliminar-turno-"+idPanel ).prop( "disabled", true );
-    $( "#boton-habilitar-turno-"+idPanel ).prop( "disabled", false );
-
+    $("#mostrarInforme-"+idPanel).hide(300);
+    $("#boton-eliminar-turno-"+idPanel).prop( "disabled", true );
+    $("#boton-habilitar-turno-"+idPanel).prop( "disabled", false );
+    document.getElementById('icon-informe-'+idPanel).className = 'fas fa-angle-double-down';
     my_range.update({
         from: ingresoParam.valueOf(),
         to: egresoParam.valueOf(),
         disable: true,
     });
-
+    $("select[name=select-"+idPanel+"]").val("0");
+    $("#comment-"+idPanel).val("");
+    $("#variacion-horas-"+idPanel).hide();
+    $("#penalizacionHora-"+idPanel).hide();
+    $("#penalizacionTurno-"+idPanel).hide();
   });
 
   $("#boton-habilitar-turno-"+idPanel).click(function() {
     $("#card-contenedor-"+idPanel).show(300);
     $("#horas-turno-detalle-"+idPanel).show(300);
     $("#mostrar-botones-"+idPanel).show(300);
-    $( "#boton-eliminar-turno-"+idPanel ).prop( "disabled", false );
-    $( "#boton-habilitar-turno-"+idPanel ).prop( "disabled", true );
+    $("#boton-eliminar-turno-"+idPanel).prop( "disabled", false );
+    $("#boton-habilitar-turno-"+idPanel).prop( "disabled", true );
 
     my_range.update({
         from: ingresoParam.valueOf(),
@@ -1044,18 +1084,6 @@ function cargarRangeSliderDetalleDia(puesto,idPanel){
 
 }
 
-function mostrarInformeDetalle(){
-  let icon = document.getElementById('icon-informe');
-  let open = $("#icon-informe").hasClass("open");
-  if(open){
-    icon.className = 'fas fa-angle-double-down';
-    $("#mostrarInforme").hide(300);
-  }else{
-    icon.className = 'fas fa-angle-double-down open';
-    $("#mostrarInforme").show(300);
-  }
-}
-
 function totalHorasDetalle(ingresoParam2,egresoParam2){
   difMili = egresoParam2.getTime()-ingresoParam2.getTime();
   let horas = Math.floor(difMili/1000/60/60);
@@ -1064,43 +1092,6 @@ function totalHorasDetalle(ingresoParam2,egresoParam2){
   if (horas<10){horas="0"+horas;}
   if (minutos<10){minutos="0"+minutos;}
   return horas+":"+minutos;
-}
-
-function descontarHora(){
-  $("select").val("0");
-  $("textarea").val("");
-  let icon = document.getElementById('icon-informe');
-  icon.className = 'fas fa-angle-double-down open';
-  $("#mostrarInforme").show(300);
-  $("#ampliacionHoras").hide(300);
-  $("#penalizacionTurno").hide(300);
-  $("#penalizacionHora").show(300);
-}
-
-function descontarTurno(){
-  $("select").val("0");
-  $("textarea").val("");
-  let icon = document.getElementById('icon-informe');
-  icon.className = 'fas fa-angle-double-down open';
-  $("#mostrarInforme").show(300);
-  $("#ampliacionHoras").hide(300);
-  $("#penalizacionHora").hide(300);
-  $("#penalizacionTurno").show(300);
-}
-
-function inicializarFormulario(){
-  $("select").val("0");
-  $("textarea").val("");
-  $("#card-contenedor").show(300);
-  $("#horas-turno-detalle").show(300);
-  $("#mostrar-botones").show(300);
-  $( "#boton-eliminar-turno" ).prop( "disabled", false );
-  $( "#boton-habilitar-turno" ).prop( "disabled", true );
-  document.getElementById('icon-informe').className = 'fas fa-angle-double-down';
-  $("#mostrarInforme").hide(300);
-  $("#ampliacionHoras").hide(300);
-  $("#penalizacionHora").hide(300);
-  $("#penalizacionTurno").hide(300);
 }
 
 function clonarPanelDetalle(idPanel) {
@@ -1123,7 +1114,7 @@ function clonarPanelDetalle(idPanel) {
   $("#"+panelIdName).find("#horasRegitradasDetalle").attr("id","horasRegitradasDetalle-"+idPanel);
   $("#"+panelIdName).find("#completarTurnoDetalle").attr("id","completarTurnoDetalle-"+idPanel);
   $("#"+panelIdName).find("#mostrarInforme").attr("id","mostrarInforme-"+idPanel);
-  $("#"+panelIdName).find("#ampliacionHoras").attr("id","ampliacionHoras-"+idPanel);
+  $("#"+panelIdName).find("#variacion-horas").attr("id","variacion-horas-"+idPanel);
   $("#"+panelIdName).find("#penalizacionHora").attr("id","penalizacionHora-"+idPanel);
   $("#"+panelIdName).find("#penalizacionTurno").attr("id","penalizacionTurno-"+idPanel);
   $("#"+panelIdName).find("#turnoOriginalDetalle").attr("id","turnoOriginalDetalle-"+idPanel);
@@ -1136,6 +1127,10 @@ function clonarPanelDetalle(idPanel) {
   $("#"+panelIdName).find("#boton-habilitar-turno").attr("id","boton-habilitar-turno-"+idPanel);
   $("#"+panelIdName).find("#icon-informe").attr("id","icon-informe-"+idPanel);
   $("#"+panelIdName).find("#slider-detalle").attr("id","slider-detalle-"+idPanel);
+  $("#"+panelIdName).find("#descontar-hora").attr("id","descontar-hora-"+idPanel);
+  $("#"+panelIdName).find("#descontar-turno").attr("id","descontar-turno-"+idPanel);
+  $("#"+panelIdName).find("#comment").attr("id","comment-"+idPanel);
+  $("#"+panelIdName).find("select[name=select]").attr("name","select-"+idPanel);
 
   $("#"+panelIdName).show();
 
@@ -1150,6 +1145,7 @@ function generarPanel(puesto,idPanel){
   cargarRangeSliderDetalleDia(puesto,idPanel);
 
 }
+
 
 ////////////////////////////////////////////////////////////////////////////////
 // END FUNCIONES MODAL DETALLE DIA
