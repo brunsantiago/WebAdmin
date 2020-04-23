@@ -77,7 +77,7 @@ function mostrarCubrimiento(){
                  const promises = [];
 
                  db.collection("clientes").doc(idCliente).collection("objetivos").where("vigente","==",true)
-                 .orderBy("nombreObjetivo","desc")
+                 .orderBy("nombreObjetivo","asc")
                  .get()
                  .then(function(querySnapshot) {
                    let idTable=1;
@@ -311,6 +311,7 @@ function cargarHorasPersonal(idCliente,idObjetivo,puesto,fechaInicial,fechaFinal
 
   horas = difHoras;
 
+  let filaNro = 1;
 	// recorremos cada una de las filas
 	filas.forEach(function(e) {
 			// Obtenemos las columnas de la fila recorrida y posiciono la busqueda del legajo en el primer elemento.
@@ -319,15 +320,28 @@ function cargarHorasPersonal(idCliente,idObjetivo,puesto,fechaInicial,fechaFinal
       let variosPuestos=false;
 
 			if (columnas[0].textContent==puesto.idPersonal){
+          let idCell = idTable+""+filaNro+""+posDia;
           let totalHoras = columnas[posDia].textContent;
-          if(totalHoras.length>0){ //Indica superposicion de horas
-            columnas[posDia].style.color="#c23321";
+          if ( totalHoras.length>0){
             variosPuestos=true;
+            columnas[posDia].style.fontWeight = "bold";
+              if (puesto.estado=="ver"){
+                  columnas[posDia].style.color="#3c763d";
+                  columnas[posDia].setAttribute("estado", "ver");
+              } else if(puesto.estado=="mod"){
+              	  columnas[posDia].style.color="#265a88";
+                  columnas[posDia].setAttribute("estado", "ver");
+              } else {
+                  columnas[posDia].style.color="#c23321";
+                  columnas[posDia].setAttribute("estado", "no-ver");
+              }
+          } else if (puesto.estado=="mod"){
+          	  columnas[posDia].style.color="#265a88";
+              columnas[posDia].setAttribute("estado", "mod");
           }
-          columnas[posDia].setAttribute("data-toggle", "modal");
-          columnas[posDia].setAttribute("data-target", "#detalle-dia");
+          columnas[posDia].setAttribute("id", idCell);
           columnas[posDia].onclick = function () {
-            mostrarModalDetalleDia(idCliente,idObjetivo,idDia,puesto,variosPuestos);
+            mostrarModalDetalleDia(idCliente,idObjetivo,idDia,puesto,variosPuestos,idCell,idTable);
           };
   				columnas[posDia].textContent= sumarHoras(totalHoras,horas);
           columnas[posDia].style.textAlign = "center";
@@ -336,6 +350,7 @@ function cargarHorasPersonal(idCliente,idObjetivo,puesto,fechaInicial,fechaFinal
           actualizarTotales(fechaPuesto.getDate(),horas,puesto.idPersonal,idTable);
           resolve(); //Si se actualizan correctamente las horas de un Legajo ya cargado devuelve resolve()
 			}
+      filaNro++;
 	});
 
 	if(!encontrado){
@@ -365,6 +380,7 @@ function crearFilaNueva(idCliente,idObjetivo,puesto,nroLegajo,fechaCarga,horas,n
 
 		let tBody = document.getElementById("tBody-"+idTable);
     let row = tBody.insertRow();
+    let idCell = idTable+""+tBody.rows.length+""+posDia;
 
 		//Rellenar con celdas vacias la fila
 		for (var i = 0; i < tamanioTabla; i++) {
@@ -378,12 +394,14 @@ function crearFilaNueva(idCliente,idObjetivo,puesto,nroLegajo,fechaCarga,horas,n
      columnas[1].style.textAlign = "left";
 		 columnas[posDia].textContent=horas;
      columnas[posDia].style.textAlign = "center";
-     columnas[posDia].setAttribute("data-toggle", "modal");
-     columnas[posDia].setAttribute("data-target", "#detalle-dia");
+     if (puesto.estado=="mod"){
+         columnas[posDia].style.color="#265a88";
+         columnas[posDia].setAttribute("estado", "mod");
+     }
+     columnas[posDia].setAttribute("id", idCell);
      columnas[posDia].onclick = function () {
-       mostrarModalDetalleDia(idCliente,idObjetivo,idDia,puesto,variosPuestos);
+       mostrarModalDetalleDia(idCliente,idObjetivo,idDia,puesto,variosPuestos,idCell,idTable);
      };
-
      //Genera la clase totalHs del Legajo y la inicializa en cero
      columnas[tamanioTabla-1].className="ltotalHs"+nroLegajo;
      columnas[tamanioTabla-1].textContent="0:00";
@@ -835,18 +853,22 @@ function cargarRangeSlider(){
 // FUNCIONES MODAL DETALLE DIA
 ////////////////////////////////////////////////////////////////////////////////
 
-function mostrarModalDetalleDia(idCliente,idObjetivo,idDia,puesto,variosPuestos){
+function mostrarModalDetalleDia(idCliente,idObjetivo,idDia,puesto,variosPuestos,idCell,idTable){
 
   clearOptionsFast("modal-body-detalle");
+  clearOptionsFast("menu-detalle");
+  clearOptionsFast("modal-footer-detalle");
   $("#nombreDetalleDia").text("");
 
   if(variosPuestos==false){
     cargarNombrePersonal(puesto.idPersonal,"nombreDetalleDia");
+    cargarFuncionesModal(idCell);
     generarPanel(puesto,"1");
+    $("#detalle-dia").modal("show");
   } else {
     //Si tiene mas de un puesto cargado en el dia tengo que recorrerlos y cargarlos
     cargarNombrePersonal(puesto.idPersonal,"nombreDetalleDia");
-
+    cargarFuncionesModal(idCell);
     db.collection("clientes").doc(idCliente).collection("objetivos").doc(idObjetivo).collection("cobertura")
     .doc(idDia).collection("puestos").orderBy("horaIngreso","asc")
     .get()
@@ -863,7 +885,7 @@ function mostrarModalDetalleDia(idCliente,idObjetivo,idDia,puesto,variosPuestos)
               }
             });
           }
-
+          $("#detalle-dia").modal("show");
     })
     .catch(function(error) {
         console.log("Error getting document:", error);
@@ -1035,7 +1057,6 @@ function cargarRangeSliderDetalleDia(puesto,idPanel){
     $("#penalizacionTurno-"+idPanel).show(300);
   });
 
-
   $("#icon-informe-"+idPanel).click(function() {
     let icon = document.getElementById("icon-informe-"+idPanel);
     let open = $("#icon-informe-"+idPanel).hasClass("open");
@@ -1132,6 +1153,7 @@ function clonarPanelDetalle(idPanel) {
   $("#"+panelIdName).find("#comment").attr("id","comment-"+idPanel);
   $("#"+panelIdName).find("select[name=select]").attr("name","select-"+idPanel);
 
+
   $("#"+panelIdName).show();
 
 }
@@ -1145,6 +1167,109 @@ function generarPanel(puesto,idPanel){
   cargarRangeSliderDetalleDia(puesto,idPanel);
 
 }
+
+function cargarFuncionesModal(idCell){
+
+
+  let estadoInicial="";
+  let estadoActual="";
+  let celda = document.getElementById(idCell);
+
+  //Se clona el elemento y se le cambia el id
+  let dropdownClone = document.getElementById("dropdown-clone");
+  let clon = dropdownClone.cloneNode("dropdown-clone");
+  let dropdownIdName = "dropdown-"+idCell;
+  clon.id = dropdownIdName;
+
+  //Se inserta el elemento clonado, debajo del ultimo elemento del padre
+  let menuDetalle = document.getElementById("menu-detalle");
+  menuDetalle.appendChild(clon);
+
+ //Se modifican los id de cada elemento a utilizar
+  $("#"+dropdownIdName).find("#confirmar-verificacion").attr("id","confirmar-verificacion-"+idCell);
+  $("#"+dropdownIdName).find("#deshabilitar-verificacion").attr("id","deshabilitar-verificacion-"+idCell);
+  $("#"+dropdownIdName).find("#unificar-turno").attr("id","unificar-turno-"+idCell);
+  $("#"+dropdownIdName).find("#estado-detalle").attr("id","estado-detalle-"+idCell);
+
+  $("#"+dropdownIdName).show();
+
+  if(celda.getAttribute("estado")=="no-ver"){
+    $("#estado-detalle-"+idCell).text("No Verificado");
+    estadoInicial="no-ver";
+    document.getElementById("estado-detalle-"+idCell).className = "label label-danger";
+    document.getElementById("deshabilitar-verificacion-"+idCell).className = "disabled";
+  } else if (celda.getAttribute("estado")=="ver"){
+    $("#estado-detalle-"+idCell).text("Verificado");
+    estadoInicial="ver";
+    document.getElementById("estado-detalle-"+idCell).className = "label label-success";
+    document.getElementById("confirmar-verificacion-"+idCell).className = "disabled";
+  } else if (celda.getAttribute("estado")=="mod"){
+    $("#estado-detalle-"+idCell).text("Modificado");
+    estadoInicial="mod";
+    document.getElementById("estado-detalle-"+idCell).className = "label label-primary";
+    document.getElementById("confirmar-verificacion-"+idCell).className = "disabled";
+    document.getElementById("deshabilitar-verificacion-"+idCell).className = "disabled";
+    document.getElementById("unificar-turno-"+idCell).className = "disabled";
+  } else {
+    $("#estado-detalle-"+idCell).text("");
+    estadoInicial="";
+    document.getElementById("estado-detalle-"+idCell).className = "";
+    document.getElementById("confirmar-verificacion-"+idCell).className = "disabled";
+    document.getElementById("deshabilitar-verificacion-"+idCell).className = "disabled";
+    document.getElementById("unificar-turno-"+idCell).className = "disabled";
+  }
+
+  $("#confirmar-verificacion-"+idCell).click(function() {
+    $("#estado-detalle-"+idCell).text("Verificado");
+    estadoActual="ver";
+    document.getElementById("estado-detalle-"+idCell).className = "label label-success";
+    document.getElementById("confirmar-verificacion-"+idCell).className = "disabled";
+    document.getElementById("deshabilitar-verificacion-"+idCell).className = "";
+  });
+
+  $("#deshabilitar-verificacion-"+idCell).click(function() {
+    $("#estado-detalle-"+idCell).text("No Verificado");
+    estadoActual="no-ver";
+    document.getElementById("estado-detalle-"+idCell).className = "label label-danger";
+    document.getElementById("deshabilitar-verificacion-"+idCell).className = "disabled";
+    document.getElementById("confirmar-verificacion-"+idCell).className = "";
+  });
+
+  $("#unificar-turno-"+idCell).click(function() {
+
+  });
+
+  //SECTION FOOTER
+  //Se clona el elemento y se le cambia el id
+  let footerClone = document.getElementById("footer-clone");
+  let clonFooter = footerClone.cloneNode("footer-clone");
+  let footerIdName = "footer-"+idCell;
+  clonFooter.id = footerIdName;
+
+  //Se inserta el elemento clonado, debajo del ultimo elemento del padre
+  let footerDetalle = document.getElementById("modal-footer-detalle");
+  footerDetalle.appendChild(clonFooter);
+
+  //Se modifican los id de cada elemento a utilizar
+   $("#"+footerIdName).find("#guardar-cambios-detalle").attr("id","guardar-cambios-detalle-"+idCell);
+
+   $("#"+footerIdName).show();
+
+   $("#guardar-cambios-detalle-"+idCell).click(function() {
+
+     //Si el valor inicial del estado es distinto al valor actual entonces hago el cambio en los turnos
+     if(estadoInicial!=estadoActual){
+       console.log("Los estados son diferentes");
+     }
+
+     console.log("Guardado de cambios exitoso");
+
+     $("#detalle-dia").modal("hide");
+   });
+
+}
+
+
 
 
 ////////////////////////////////////////////////////////////////////////////////

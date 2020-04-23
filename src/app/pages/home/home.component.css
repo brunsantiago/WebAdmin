@@ -42,3 +42,11 @@
   transform: rotate(180deg);
   transition: transform 0.3s linear;
 }
+
+.verificado{
+  color:green;
+}
+
+.deshabilitado{
+  color:red;
+}

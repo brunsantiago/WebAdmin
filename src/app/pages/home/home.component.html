@@ -164,19 +164,32 @@
         <h4 id="titulo" class="modal-title">DIA - 143</h4>
       </div>
       <div class="modal-body modal-body-detalle" >
-        <!-- <p class="text-center" style="color:white; font-size:20px;" id="nombreDetalleDia"></p> -->
         <div class="container-fluid" style="margin-bottom:7px;">
           <div class="row">
-            <div class="col-md-4">
+            <div class="col-md-3">
               <!-- vacia -->
             </div>
-            <div class="col-md-4">
+            <div class="col-md-6">
               <div style="text-align:center; color:white; font-size:20px;" id="nombreDetalleDia"></div>
             </div>
-            <div class="col-md-4">
-              <div style="text-align:right; color:white; font-size:20px;"><i class="fas fa-bars"></i></div>
+            <!-- Zona a cargarse el menu dropdown -->
+            <div class="col-md-3" id="menu-detalle">
+
             </div>
           </div>
+        </div>
+
+        <!-- Menu Dropdown a Clonar -->
+        <div class="dropdown" id="dropdown-clone" style="display:none" >
+          <div class="dropdown-toggle" style="text-align:center; color:white; font-size:20px; display:flex; align-items: center; justify-content: flex-end;" data-toggle="dropdown">
+          <span style="margin-right:14px; font-size:10px;" id="estado-detalle"></span>
+          <a href="javascript:void(0)" class="fas fa-bars" style="color:white; "></a>
+          </div>
+          <ul class="dropdown-menu pull-right">
+            <li id="confirmar-verificacion"><a href="javascript:void(0)"><span class="fas fa-user-check" style="margin-right:6px;" ></span>Confirmar Verificacion</a></li>
+            <li id="deshabilitar-verificacion"><a href="javascript:void(0)"><span class="fas fa-user-times" style="margin-right:6px;"  ></span>Deshabilitar Verificacion</a></li>
+            <li id="unificar-turno"><a href="javascript:void(0)"><span class="fas fa-magic" style="margin-right:6px;" ></span>Unificar por turno</a></li>
+          </ul>
         </div>
 
         <!-- Zona a cargarse los panel detalle -->
@@ -318,11 +331,17 @@
           </div>
         </div>
       </div>
+      <!-- Zona a cargarse los botones del footer -->
+      <div id="modal-footer-detalle">
 
-      <div class="modal-footer">
-        <button type="button" class="btn btn-primary">Guardar Cambios</button>
+      </div>
+
+      <!-- Modal Footer a Clonar -->
+      <div class="modal-footer" id="footer-clone" style="display:none">
+        <button type="button" class="btn btn-primary" id="guardar-cambios-detalle">Guardar Cambios</button>
         <button type="button" class="btn" data-dismiss="modal">Cerrar</button>
       </div>
+
     </div>
 
   </div>

@@ -31,3 +31,11 @@
   color:#525252
 }
 /* FIN Panel Lateral borde rojo */
+
+.verificado{
+  color:green;
+}
+
+.deshabilitado{
+  color:red;
+}
