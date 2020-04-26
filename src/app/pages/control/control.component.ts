@@ -2,7 +2,7 @@ import { Component, OnInit, AfterViewInit } from '@angular/core';
 
 import { BsDatepickerConfig, BsDatepickerViewMode } from 'ngx-bootstrap/datepicker';
 
-import {FormControl, FormGroup} from '@angular/forms';
+import { FormControl, FormGroup, FormsModule } from '@angular/forms';
 
 declare var jQuery: any;
 declare var $: any;

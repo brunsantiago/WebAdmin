@@ -2191,7 +2191,7 @@ let horaIniDate = (new Date("2019-01-01T"+horaInicial+":00.0000z")).getTime();
 let horaFinDate = (new Date("2019-01-01T"+horaFinal+":00.0000z")).getTime();
 
     if (horaIniDate>horaFinDate){
-      return -1;
+      return -1; // Hora inicial es mayor a la final
     }
     else if (horaIniDate<horaFinDate){
       return 1;

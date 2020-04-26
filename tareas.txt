@@ -11,37 +11,10 @@ Falla al cargar Puesto TT masivo el en diferentes dias. Posible problema se actu
 
 Falta Limpiar pantalla al eliminar un esquema, en caso de ser el mismo que esta mostrandose
 
+Cuando se carga un puesto nuevo sobre un esquema CADUCADO o cargado desde el Historial de Esquemas no funciona la actualización automática.
 
+Android:
 
+Se debera cargar en los turnos el campo nombreTurno
 
-$("#tituloPuesto")
-$("#horaIngresoReal")
-$("#horaEgresoReal")
-$("#horasTurnoDetalle")
-
-
-$(".js-range-slider") // cambiar clase por id
-$("#horasRegitradasDetalle")
-
-$("#completarTurnoDetalle")
-
-$("#mostrarInforme").show(300);
-$("#ampliacionHoras").show(300);
-$("#penalizacionHora").hide(300);
-$("#penalizacionTurno").hide(300);
-$("select").val("0");
-$("textarea").val("");
-
-$("#turnoOriginalDetalle")
-
-$("#boton-eliminar-turno")
-$("#card-contenedor")
-$("#horas-turno-detalle")
-$("#mostrar-botones")
-$("#boton-eliminar-turno")
-$("#boton-habilitar-turno")
-
-$("#boton-habilitar-turno")
-
-document.getElementById('icon-informe');
-$("#icon-informe")
+Se debera modificar el path de la imagen, extrayendo el nombre de la imagen jpg y dejando solamente la ruta

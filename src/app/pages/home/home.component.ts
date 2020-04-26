@@ -2,7 +2,7 @@ import { Component, OnInit, AfterViewInit } from '@angular/core';
 // import { UserService } from '../../core/services/user.service';
 // import { Router } from '@angular/router';
 
-import {FormControl, FormGroup} from '@angular/forms';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 //import * as $ from 'jquery';
 declare var jQuery: any;
@@ -11,7 +11,7 @@ declare var eliminarContenidoTabla: any;
 declare var listadoClientesCubrimiento: any;
 declare var mostrarCubrimiento: any;
 declare var cargarDateTimePicker9: any;
-// declare var cargarRangeSlider: any;
+// declare var multiModal: any;
 
 @Component({
   selector: 'app-home',
@@ -28,7 +28,6 @@ export class HomeComponent implements OnInit {
     listadoClientesCubrimiento();
     cargarDateTimePicker9();
     $('.box').boxWidget();
-    // cargarRangeSlider();
 
   }
 
