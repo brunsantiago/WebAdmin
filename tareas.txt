@@ -16,5 +16,3 @@ Cuando se carga un puesto nuevo sobre un esquema CADUCADO o cargado desde el His
 Android:
 
 Se debera cargar en los turnos el campo nombreTurno
-
-Se debera modificar el path de la imagen, extrayendo el nombre de la imagen jpg y dejando solamente la ruta

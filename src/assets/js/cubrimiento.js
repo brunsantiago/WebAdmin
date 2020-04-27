@@ -1,10 +1,4 @@
-// firebase.initializeApp({
-//   apiKey: "AIzaSyAWKQiKjfXHDuQXI50vIAp8PmEJ8ONNzmQ",
-//   authDomain: "presentismoapp.firebaseapp.com",
-//   projectId: "presentismoapp"
-// });
-
-  // Your web app's Firebase configuration
+// Your web app's Firebase configuration
   var firebaseConfig = {
     apiKey: "AIzaSyAWKQiKjfXHDuQXI50vIAp8PmEJ8ONNzmQ",
     authDomain: "presentismoapp.firebaseapp.com",
@@ -20,8 +14,8 @@
 
 // Initialize Cloud Firestore through Firebase
 var db = firebase.firestore();
-
 var storageRef = firebase.storage().ref();
+
 
 function mostrarCubrimiento(){
 
@@ -362,7 +356,7 @@ function cargarHorasPersonal(idCliente,idObjetivo,puesto,fechaInicial,fechaFinal
           }
           columnas[posDia].setAttribute("id", idCell);
           columnas[posDia].onclick = function () {
-            mostrarModalDetalleDia(idCliente,idObjetivo,idDia,puesto,variosPuestos,idCell,idTable);
+            mostrarModalDetalleDia(idCliente,idObjetivo,idDia,puesto,variosPuestos,idCell);
           };
   				columnas[posDia].textContent= sumarHoras(totalHoras,horas);
           columnas[posDia].style.textAlign = "center";
@@ -424,7 +418,7 @@ function crearFilaNueva(idCliente,idObjetivo,puesto,horas,fechaInicial,fechaFina
      }
      columnas[posDia].setAttribute("id", idCell);
      columnas[posDia].onclick = function () {
-       mostrarModalDetalleDia(idCliente,idObjetivo,idDia,puesto,variosPuestos,idCell,idTable);
+       mostrarModalDetalleDia(idCliente,idObjetivo,idDia,puesto,variosPuestos,idCell);
      };
      //Genera la clase totalHs del Legajo y la inicializa en cero
      columnas[tamanioTabla-1].className="ltotalHs"+puesto.idPersonal;
@@ -877,7 +871,7 @@ function cargarRangeSlider(){
 // FUNCIONES MODAL DETALLE DIA
 ////////////////////////////////////////////////////////////////////////////////
 
-function mostrarModalDetalleDia(idCliente,idObjetivo,idDia,puesto,variosPuestos,idCell,idTable){
+function mostrarModalDetalleDia(idCliente,idObjetivo,idDia,puesto,variosPuestos,idCell){
 
   clearOptionsFast("modal-body-detalle");
   clearOptionsFast("menu-detalle");
@@ -903,11 +897,9 @@ function mostrarModalDetalleDia(idCliente,idObjetivo,idDia,puesto,variosPuestos,
             let arrayTurnos = [];
             querySnapshot.forEach(function(doc) {
               let turnoDoc = doc.data();
-
               if (turnoDoc.idPersonal==puesto.idPersonal){
                 generarPanel(turnoDoc,idPanel);
                 idPanel++;
-
                 let turnoArray = {
                   idTurno: doc.id,
                   idPersonal: doc.data().idPersonal,
@@ -928,7 +920,6 @@ function mostrarModalDetalleDia(idCliente,idObjetivo,idDia,puesto,variosPuestos,
               }
             });
             cargarFuncionesModal(idCliente,idObjetivo,idDia,idCell,arrayTurnos);
-
           }
           $("#detalle-dia").modal("show");
     })
@@ -936,6 +927,15 @@ function mostrarModalDetalleDia(idCliente,idObjetivo,idDia,puesto,variosPuestos,
         console.log("Error getting document:", error);
     });
   }
+}
+
+function generarPanel(puesto,idPanel){
+
+  clonarPanelDetalle(idPanel);
+
+  cargarDatosTurnos(puesto,idPanel);
+
+  cargarRangeSliderDetalleDia(puesto,idPanel);
 
 }
 
@@ -958,15 +958,18 @@ function cargarNombrePersonal(nroLegajo,idElemento) {
 
 function cargarDatosTurnos(puesto,idPanel){
 
-  cargarImagen(puesto.imagePath+puesto.idPersonal+"_INGRESO.jpg","foto-ingreso-"+idPanel);
-
-  if(puesto.horaEgreso!=""){
-    console.log("Entro a distinto de vacia");
-    cargarImagen(puesto.imagePath+puesto.idPersonal+"_EGRESO.jpg","foto-egreso-"+idPanel);
-  } else{
-    console.log("Entro a vacia");
-    $("#foto-egreso-"+idPanel).css('background-image', 'url(assets/img/sin-foto.png)');
+  if(puesto.imagePath!=""){
+    cargarImagen(puesto.imagePath+puesto.idPersonal+"_INGRESO.jpg","foto-ingreso-"+idPanel);
+    if(puesto.horaEgreso!=""){
+      cargarImagen(puesto.imagePath+puesto.idPersonal+"_EGRESO.jpg","foto-egreso-"+idPanel);
+    } else{
+      $("#foto-egreso-"+idPanel).css('background-image', 'url(assets/img/sin-foto.png)');
+    }
+  } else {
+    cargarImagen(puesto.imagePathIngreso,"foto-ingreso-"+idPanel);
+    cargarImagen(puesto.imagePathEgreso,"foto-egreso-"+idPanel);
   }
+
 
     let date = new Date();
     let horaIngreso = new Date().setHours(puesto.ingresoPuesto.split(":")[0],puesto.ingresoPuesto.split(":")[1],0,0);
@@ -998,9 +1001,6 @@ function cargarDatosTurnos(puesto,idPanel){
     }
 
     $("#horasTurnoDetalle-"+idPanel).text(puesto.horasTurno);
-
-
-
 
 }
 
@@ -1228,17 +1228,10 @@ function clonarPanelDetalle(idPanel) {
 
 }
 
-function generarPanel(puesto,idPanel){
-
-  clonarPanelDetalle(idPanel);
-
-  cargarDatosTurnos(puesto,idPanel);
-
-  cargarRangeSliderDetalleDia(puesto,idPanel);
-
-}
-
 function cargarFuncionesModal(idCliente,idObjetivo,idDia,idCell,arrayTurnos){
+
+  // turnosObject se utiliza solamente cuando se hace una unificacion de turnos
+  turnosObject = {}
 
   let estadoInicial="";
   let estadoActual="";
@@ -1305,111 +1298,111 @@ function cargarFuncionesModal(idCliente,idObjetivo,idDia,idCell,arrayTurnos){
   });
 
   $("#unificar-turno-"+idCell).click(function() {
-
-    //Crear un Objeto con todos los turnos del arrayTurnos
-    turnosObject = {}
-
     //Armo un objeto con todos los turnos del array sin repetirlos
     arrayTurnos.forEach(function(turno){
-
       if(turnosObject.hasOwnProperty(turno.nombrePuesto+turno.ingresoPuesto)){
         turnosObject[turno.nombrePuesto+turno.ingresoPuesto].count++;
         turnosObject[turno.nombrePuesto+turno.ingresoPuesto].arrayId.push(turno.idTurno);
+        turnosObject[turno.nombrePuesto+turno.ingresoPuesto].imagePath="";
       } else {
         turnosObject[turno.nombrePuesto+turno.ingresoPuesto] = {
           idPersonal: turno.idPersonal,
           nombrePuesto : turno.nombrePuesto,
           fechaPuesto: turno.fechaPuesto,
           turnoNoche: turno.turnoNoche,
+          horaIngreso : turno.horaIngreso,
+          horaEgreso : turno.horaEgreso,
+          fechaIngreso : turno.fechaIngreso,
+          fechaEgreso : turno.fechaEgreso,
           ingresoPuesto : turno.ingresoPuesto,
           egresoPuesto : turno.egresoPuesto,
+          imagePath : turno.imagePath,
           horasTurno : turno.horasTurno,
-          count : 1,
           arrayId : [turno.idTurno],
+          estado : "mod",
+          count : 1,
         }
       }
-
     });
 
+    // SUSPENDER BUCLE
     //Se eliminan los turnos con un solo turno cargado
-    for (var fieldName in turnosObject) {
-      if(turnosObject[fieldName].count==1){
-        delete turnosObject[fieldName];
-      }
-    }
+    // for (var fieldName in turnosObject) {
+    //   if(turnosObject[fieldName].count==1){
+    //     delete turnosObject[fieldName];
+    //   }
+    // }
 
-
-    if (Object.keys(turnosObject).length>0){
+    //Cargo los campos faltantes de cada turno, en caso de repetirse solo los maximos y minimos
+    // if (Object.keys(turnosObject).length>0){
       for (var fieldName in turnosObject) {
+
         let turnoObject = turnosObject[fieldName];
-        let horaIngresoMin="";
-        let horaEgresoMax="";
-        let fechaIngresoMin="";
-        let fechaEgresoMax="";
-        let imagePathIngreso="";
-        let imagePathEgreso="";
-        //Se recorre todo el array de turnos y se extraen los datos necesarios para formar un unico turno
-        arrayTurnos.forEach(function(turno) {
-          if(turnoObject.nombrePuesto==turno.nombrePuesto && turnoObject.ingresoPuesto==turno.ingresoPuesto){
-              // Ingreso
-              if(horaIngresoMin==""){
-                horaIngresoMin=turno.horaIngreso;
-                fechaIngresoMin=turno.fechaIngreso;
-                imagePathIngreso=turno.imagePath+"/"+turno.idPersonal+"_INGRESO.jpg";
-              }
-              if(compararHorasString(horaIngresoMin,turno.horaIngreso)==-1){
-                horaIngresoMin=turno.horaIngreso;
-                fechaIngresoMin=turno.fechaIngreso;
-                imagePathIngreso=turno.imagePath+"/"+turno.idPersonal+"_INGRESO.jpg";
-              }
-              // Egreso
-              if(horaEgresoMax==""){
-                horaEgresoMax=turno.horaEgreso;
-                fechaEgresoMax=turno.fechaEgreso;
-                imagePathEgreso=turno.imagePath+"/"+turno.idPersonal+"_EGRESO.jpg";
-              }
-              if(compararHorasString(horaEgresoMax,turno.horaEgreso)==1 || turno.horaEgreso==""){
-                // Si la hora de egreso esta vacia comparo la hora de ingreso del turno con la horaEgresoMax
-                if(turno.horaEgreso==""){
-                  if(compararHorasString(horaEgresoMax,turno.horaIngreso)==1){
-                    horaEgresoMax=turno.horaIngreso;
-                    fechaEgresoMax=turno.fechaIngreso;
-                    imagePathEgreso=turno.imagePath+"/"+turno.idPersonal+"_INGRESO.jpg";
+
+        if(turnoObject.count>1){
+            let horaIngresoMin="";
+            let horaEgresoMax="";
+            let fechaIngresoMin="";
+            let fechaEgresoMax="";
+            let imagePathIngreso="";
+            let imagePathEgreso="";
+            //Se recorre todo el array de turnos y se extraen los datos necesarios para formar un unico turno
+            arrayTurnos.forEach(function(turno) {
+              if(turnoObject.nombrePuesto==turno.nombrePuesto && turnoObject.ingresoPuesto==turno.ingresoPuesto){
+                  // Ingreso
+                  if(horaIngresoMin==""){
+                    horaIngresoMin=turno.horaIngreso;
+                    fechaIngresoMin=turno.fechaIngreso;
+                    imagePathIngreso=turno.imagePath+turno.idPersonal+"_INGRESO.jpg";
                   }
-                } else {
-                  horaEgresoMax=turno.horaEgreso;
-                  fechaEgresoMax=turno.fechaEgreso;
-                  imagePathEgreso=turno.imagePath+"/"+turno.idPersonal+"_EGRESO.jpg";
-                }
+                  if(compararHorasString(horaIngresoMin,turno.horaIngreso)==-1){
+                    horaIngresoMin=turno.horaIngreso;
+                    fechaIngresoMin=turno.fechaIngreso;
+                    imagePathIngreso=turno.imagePath+turno.idPersonal+"_INGRESO.jpg";
+                  }
+                  // Egreso
+                  if(horaEgresoMax==""){
+                    horaEgresoMax=turno.horaEgreso;
+                    fechaEgresoMax=turno.fechaEgreso;
+                    imagePathEgreso=turno.imagePath+turno.idPersonal+"_EGRESO.jpg";
+                  }
+                  if(compararHorasString(horaEgresoMax,turno.horaEgreso)==1 || turno.horaEgreso==""){
+                    // Si la hora de egreso esta vacia comparo la hora de ingreso del turno con la horaEgresoMax
+                    if(turno.horaEgreso==""){
+                      if(compararHorasString(horaEgresoMax,turno.horaIngreso)==1){
+                        horaEgresoMax=turno.horaIngreso;
+                        fechaEgresoMax=turno.fechaIngreso;
+                        imagePathEgreso=turno.imagePath+turno.idPersonal+"_INGRESO.jpg";
+                      }
+                    } else {
+                      horaEgresoMax=turno.horaEgreso;
+                      fechaEgresoMax=turno.fechaEgreso;
+                      imagePathEgreso=turno.imagePath+turno.idPersonal+"_EGRESO.jpg";
+                    }
+                  }
               }
-          }
-        });
-
-        turnosObject[fieldName].horaIngreso=horaIngresoMin;
-        turnosObject[fieldName].horaEgreso=horaEgresoMax;
-        turnosObject[fieldName].fechaIngreso=fechaIngresoMin;
-        turnosObject[fieldName].fechaEgreso=fechaEgresoMax;
-        turnosObject[fieldName].imagePathIngreso=imagePathIngreso;
-        turnosObject[fieldName].imagePathEgreso=imagePathEgreso;
-
+            });
+            turnosObject[fieldName].horaIngreso=horaIngresoMin;
+            turnosObject[fieldName].horaEgreso=horaEgresoMax;
+            turnosObject[fieldName].fechaIngreso=fechaIngresoMin;
+            turnosObject[fieldName].fechaEgreso=fechaEgresoMax;
+            turnosObject[fieldName].imagePathIngreso=imagePathIngreso;
+            turnosObject[fieldName].imagePathEgreso=imagePathEgreso;
+        }
       }
+    // }
+
+    //Mostrar Turnos Unificados y no Unificados
+    let key = Object.keys(turnosObject);
+    if( Object.keys(turnosObject).length == 1){
+      let variosPuestos = false;
+      mostrarTurnosProcesados(idCliente,idObjetivo,idDia,turnosObject[key[0]].idPersonal,turnosObject,variosPuestos,idCell);
+      //Poner en disaabled Unificar Turnos
+    } else {
+      let variosPuestos = true;
+      mostrarTurnosProcesados(idCliente,idObjetivo,idDia,turnosObject[key[0]].idPersonal,turnosObject,variosPuestos,idCell);
+      //Poner en disaabled Unificar Turnos
     }
-
-    // Recorrer el turnosObject filtrado y por cada iteracion se tendra que:
-    // 1ro. Eliminar todos los documentos asociados al nuevo turno
-    // 2do. Agregar el nuevo documento en la base de datos
-    // Limpiar Modal de todos los paneles y reiniciar la carga de turnos
-    for (var fieldName in turnosObject) {
-      //Carga el nuevo turno
-      cargarTurnoDB(idCliente,idObjetivo,idDia,turnosObject[fieldName]);
-      //ELimina los turnos antiguos
-      turnosObject[fieldName].arrayId.forEach(function(idTurno){
-        eliminarTurnoDB(idCliente,idObjetivo,idDia,idTurno);
-      });
-
-    }
-
-
 
   });
 
@@ -1430,62 +1423,133 @@ function cargarFuncionesModal(idCliente,idObjetivo,idDia,idCell,arrayTurnos){
    $("#"+footerIdName).show();
 
    $("#guardar-cambios-detalle-"+idCell).click(function() {
-     //Si el valor inicial del estado es distinto al valor actual entonces hago el cambio en los turnos
-     if(estadoInicial!=estadoActual){
-       console.log("Los estados son diferentes");
-     }
 
-     console.log("Guardado de cambios exitoso");
-
-     $("#detalle-dia").modal("hide");
+   guardarCambiosDetalle(idCliente,idObjetivo,idDia,arrayTurnos);
+   $("#detalle-dia").modal("hide");
    });
+
+}
+
+function guardarCambiosDetalle(idCliente,idObjetivo,idDia,arrayTurnos){
+
+  console.log(idCliente,idObjetivo,idDia,arrayTurnos);
+
+  //Si turnosObject es vacio, entonces no se hicieron unificaciones
+  if(Object.keys(arrayTurnos).length > 0){
+    // Recorrer el turnosObject filtrado y por cada iteracion se tendra que:
+    // 1ro. Agregar el nuevo documento en la base de datos y subir las fotos correspondientes
+    // 2ro. Eliminar todos los documentos asociados al nuevo turno y sus fotos asociadas
+    // Limpiar Modal de todos los paneles y reiniciar la carga de turnos
+    for (var fieldName in arrayTurnos) {
+
+      if(arrayTurnos[fieldName].count>1){
+        console.log("Entro: ");
+        console.log(arrayTurnos[fieldName]);
+        //Carga el nuevo turno en la DB y las imagenes en Storage
+        cargarTurnoDB(idCliente,idObjetivo,idDia,arrayTurnos[fieldName])
+        .then(function(turno){
+          //ELimina los turnos antiguos y las imagenes asociadas
+          turno.arrayId.forEach(function(idTurno){
+            eliminarTurnoDB(idCliente,idObjetivo,idDia,arrayTurnos[fieldName].fechaPuesto,idTurno);
+          });
+        })
+      }
+    }
+  }
 
 }
 
 function cargarTurnoDB(idCliente,idObjetivo,idDia,turno){
 
-  let nuevoTurno = {
-    idPersonal: turno.idPersonal,
-    nombrePuesto: turno.nombrePuesto,
-    fechaPuesto: turno.fechaPuesto,
-    fechaIngreso: turno.fechaIngreso,
-    fechaEgreso: turno.fechaEgreso,
-    turnoNoche: turno.turnoNoche,
-    ingresoPuesto: turno.ingresoPuesto,
-    egresoPuesto: turno.egresoPuesto,
-    horaIngreso: turno.horaIngreso,
-    horaEgreso: turno.horaEgreso,
-    horasTurno: turno.horasTurno,
-    estado: "mod",
-  }
+  return new Promise(function(resolve,reject){
+    let imagePathNuevo = idCliente+"/"+idObjetivo+"/CAPTURAS/"+turno.fechaPuesto+"/";
+    let nuevoTurno = {
+      idPersonal: turno.idPersonal,
+      nombrePuesto: turno.nombrePuesto,
+      fechaPuesto: turno.fechaPuesto,
+      fechaIngreso: turno.fechaIngreso,
+      fechaEgreso: turno.fechaEgreso,
+      turnoNoche: turno.turnoNoche,
+      ingresoPuesto: turno.ingresoPuesto,
+      egresoPuesto: turno.egresoPuesto,
+      horaIngreso: turno.horaIngreso,
+      horaEgreso: turno.horaEgreso,
+      horasTurno: turno.horasTurno,
+    }
 
-  db.collection("clientes").doc(idCliente).collection("objetivos").doc(idObjetivo).collection("cobertura")
-  .doc(idDia).collection("puestos")
-  .add(nuevoTurno)
-  .then(function() {
-      console.log("Document successfully added!");
-  }).catch(function(error) {
-      console.error("Error added document: ", error);
+    db.collection("clientes").doc(idCliente).collection("objetivos").doc(idObjetivo).collection("cobertura")
+    .doc(idDia).collection("puestos")
+    .add(nuevoTurno)
+    .then(function(doc) {
+        imagePathNuevo = imagePathNuevo+doc.id+"/";
+        db.collection("clientes").doc(idCliente).collection("objetivos").doc(idObjetivo).collection("cobertura")
+        .doc(idDia).collection("puestos").doc(doc.id)
+        .set({ imagePath : imagePathNuevo }, { merge: true })
+        .then(function(doc) {
+
+          let promises = [];
+           promises.push( moveFirebaseFile(turno.imagePathIngreso, imagePathNuevo+turno.idPersonal+"_INGRESO.jpg") );
+           promises.push( moveFirebaseFile(turno.imagePathEgreso, imagePathNuevo+turno.idPersonal+"_EGRESO.jpg") );
+           Promise.all(promises)
+           .then(function() {
+             resolve(turno);
+           })
+           .catch(function(error) {
+             console.log("Error al querer mover las imagenes",error);
+             reject();
+           });
+
+        })
+        .catch(function(error) {
+            console.error("Error setted document: ", error);
+            reject(error)
+        });
+    }).catch(function(error) {
+        console.error("Error added document: ", error);
+        reject(error);
+    });
   });
 }
 
-function eliminarTurnoDB(idCliente,idObjetivo,idDia,idTurno){
-  // db.collection("clientes").doc(idCliente).collection("objetivos").doc(idObjetivo).collection("cobertura")
-  // .doc(idDia).collection("puestos").doc(idTurno)
-  // .delete()
-  // .then(function() {
-  //     console.log("Document successfully deleted!");
-  // }).catch(function(error) {
-  //     console.error("Error removing document: ", error);
-  // });
+function eliminarTurnoDB(idCliente,idObjetivo,idDia,fechaPuesto,idTurno){
+
+  let imagePathEliminar = idCliente+"/"+idObjetivo+"/CAPTURAS/"+fechaPuesto+"/"+idTurno;
+
   db.collection("clientes").doc(idCliente).collection("objetivos").doc(idObjetivo).collection("cobertura")
   .doc(idDia).collection("puestos").doc(idTurno)
-  .set({ borrado: true }, { merge: true })
+  .delete()
   .then(function() {
-      console.log("Document successfully updated!");
+      console.log("Document successfully deleted!");
   }).catch(function(error) {
-      console.error("Error updated document: ", error);
+      console.error("Error removing document: ", error);
   });
+
+  deleteFolderContents(imagePathEliminar);
+
+}
+
+function mostrarTurnosProcesados(idCliente,idObjetivo,idDia,idPersonal,turnosObject,variosPuestos,idCell){
+
+  clearOptionsFast("modal-body-detalle");
+  clearOptionsFast("menu-detalle");
+  clearOptionsFast("modal-footer-detalle");
+  $("#nombreDetalleDia").text("");
+
+  if(variosPuestos==false){
+    let key = Object.keys(turnosObject);
+    cargarNombrePersonal(idPersonal,"nombreDetalleDia");
+    cargarFuncionesModal(idCliente,idObjetivo,idDia,idCell,turnosObject);
+    generarPanel(turnosObject[key[0]],"1");
+  } else {
+    cargarNombrePersonal(idPersonal,"nombreDetalleDia");
+    let idPanel=1;
+    for (var fieldName in turnosObject) {
+      let turno = turnosObject[fieldName];
+      generarPanel(turno,idPanel);
+      idPanel++;
+    };
+    cargarFuncionesModal(idCliente,idObjetivo,idDia,idCell,turnosObject);
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1493,18 +1557,64 @@ function eliminarTurnoDB(idCliente,idObjetivo,idDia,idTurno){
 ////////////////////////////////////////////////////////////////////////////////
 
 function cargarImagen(imagePath,idImage){
+  let imageRef = storageRef.child(imagePath);
+  imageRef.getDownloadURL()
+  .then(function(url) {
+    $("#"+idImage).css("background-image", "url("+url+")");
+  }).catch(function(error) {
+    console.log("Error al cargar imagen",error);
+  });
+}
 
-  console.log(imagePath,idImage);
+function moveFirebaseFile(currentPath, destinationPath) {
+  return new Promise(function(resolve,reject){
+    let oldRef = storageRef.child(currentPath);
+    let newRef = storageRef.child(destinationPath);
+    // This can be downloaded directly:
+    oldRef.getDownloadURL()
+    .then(function(url) {
+      var xhr = new XMLHttpRequest();
+      xhr.responseType = 'blob';
+      xhr.onload = function(event) {
+        var blob = xhr.response;
+        blob = blob.slice(0, blob.size, "image/jpeg")
+        newRef.put(blob).then(function(snapshot) {
+        console.log('Uploaded a blob or file!');
+        resolve();
+        });
+      };
+      xhr.open('GET', url);
+      xhr.send();
 
-let imageRef = storageRef.child(imagePath);
+      // Or inserted into an <img> element:
+      // var img = document.getElementById('imagen-prueba');
+      // img.src = url;
+    })
+    .catch(function(error){
+      console.log('Error moving File');
+      reject();
+    })
+  });
+}
 
-imageRef.getDownloadURL()
-.then(function(url) {
-  $("#"+idImage).css("background-image", "url("+url+")");
-  $("#"+idImage).css("background-size", "cover");
-}).catch(function(error) {
+function deleteFolderContents(pathDelete) {
+  const ref = firebase.storage().ref(pathDelete);
+  ref.listAll()
+    .then(dir => {
+      dir.items.forEach(fileRef => {
+        this.deleteFile(ref.fullPath, fileRef.name);
+      });
+      dir.prefixes.forEach(folderRef => {
+        this.deleteFolderContents(folderRef.fullPath);
+      })
+    })
+    .catch(error => {
+      console.log(error);
+    });
+}
 
-});
-
-
+function deleteFile(pathToFile, fileName) {
+  const ref = firebase.storage().ref(pathToFile);
+  const childRef = ref.child(fileName);
+  childRef.delete();
 }
