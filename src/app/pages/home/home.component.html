@@ -238,6 +238,7 @@
 
           <div class="conf">
             <br>
+              <h3 class="text-center m-5 text-danger" style="display:none" id="turno-eliminar">TURNO A ELIMINARSE</h3>
               <h1 class="text-center m-5" title="Horas Registradas" id="horasRegitradasDetalle">00:00</h1>
               <h5 class="text-center text-muted m-5" title="Horas Registradas">HORAS REGISTRADAS</h5>
             <br>
@@ -251,7 +252,16 @@
               <div class="text-center">
                 <div class="btn-group">
                   <button type="button" class="btn btn-success button-fix" id="turnoOriginalDetalle" >Turno Original</button>
-                  <button type="button" class="btn btn-primary" id="completarTurnoDetalle" >Completar Turno</button>
+                  <!-- <button type="button" class="btn btn-primary" id="completarTurnoDetalle" >Completar Turno</button> -->
+                  <div class="btn-group">
+                      <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" id="completarTurnoDetalle">
+                      Completar Turno </button>
+                      <ul class="dropdown-menu" role="menu">
+                        <li><a href="javascript:void(0)" id="turno-completo">Turno Completo</a></li>
+                        <li><a href="javascript:void(0)" id="turno-inicio">Desde el inicio</a></li>
+                        <li><a href="javascript:void(0)" id="turno-final">Hasta el final</a></li>
+                      </ul>
+                    </div>
                   <div class="btn-group">
                       <button type="button" class="btn btn-danger dropdown-toggle button-fix" data-toggle="dropdown" id="penalizarDetalle">
                       Penalizar </button>
@@ -273,7 +283,7 @@
                 <div class="col-md-5">
 
                   <div class="form-group" id="variacion-horas" style="display:none">
-                    <label for="sel1">Motivo de variacion de horas</label>
+                    <label for="sel1">Motivo de ampliacion de horas</label>
                     <select class="form-control" name="select">
                       <option value="0">Sin Internet</option>
                       <option value="1">Sin Celular</option>

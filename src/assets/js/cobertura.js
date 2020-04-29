@@ -285,7 +285,6 @@ function ingresoParametrizado(ingresoPuesto,ingresoReal){
       let hour = ingresoReal.getHours();
       if(hour<10){hour="0"+hour;}
       let horaStr = cuartoPosterior(hour+":"+minutes);
-      //console.log("getMinutes String: "+horaStr);
       let dia = ingresoReal.getDate();
       if (dia<10){dia="0"+dia;}
       let mes = ingresoReal.getMonth()+1;
@@ -296,9 +295,11 @@ function ingresoParametrizado(ingresoPuesto,ingresoReal){
     return ingresoParam;
   }
 
-function egresoParametrizado(egresoPuesto,egresoReal){
+function egresoParametrizado(ingresoPuesto,egresoPuesto,egresoReal){
     let egresoParam="";
-    if (egresoPuesto.getTime() == egresoReal.getTime()){
+    if (ingresoPuesto > egresoReal){
+      egresoParam = ingresoPuesto;
+    } else if (egresoPuesto.getTime() == egresoReal.getTime()){
       egresoParam = egresoPuesto;
     } else if(egresoPuesto < egresoReal){
       egresoParam = egresoPuesto;
@@ -308,7 +309,6 @@ function egresoParametrizado(egresoPuesto,egresoReal){
       let hour = egresoReal.getHours();
       if(hour<10){hour="0"+hour;}
       let horaStr = cuartoPosterior(hour+":"+minutes);
-      //console.log("String: "+horaStr);
       let dia = egresoReal.getDate();
       if (dia<10){dia="0"+dia;}
       let mes = egresoReal.getMonth()+1;

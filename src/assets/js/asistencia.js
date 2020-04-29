@@ -618,12 +618,12 @@ function cargarCoberturaEgresos(nombreCliente,nombreObjetivo,idCliente,idObjetiv
                     .then(function(querySnapshot) {
                         if (querySnapshot.empty) {
                           // Si NO se encuentra el usuario se procede a la carga del turno con el nombre vacio
-                          cargarTurnoAsistenciaEgresos(nombreCliente,nombreObjetivo,nombrePuesto,nombreTurno,egresoPuesto,horaEgreso,"Sin Identificar",fechaEgreso,fechaPuesto,horaActual,turnoNoche);
+                          cargarTurnoAsistenciaEgresos(nombreCliente,nombreObjetivo,nombrePuesto,nombreTurno,ingresoPuesto,egresoPuesto,horaEgreso,"Sin Identificar",fechaEgreso,fechaPuesto,horaActual,turnoNoche);
                           resolve();
                         } else {
                           //Si se encuentra el nombre se procede a la carga completa del turno
                           querySnapshot.forEach(function(doc) {
-                            cargarTurnoAsistenciaEgresos(nombreCliente,nombreObjetivo,nombrePuesto,nombreTurno,egresoPuesto,horaEgreso,doc.data().nombre,fechaEgreso,fechaPuesto,horaActual,turnoNoche);
+                            cargarTurnoAsistenciaEgresos(nombreCliente,nombreObjetivo,nombrePuesto,nombreTurno,ingresoPuesto,egresoPuesto,horaEgreso,doc.data().nombre,fechaEgreso,fechaPuesto,horaActual,turnoNoche);
                             resolve();
                           });
                         }
@@ -773,16 +773,18 @@ function cargarTurnoAsistenciaIngresosVacio(nombreCliente,nombreObjetivo,nombreP
    }
 }
 
-function cargarTurnoAsistenciaEgresos(nombreCliente,nombreObjetivo,nombrePuesto,nombreTurno,egresoPuesto,horaEgreso,nombre,fechaEgreso,fechaPuesto,horaActual,turnoNoche){
+function cargarTurnoAsistenciaEgresos(nombreCliente,nombreObjetivo,nombrePuesto,nombreTurno,ingresoPuesto,egresoPuesto,horaEgreso,nombre,fechaEgreso,fechaPuesto,horaActual,turnoNoche){
 
   let estado="Cerrado";
   let fechaPuestoDate="";
+  let ingresoPuestoDate="";
   let horaEgresoDate = "";
   let egresoPuestoDate = "";
   let egresoParametrizadoDate = "";
   let horaRegistrada = "-";
 
   fechaPuestoDate=new Date( Date.parse(fechaPuesto+"T00:00:00"));
+  ingresoPuestoDate=new Date( Date.parse(fechaPuesto+"T"+ingresoPuesto+":00"));
 
   if (turnoNoche) { //Si el puesto es turno noche
     egresoPuestoDate = new Date( Date.parse(fechaPuesto+"T"+egresoPuesto+":00"));
@@ -794,7 +796,7 @@ function cargarTurnoAsistenciaEgresos(nombreCliente,nombreObjetivo,nombrePuesto,
 
   if(horaEgreso!=""){ // Si la hora del puesto esta cargada y no es vacia
     horaEgresoDate = new Date( Date.parse(fechaEgreso+"T"+horaEgreso+":00") ); // Ver de generar objeto Date
-    egresoParametrizadoDate = egresoParametrizado(egresoPuestoDate,horaEgresoDate)
+    egresoParametrizadoDate = egresoParametrizado(ingresoPuestoDate,egresoPuestoDate,horaEgresoDate)
     horaRegistrada = componerHorasDate(egresoParametrizadoDate);
     if(egresoParametrizadoDate<egresoPuestoDate){
       estado="Cierre Anticipado";

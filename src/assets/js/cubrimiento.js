@@ -311,7 +311,8 @@ function cargarHorasPersonal(idCliente,idObjetivo,puesto,fechaInicial,fechaFinal
   }
 
   let ingresoParam = ingresoParametrizado(ingresoPuesto,ingresoReal);
-  let egresoParam = egresoParametrizado(egresoPuesto,egresoReal);
+  let egresoParam = egresoParametrizado(ingresoPuesto,egresoPuesto,egresoReal);
+
 
   difHoras = totalHoras(ingresoParam,egresoParam);
   let horaIngresoParam = componerHorasDate(ingresoParam);
@@ -871,7 +872,7 @@ function cargarRangeSlider(){
 // FUNCIONES MODAL DETALLE DIA
 ////////////////////////////////////////////////////////////////////////////////
 
-function mostrarModalDetalleDia(idCliente,idObjetivo,idDia,puesto,variosPuestos,idCell){
+function mostrarModalDetalleDia(idCliente,idObjetivo,idDia,turno,variosPuestos,idCell){
 
   clearOptionsFast("modal-body-detalle");
   clearOptionsFast("menu-detalle");
@@ -879,13 +880,15 @@ function mostrarModalDetalleDia(idCliente,idObjetivo,idDia,puesto,variosPuestos,
   $("#nombreDetalleDia").text("");
 
   if(variosPuestos==false){
-    cargarNombrePersonal(puesto.idPersonal,"nombreDetalleDia");
-    cargarFuncionesModal(idCliente,idObjetivo,idDia,idCell,[]);
-    generarPanel(puesto,"1");
+    let arrayTurnos = [];
+    arrayTurnos.push(turno);
+    cargarNombrePersonal(turno.idPersonal,"nombreDetalleDia");
+    cargarFuncionesModal(idCliente,idObjetivo,idDia,idCell,arrayTurnos);
+    generarPanel(turno,"0");
     $("#detalle-dia").modal("show");
   } else {
     //Si tiene mas de un puesto cargado en el dia tengo que recorrerlos y cargarlos
-    cargarNombrePersonal(puesto.idPersonal,"nombreDetalleDia");
+    cargarNombrePersonal(turno.idPersonal,"nombreDetalleDia");
     db.collection("clientes").doc(idCliente).collection("objetivos").doc(idObjetivo).collection("cobertura")
     .doc(idDia).collection("puestos").orderBy("horaIngreso","asc")
     .get()
@@ -893,11 +896,11 @@ function mostrarModalDetalleDia(idCliente,idObjetivo,idDia,puesto,variosPuestos,
           if (querySnapshot.empty) {
             // Si no se ecuentran la fecha
           } else {
-            let idPanel=1;
+            let idPanel=0;
             let arrayTurnos = [];
             querySnapshot.forEach(function(doc) {
               let turnoDoc = doc.data();
-              if (turnoDoc.idPersonal==puesto.idPersonal){
+              if (turnoDoc.idPersonal==turno.idPersonal){
                 generarPanel(turnoDoc,idPanel);
                 idPanel++;
                 let turnoArray = {
@@ -1006,6 +1009,8 @@ function cargarDatosTurnos(puesto,idPanel){
 
 function cargarRangeSliderDetalleDia(puesto,idPanel){
 
+  console.log(puesto);
+
   //Initialise range slider instance
   $("#slider-detalle-"+idPanel).ionRangeSlider({
   grid: true,
@@ -1017,17 +1022,39 @@ function cargarRangeSliderDetalleDia(puesto,idPanel){
   return moment(num).format('HH:mm');
   },
   onChange: function (data) {
-  // Called every time handle position is changed
+    // Called every time handle position is changed
+    let oldFrom = $("#slider-detalle-"+idPanel).attr("from");
+    let oldTo = $("#slider-detalle-"+idPanel).attr("to");
+    let oldHours = $("#slider-detalle-"+idPanel).attr("hours");
+    let from = new Date(data.from);
+    let to = new Date(data.to);
+
     let difHoras = totalHorasDetalle(new Date(data.from),new Date(data.to));
     $("#horasRegitradasDetalle-"+idPanel).text(difHoras);
-    document.getElementById('icon-informe-'+idPanel).className = 'fas fa-angle-double-down open';
-    $("#mostrarInforme-"+idPanel).show(300);
-    $("#variacion-horas-"+idPanel).show(300);
-    $("#penalizacionHora-"+idPanel).hide(300);
-    $("#penalizacionTurno-"+idPanel).hide(300);
+
+    if ( difHoras > oldHours ){
+      document.getElementById('icon-informe-'+idPanel).className = 'fas fa-angle-double-down open';
+      $("#mostrarInforme-"+idPanel).show(300);
+      $("#variacion-horas-"+idPanel).show(300);
+      $("#penalizacionHora-"+idPanel).hide(300);
+      $("#penalizacionTurno-"+idPanel).hide(300);
+    } else if ( difHoras < oldHours ){
+      document.getElementById('icon-informe-'+idPanel).className = 'fas fa-angle-double-down open';
+      $("#mostrarInforme-"+idPanel).show(300);
+      $("#variacion-horas-"+idPanel).hide(300);
+      $("#penalizacionHora-"+idPanel).show(300);
+      $("#penalizacionTurno-"+idPanel).hide(300);
+    } else {
+      document.getElementById('icon-informe-'+idPanel).className = 'fas fa-angle-double-down';
+      $("#mostrarInforme-"+idPanel).hide(300);
+      $("#variacion-horas-"+idPanel).hide(300);
+      $("#penalizacionHora-"+idPanel).hide(300);
+      $("#penalizacionTurno-"+idPanel).hide(300);
+    }
+
   },
   onUpdate: function (data) {
-  // Called then slider is changed using Update public method
+    // Called then slider is changed using Update public method
     let difHoras = totalHorasDetalle(new Date(data.from),new Date(data.to));
     $("#horasRegitradasDetalle-"+idPanel).text(difHoras);
   },
@@ -1051,8 +1078,14 @@ function cargarRangeSliderDetalleDia(puesto,idPanel){
     egresoParam = ingresoParam;
   }else{
     fechaEgresoReal = new Date(puesto.fechaEgreso+"T"+puesto.horaEgreso+":00");
-    egresoParam = egresoParametrizado(fechaEgresoPuesto,fechaEgresoReal);
+    egresoParam = egresoParametrizado(fechaIngresoPuesto,fechaEgresoPuesto,fechaEgresoReal);
   }
+
+  let difHoras = totalHorasDetalle(ingresoParam,egresoParam);
+
+  $("#slider-detalle-"+idPanel).attr( "from", ingresoParam );
+  $("#slider-detalle-"+idPanel).attr( "to", egresoParam );
+  $("#slider-detalle-"+idPanel).attr( "hours", difHoras );
 
   // Update range slider content (this will change handles positions)
   my_range.update({
@@ -1063,23 +1096,8 @@ function cargarRangeSliderDetalleDia(puesto,idPanel){
     disable: false,
   });
 
-  let difHoras = totalHorasDetalle(ingresoParam,egresoParam);
 
   $("#horasRegitradasDetalle-"+idPanel).text(difHoras);
-
-  $("#completarTurnoDetalle-"+idPanel).click(function() {
-    my_range.update({
-      from: fechaIngresoPuesto.valueOf(),
-      to: fechaEgresoPuesto.valueOf(),
-    });
-    document.getElementById("icon-informe-"+idPanel).className = "fas fa-angle-double-down open";
-    $("#mostrarInforme-"+idPanel).show(300);
-    $("#variacion-horas-"+idPanel).show(300);
-    $("#penalizacionHora-"+idPanel).hide(300);
-    $("#penalizacionTurno-"+idPanel).hide(300);
-    $("select[name=select-"+idPanel+"]").val("0");
-    $("#comment-"+idPanel).val("");
-  });
 
   $("#turnoOriginalDetalle-"+idPanel).click(function() {
     if(puesto.turnoOriginal==undefined || puesto.turnoOriginal=="" ){
@@ -1099,7 +1117,82 @@ function cargarRangeSliderDetalleDia(puesto,idPanel){
     }
   });
 
+  $("#completarTurnoDetalle-"+idPanel).click(function() {
+    my_range.update({
+      from: ingresoParam.valueOf(),
+      to: egresoParam.valueOf(),
+    });
+    document.getElementById('icon-informe-'+idPanel).className = 'fas fa-angle-double-down';
+    $("#mostrarInforme-"+idPanel).hide(300);
+    $("#variacion-horas-"+idPanel).hide(300);
+    $("#penalizacionHora-"+idPanel).hide(300);
+    $("#penalizacionTurno-"+idPanel).hide(300);
+    $("select[name=select-"+idPanel+"]").val("0");
+    $("#comment-"+idPanel).val("");
+  });
+
+  $("#turno-completo-"+idPanel).click(function() {
+    my_range.update({
+      from: fechaIngresoPuesto.valueOf(),
+      to: fechaEgresoPuesto.valueOf(),
+    });
+    document.getElementById("icon-informe-"+idPanel).className = "fas fa-angle-double-down open";
+    $("#mostrarInforme-"+idPanel).show(300);
+    $("#variacion-horas-"+idPanel).show(300);
+    $("#penalizacionHora-"+idPanel).hide(300);
+    $("#penalizacionTurno-"+idPanel).hide(300);
+    $("select[name=select-"+idPanel+"]").val("0");
+    $("#comment-"+idPanel).val("");
+  });
+
+  $("#turno-inicio-"+idPanel).click(function() {
+    my_range.update({
+      from: fechaIngresoPuesto.valueOf(),
+    });
+    document.getElementById("icon-informe-"+idPanel).className = "fas fa-angle-double-down open";
+    $("#mostrarInforme-"+idPanel).show(300);
+    $("#variacion-horas-"+idPanel).show(300);
+    $("#penalizacionHora-"+idPanel).hide(300);
+    $("#penalizacionTurno-"+idPanel).hide(300);
+    $("select[name=select-"+idPanel+"]").val("0");
+    $("#comment-"+idPanel).val("");
+  });
+
+  $("#turno-final-"+idPanel).click(function() {
+    my_range.update({
+      to: fechaEgresoPuesto.valueOf(),
+    });
+    document.getElementById("icon-informe-"+idPanel).className = "fas fa-angle-double-down open";
+    $("#mostrarInforme-"+idPanel).show(300);
+    $("#variacion-horas-"+idPanel).show(300);
+    $("#penalizacionHora-"+idPanel).hide(300);
+    $("#penalizacionTurno-"+idPanel).hide(300);
+    $("select[name=select-"+idPanel+"]").val("0");
+    $("#comment-"+idPanel).val("");
+  });
+
+  $("#penalizarDetalle-"+idPanel).click(function() {
+    my_range.update({
+      from: ingresoParam.valueOf(),
+      to: egresoParam.valueOf(),
+    });
+    document.getElementById('icon-informe-'+idPanel).className = 'fas fa-angle-double-down';
+    $("#mostrarInforme-"+idPanel).hide(300);
+    $("#variacion-horas-"+idPanel).hide(300);
+    $("#penalizacionHora-"+idPanel).hide(300);
+    $("#penalizacionTurno-"+idPanel).hide(300);
+    $("select[name=select-"+idPanel+"]").val("0");
+    $("#comment-"+idPanel).val("");
+  });
+
   $("#descontar-hora-"+idPanel).click(function() {
+    let horaMenos = new Date( egresoParam.getTime() - 1000 * 60 * 60 );
+    if(horaMenos < ingresoParam){
+      horaMenos = ingresoParam;
+    }
+    my_range.update({
+      to: horaMenos.valueOf(),
+    });
     $("select[name=select-"+idPanel+"]").val("0");
     $("#comment-"+idPanel).val("");
     let icon = document.getElementById("icon-informe-"+idPanel);
@@ -1111,6 +1204,10 @@ function cargarRangeSliderDetalleDia(puesto,idPanel){
   });
 
   $("#descontar-turno-"+idPanel).click(function() {
+    my_range.update({
+      from: ingresoParam.valueOf(),
+      to: ingresoParam.valueOf(),
+    });
     $("select[name=select-"+idPanel+"]").val("0");
     $("#comment-"+idPanel).val("");
     let icon = document.getElementById("icon-informe-"+idPanel);
@@ -1151,6 +1248,8 @@ function cargarRangeSliderDetalleDia(puesto,idPanel){
     $("#variacion-horas-"+idPanel).hide();
     $("#penalizacionHora-"+idPanel).hide();
     $("#penalizacionTurno-"+idPanel).hide();
+    $("#slider-detalle-"+idPanel).attr( "delete", true );
+    $("#turno-eliminar-"+idPanel).show();
   });
 
   $("#boton-habilitar-turno-"+idPanel).click(function() {
@@ -1159,7 +1258,8 @@ function cargarRangeSliderDetalleDia(puesto,idPanel){
     $("#mostrar-botones-"+idPanel).show(300);
     $("#boton-eliminar-turno-"+idPanel).prop( "disabled", false );
     $("#boton-habilitar-turno-"+idPanel).prop( "disabled", true );
-
+    $("#slider-detalle-"+idPanel).attr( "delete", false );
+    $("#turno-eliminar-"+idPanel).hide();
     my_range.update({
         from: ingresoParam.valueOf(),
         to: egresoParam.valueOf(),
@@ -1198,11 +1298,16 @@ function clonarPanelDetalle(idPanel) {
   $("#"+panelIdName).find("#tituloPuesto").attr("id","tituloPuesto-"+idPanel);
   $("#"+panelIdName).find("#horaIngresoReal").attr("id","horaIngresoReal-"+idPanel);
   $("#"+panelIdName).find("#horaEgresoReal").attr("id","horaEgresoReal-"+idPanel);
+  $("#"+panelIdName).find("#turno-eliminar").attr("id","turno-eliminar-"+idPanel);
   $("#"+panelIdName).find("#horasTurnoDetalle").attr("id","horasTurnoDetalle-"+idPanel);
   $("#"+panelIdName).find("#horasRegitradasDetalle").attr("id","horasRegitradasDetalle-"+idPanel);
   $("#"+panelIdName).find("#completarTurnoDetalle").attr("id","completarTurnoDetalle-"+idPanel);
+  $("#"+panelIdName).find("#turno-completo").attr("id","turno-completo-"+idPanel);
+  $("#"+panelIdName).find("#turno-inicio").attr("id","turno-inicio-"+idPanel);
+  $("#"+panelIdName).find("#turno-final").attr("id","turno-final-"+idPanel);
   $("#"+panelIdName).find("#mostrarInforme").attr("id","mostrarInforme-"+idPanel);
   $("#"+panelIdName).find("#variacion-horas").attr("id","variacion-horas-"+idPanel);
+  $("#"+panelIdName).find("#penalizarDetalle").attr("id","penalizarDetalle-"+idPanel);
   $("#"+panelIdName).find("#penalizacionHora").attr("id","penalizacionHora-"+idPanel);
   $("#"+panelIdName).find("#penalizacionTurno").attr("id","penalizacionTurno-"+idPanel);
   $("#"+panelIdName).find("#turnoOriginalDetalle").attr("id","turnoOriginalDetalle-"+idPanel);
@@ -1229,9 +1334,9 @@ function clonarPanelDetalle(idPanel) {
 }
 
 function cargarFuncionesModal(idCliente,idObjetivo,idDia,idCell,arrayTurnos){
-
   // turnosObject se utiliza solamente cuando se hace una unificacion de turnos
-  turnosObject = {}
+  // turnosObject = {}
+  let arrayTurnosMod = [];
 
   let estadoInicial="";
   let estadoActual="";
@@ -1298,109 +1403,69 @@ function cargarFuncionesModal(idCliente,idObjetivo,idDia,idCell,arrayTurnos){
   });
 
   $("#unificar-turno-"+idCell).click(function() {
-    //Armo un objeto con todos los turnos del array sin repetirlos
+
     arrayTurnos.forEach(function(turno){
-      if(turnosObject.hasOwnProperty(turno.nombrePuesto+turno.ingresoPuesto)){
-        turnosObject[turno.nombrePuesto+turno.ingresoPuesto].count++;
-        turnosObject[turno.nombrePuesto+turno.ingresoPuesto].arrayId.push(turno.idTurno);
-        turnosObject[turno.nombrePuesto+turno.ingresoPuesto].imagePath="";
-      } else {
-        turnosObject[turno.nombrePuesto+turno.ingresoPuesto] = {
-          idPersonal: turno.idPersonal,
-          nombrePuesto : turno.nombrePuesto,
-          fechaPuesto: turno.fechaPuesto,
-          turnoNoche: turno.turnoNoche,
-          horaIngreso : turno.horaIngreso,
-          horaEgreso : turno.horaEgreso,
-          fechaIngreso : turno.fechaIngreso,
-          fechaEgreso : turno.fechaEgreso,
-          ingresoPuesto : turno.ingresoPuesto,
-          egresoPuesto : turno.egresoPuesto,
-          imagePath : turno.imagePath,
-          horasTurno : turno.horasTurno,
-          arrayId : [turno.idTurno],
-          estado : "mod",
-          count : 1,
-        }
-      }
-    });
-
-    // SUSPENDER BUCLE
-    //Se eliminan los turnos con un solo turno cargado
-    // for (var fieldName in turnosObject) {
-    //   if(turnosObject[fieldName].count==1){
-    //     delete turnosObject[fieldName];
-    //   }
-    // }
-
-    //Cargo los campos faltantes de cada turno, en caso de repetirse solo los maximos y minimos
-    // if (Object.keys(turnosObject).length>0){
-      for (var fieldName in turnosObject) {
-
-        let turnoObject = turnosObject[fieldName];
-
-        if(turnoObject.count>1){
-            let horaIngresoMin="";
-            let horaEgresoMax="";
-            let fechaIngresoMin="";
-            let fechaEgresoMax="";
+      let encontrado=false;
+        for (let turnoMod of arrayTurnosMod) {
+          if(turno.nombrePuesto == turnoMod.nombrePuesto && turno.ingresoPuesto == turnoMod.ingresoPuesto){
+            turnoMod.arrayId.push(turno.idTurno);
+            turnoMod.count++;
+            turnoMod.imagePath="";
             let imagePathIngreso="";
             let imagePathEgreso="";
-            //Se recorre todo el array de turnos y se extraen los datos necesarios para formar un unico turno
-            arrayTurnos.forEach(function(turno) {
-              if(turnoObject.nombrePuesto==turno.nombrePuesto && turnoObject.ingresoPuesto==turno.ingresoPuesto){
-                  // Ingreso
-                  if(horaIngresoMin==""){
-                    horaIngresoMin=turno.horaIngreso;
-                    fechaIngresoMin=turno.fechaIngreso;
-                    imagePathIngreso=turno.imagePath+turno.idPersonal+"_INGRESO.jpg";
-                  }
-                  if(compararHorasString(horaIngresoMin,turno.horaIngreso)==-1){
-                    horaIngresoMin=turno.horaIngreso;
-                    fechaIngresoMin=turno.fechaIngreso;
-                    imagePathIngreso=turno.imagePath+turno.idPersonal+"_INGRESO.jpg";
-                  }
-                  // Egreso
-                  if(horaEgresoMax==""){
-                    horaEgresoMax=turno.horaEgreso;
-                    fechaEgresoMax=turno.fechaEgreso;
-                    imagePathEgreso=turno.imagePath+turno.idPersonal+"_EGRESO.jpg";
-                  }
-                  if(compararHorasString(horaEgresoMax,turno.horaEgreso)==1 || turno.horaEgreso==""){
-                    // Si la hora de egreso esta vacia comparo la hora de ingreso del turno con la horaEgresoMax
-                    if(turno.horaEgreso==""){
-                      if(compararHorasString(horaEgresoMax,turno.horaIngreso)==1){
-                        horaEgresoMax=turno.horaIngreso;
-                        fechaEgresoMax=turno.fechaIngreso;
-                        imagePathEgreso=turno.imagePath+turno.idPersonal+"_INGRESO.jpg";
-                      }
-                    } else {
-                      horaEgresoMax=turno.horaEgreso;
-                      fechaEgresoMax=turno.fechaEgreso;
-                      imagePathEgreso=turno.imagePath+turno.idPersonal+"_EGRESO.jpg";
-                    }
-                  }
-              }
-            });
-            turnosObject[fieldName].horaIngreso=horaIngresoMin;
-            turnosObject[fieldName].horaEgreso=horaEgresoMax;
-            turnosObject[fieldName].fechaIngreso=fechaIngresoMin;
-            turnosObject[fieldName].fechaEgreso=fechaEgresoMax;
-            turnosObject[fieldName].imagePathIngreso=imagePathIngreso;
-            turnosObject[fieldName].imagePathEgreso=imagePathEgreso;
-        }
-      }
-    // }
+            let turnoModhoraEgreso="";
+
+            let turnohoraIngreso = new Date( Date.parse(turno.fechaIngreso+"T"+turno.horaIngreso+":00") );
+            let turnohoraEgreso = new Date( Date.parse(turno.fechaEgreso+"T"+turno.horaEgreso+":00") );
+            let turnoModhoraIngreso = new Date( Date.parse(turnoMod.fechaIngreso+"T"+turnoMod.horaIngreso+":00") );
+            if(turnoMod.horaEgreso!=""){
+              turnoModhoraEgreso = new Date( Date.parse(turnoMod.fechaEgreso+"T"+turnoMod.horaEgreso+":00") );
+            }
+            // Compara Hora Ingreso
+            if(turnoModhoraIngreso > turnohoraIngreso){
+              turnoMod.horaIngreso=turno.horaIngreso;
+              turnoMod.fechaIngreso=turno.fechaIngreso;
+              turnoMod.imagePathIngreso=turno.imagePath+turno.idPersonal+"_INGRESO.jpg";
+            }
+            // Compara Hora Egreso REVISAR QUE PASA CUANDO turnoMod.horaEgreso es =="VACIA"
+            if(turno.horaEgreso==""){
+                if(turnoModhoraEgreso < turnohoraIngreso){
+                  turnoMod.horaEgreso=turno.horaIngreso;
+                  turnoMod.fechaEgreso=turno.fechaIngreso;
+                  turnoMod.imagePathEgreso=turno.imagePath+turno.idPersonal+"_INGRESO.jpg";
+                  console.log("Entro a ",  turnoMod.imagePathEgreso);
+                }
+            } else if(turnoModhoraEgreso < turnohoraEgreso || turnoMod.horaEgreso=="") {
+              console.log();
+              turnoMod.horaEgreso=turno.horaEgreso;
+              turnoMod.fechaEgreso=turno.fechaEgreso;
+              turnoMod.imagePathEgreso=turno.imagePath+turno.idPersonal+"_EGRESO.jpg";
+            }
+            encontrado=true;
+            break;
+         }
+       }
+       if(encontrado==false){
+          turno.arrayId = [turno.idTurno];
+          turno.estado = "mod";
+          turno.count = 1;
+          turno.imagePathIngreso=turno.imagePath+turno.idPersonal+"_INGRESO.jpg";
+          if(turno.horaEgreso!=""){
+            turno.imagePathEgreso=turno.imagePath+turno.idPersonal+"_EGRESO.jpg";
+          }
+          arrayTurnosMod.push(turno);
+       }
+   });
 
     //Mostrar Turnos Unificados y no Unificados
-    let key = Object.keys(turnosObject);
-    if( Object.keys(turnosObject).length == 1){
+    // let key = Object.keys(turnosObject);
+    if( arrayTurnosMod.length == 1){
       let variosPuestos = false;
-      mostrarTurnosProcesados(idCliente,idObjetivo,idDia,turnosObject[key[0]].idPersonal,turnosObject,variosPuestos,idCell);
+      mostrarTurnosProcesados(idCliente,idObjetivo,idDia,arrayTurnosMod,variosPuestos,idCell);
       //Poner en disaabled Unificar Turnos
     } else {
       let variosPuestos = true;
-      mostrarTurnosProcesados(idCliente,idObjetivo,idDia,turnosObject[key[0]].idPersonal,turnosObject,variosPuestos,idCell);
+      mostrarTurnosProcesados(idCliente,idObjetivo,idDia,arrayTurnosMod,variosPuestos,idCell);
       //Poner en disaabled Unificar Turnos
     }
 
@@ -1432,34 +1497,43 @@ function cargarFuncionesModal(idCliente,idObjetivo,idDia,idCell,arrayTurnos){
 
 function guardarCambiosDetalle(idCliente,idObjetivo,idDia,arrayTurnos){
 
-  console.log(idCliente,idObjetivo,idDia,arrayTurnos);
+for (let i=0 ; i < arrayTurnos.length ; i++){
+  let slider = $("#slider-detalle-"+i).data("ionRangeSlider");
+  let from = new Date(slider.result.from);
+  let to = new Date(slider.result.to);
+  let oldFrom = $("#slider-detalle-"+i).attr("from");
+  let oldTo = $("#slider-detalle-"+i).attr("to");
 
-  //Si turnosObject es vacio, entonces no se hicieron unificaciones
-  if(Object.keys(arrayTurnos).length > 0){
-    // Recorrer el turnosObject filtrado y por cada iteracion se tendra que:
-    // 1ro. Agregar el nuevo documento en la base de datos y subir las fotos correspondientes
-    // 2ro. Eliminar todos los documentos asociados al nuevo turno y sus fotos asociadas
-    // Limpiar Modal de todos los paneles y reiniciar la carga de turnos
-    for (var fieldName in arrayTurnos) {
-
-      if(arrayTurnos[fieldName].count>1){
-        console.log("Entro: ");
-        console.log(arrayTurnos[fieldName]);
-        //Carga el nuevo turno en la DB y las imagenes en Storage
-        cargarTurnoDB(idCliente,idObjetivo,idDia,arrayTurnos[fieldName])
-        .then(function(turno){
-          //ELimina los turnos antiguos y las imagenes asociadas
-          turno.arrayId.forEach(function(idTurno){
-            eliminarTurnoDB(idCliente,idObjetivo,idDia,arrayTurnos[fieldName].fechaPuesto,idTurno);
-          });
-        })
-      }
-    }
+  if(from!=oldFrom || to!=oldTo){
+    console.log("Slider Anterior Nro: "+i+" Hora Desde: "+oldFrom+" Hora Hasta: "+oldTo);
+    console.log("Slider Posterior Nro: "+i+" Hora Desde: "+from+" Hora Hasta: "+to);
+  } else {
+    console.log("Slider Nro: "+i+" sin cambios");
   }
 
 }
 
+
+  //Si arrayTurnos es vacio, entonces no se hicieron unificaciones
+  if(arrayTurnos.length > 0){
+    arrayTurnos.forEach(function(turno){
+      if(turno.count > 1){
+        //Carga el nuevo turno en la DB y las imagenes en Storage
+        cargarTurnoDB(idCliente,idObjetivo,idDia,turno)
+        .then(function(turno){
+          //ELimina los turnos antiguos y las imagenes asociadas
+          turno.arrayId.forEach(function(idTurno){
+            eliminarTurnoDB(idCliente,idObjetivo,idDia,turno.fechaPuesto,idTurno);
+          });
+        })
+      }
+    });
+  }
+}
+
 function cargarTurnoDB(idCliente,idObjetivo,idDia,turno){
+
+  console.log(turno);
 
   return new Promise(function(resolve,reject){
     let imagePathNuevo = idCliente+"/"+idObjetivo+"/CAPTURAS/"+turno.fechaPuesto+"/";
@@ -1475,6 +1549,7 @@ function cargarTurnoDB(idCliente,idObjetivo,idDia,turno){
       horaIngreso: turno.horaIngreso,
       horaEgreso: turno.horaEgreso,
       horasTurno: turno.horasTurno,
+      estado: turno.estado,
     }
 
     db.collection("clientes").doc(idCliente).collection("objetivos").doc(idObjetivo).collection("cobertura")
@@ -1528,7 +1603,7 @@ function eliminarTurnoDB(idCliente,idObjetivo,idDia,fechaPuesto,idTurno){
 
 }
 
-function mostrarTurnosProcesados(idCliente,idObjetivo,idDia,idPersonal,turnosObject,variosPuestos,idCell){
+function mostrarTurnosProcesados(idCliente,idObjetivo,idDia,arrayTurnosMod,variosPuestos,idCell){
 
   clearOptionsFast("modal-body-detalle");
   clearOptionsFast("menu-detalle");
@@ -1536,19 +1611,17 @@ function mostrarTurnosProcesados(idCliente,idObjetivo,idDia,idPersonal,turnosObj
   $("#nombreDetalleDia").text("");
 
   if(variosPuestos==false){
-    let key = Object.keys(turnosObject);
-    cargarNombrePersonal(idPersonal,"nombreDetalleDia");
-    cargarFuncionesModal(idCliente,idObjetivo,idDia,idCell,turnosObject);
-    generarPanel(turnosObject[key[0]],"1");
+    cargarNombrePersonal(arrayTurnosMod[0].idPersonal,"nombreDetalleDia");
+    cargarFuncionesModal(idCliente,idObjetivo,idDia,idCell,arrayTurnosMod);
+    generarPanel(arrayTurnosMod[0],"1");
   } else {
-    cargarNombrePersonal(idPersonal,"nombreDetalleDia");
+    cargarNombrePersonal(arrayTurnosMod[0].idPersonal,"nombreDetalleDia");
     let idPanel=1;
-    for (var fieldName in turnosObject) {
-      let turno = turnosObject[fieldName];
+    arrayTurnosMod.forEach(function(turno) {
       generarPanel(turno,idPanel);
       idPanel++;
-    };
-    cargarFuncionesModal(idCliente,idObjetivo,idDia,idCell,turnosObject);
+    });
+    cargarFuncionesModal(idCliente,idObjetivo,idDia,idCell,arrayTurnosMod);
   }
 }
 
@@ -1560,7 +1633,9 @@ function cargarImagen(imagePath,idImage){
   let imageRef = storageRef.child(imagePath);
   imageRef.getDownloadURL()
   .then(function(url) {
-    $("#"+idImage).css("background-image", "url("+url+")");
+    $("#"+idImage).css("background", "url("+url+")");
+    $("#"+idImage).css("background-size", "cover");
+    // document.getElementById(idImage).style.backgroundSize = "cover";
   }).catch(function(error) {
     console.log("Error al cargar imagen",error);
   });
@@ -1617,4 +1692,19 @@ function deleteFile(pathToFile, fileName) {
   const ref = firebase.storage().ref(pathToFile);
   const childRef = ref.child(fileName);
   childRef.delete();
+}
+
+function getHoursStr(date){
+  return addZero(date.getHours())+":"+addZero(date.getMinutes());
+}
+
+function getDateStr(date){
+  return date.getFullYear()+"/"+addZero(date.getMonth())+"/"+addZero(dateObj.getDate());
+}
+
+function addZero(i) {
+  if (i < 10) {
+    i = "0" + i;
+  }
+  return i;
 }
