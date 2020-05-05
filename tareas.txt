@@ -12,7 +12,3 @@ Falla al cargar Puesto TT masivo el en diferentes dias. Posible problema se actu
 Falta Limpiar pantalla al eliminar un esquema, en caso de ser el mismo que esta mostrandose
 
 Cuando se carga un puesto nuevo sobre un esquema CADUCADO o cargado desde el Historial de Esquemas no funciona la actualización automática.
-
-Android:
-
-Se debera cargar en los turnos el campo nombreTurno

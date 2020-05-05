@@ -1,0 +1,402 @@
+<!-- Content Wrapper. Contains page content -->
+<div class="content-wrapper">
+  <!-- Content Header (Page header) -->
+  <section class="content-header">
+    <h1>
+      Configuracion
+      <small>Version 1.0</small>
+    </h1>
+    <ol class="breadcrumb">
+      <li><a routerLink="/layouts/home"><i class="fa fa-calendar"></i> Home</a></li>
+      <li class="active">Configuracion</li>
+      <li class="active">Clientes</li>
+    </ol>
+  </section>
+
+  <!-- Main content -->
+  <section class="content">
+
+    <div class="container-fluid">
+
+      <div class="row">
+
+        <div class="col-md-12">
+
+          <div class="box box-danger">
+            <div class="box-header with-border">
+              <h3 class="box-title">Clientes</h3>
+
+              <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                <div class="btn-group">
+                  <button type="button" class="btn btn-box-tool dropdown-toggle" data-toggle="dropdown">
+                    <i class="fa fa-wrench"></i></button>
+                  <ul class="dropdown-menu" role="menu">
+                    <li><a href="#">Elegir un periodo</a></li>
+                    <li><a href="#">Cambiar Servicio</a></li>
+                    <li class="divider"></li>
+                    <li><a href="#">Configuracion</a></li>
+                  </ul>
+                </div>
+                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+              </div>
+            </div>
+
+            <div class="box-body">
+
+             <div class="container-fluid">
+
+               <div class="row">
+
+                 <div class="col-md-12">
+
+                   <div class="panel panel-primary">
+
+                     <div class="panel-heading">
+                       <h3 class="panel-title">Opciones</h3>
+                     </div>
+                     <br/>
+
+                     <div class="container-fluid">
+                       <div class="row conf">
+
+                           <div class="form-group col-sm-4 col-md-4 col-lg-4">
+                               <label for="cliente">Cliente</label>
+                                <input type="text" class="form-control" list="dataListClient" id="cliente" placeholder="Seleccione un cliente">
+                                <datalist id="dataListClient">
+                                </datalist>
+                           </div>
+
+                       </div>
+                     </div><br>
+
+                     <div class="box-footer">
+                      <div class="conf">
+                         <button type="button" class="btn btn-primary" onclick="mostrarCliente()">Mostrar Cliente</button>
+                         <button type="button" class="btn btn-success ml-7" >Agregar Cliente</button>
+                      </div>
+                     </div>
+                   </div>
+                 </div>
+
+               </div>
+
+
+              </div>
+
+            </div>
+
+            <div class="box-footer">
+              <div class="row">
+              </div>
+              <!-- /.row -->
+            </div>
+            <!-- /.box-footer -->
+            <div class="loader loader-default" data-text="Cargando..." data-blink id="loader-state-client">
+                 <!-- <i class="fas fa-cog fa-spin"></i> -->
+            </div>
+          </div>
+          <!-- /.box -->
+        </div>
+
+      </div>
+
+      <div class="row" style="display:none;" id="tab-cliente">
+
+        <div class="col-md-12">
+          <!-- Custom Tabs -->
+          <div class="nav-tabs-custom">
+
+            <ul class="nav nav-tabs">
+              <li class="active"><a href="#tab_1" data-toggle="tab">Datos Basicos</a></li>
+              <li><a href="#tab_2" data-toggle="tab">Datos de Facturacion</a></li>
+              <li><a href="#tab_3" data-toggle="tab">Datos de Liquidacion</a></li>
+              <li><a href="#tab_4" data-toggle="tab">Objetivos</a></li>
+            </ul>
+
+            <div class="tab-content">
+
+              <!-- TAB DATOS BASICOS -->
+              <div class="tab-pane active" id="tab_1">
+               <div class="container-fluid">
+                <!-- Panel Opciones -->
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                      <h3 class="panel-title">Datos Basicos</h3>
+                    </div>
+                    <br/>
+                    <div class="container-fluid">
+
+                         <div class="conf">
+
+                          	  <div class="row">
+
+                                <div class="col-lg-10">
+                                  <div class="row">
+                                    <div class="col-lg-9">
+                                      <div class="form-group">
+                                        <label for="nombreCliente">Nombre del Cliente</label>
+                                         <input type="text" class="form-control" id="nombreCliente" placeholder="Nombre del Cliente" readonly>
+                                      </div>
+                                    </div>
+                                    <div class="col-lg-3">
+                                      <div class="form-group">
+                                        <label for="cuit">CUIT</label>
+                                         <input type="text" class="form-control input-element" id="cuit" placeholder="CUIT" readonly>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div class="row">
+                                    <div class="col-lg-12">
+                                      <div class="form-group">
+                                        <label for="razonSocial">Razon Social</label>
+                                         <input type="text" class="form-control" id="razonSocial" placeholder="Razon Social" readonly>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div class="col-lg-2" >
+                                  <div class="form-group bg-logo">
+                                  </div>
+                                </div>
+                            	</div>
+
+                             <div class="row">
+                               <hr>
+                               <div>
+                                 <label class="text-muted" style="margin-left:15px; margin-bottom:15px;" >Domicilio</label>
+                               </div>
+
+                               <div class="form-group col-md-2">
+                                 <label for="pais">Pais</label>
+                                 <input type="text" class="form-control" list="dataListPais" id="pais" placeholder="Seleccione una provincia" readonly/>
+                                  <datalist id="dataListPais">
+                                    <option>ARGENTINA</option>
+                                  </datalist>
+                               </div>
+
+                               <div class="form-group col-md-4">
+                                 <label for="provincia">Provincia</label>
+                                 <input type="text" class="form-control" list="dataListPcia" id="provincia" placeholder="Seleccione una provincia" onchange="cargarDeptoLocalCalles()" readonly/>
+                                  <datalist id="dataListPcia">
+                                  </datalist>
+                               </div>
+
+                               <div class="form-group col-md-3">
+                                 <label for="departamento">Departamento / Comuna</label>
+                                 <input type="text" class="form-control" list="dataListDepto" id="departamento" placeholder="Seleccione un departamento" onchange="cargarLocalCalles()" readonly/>
+                                  <datalist id="dataListDepto">
+                                  </datalist>
+                               </div>
+
+                               <div class="form-group col-md-3">
+                                 <label for="localidad">Localidad / Barrio</label>
+                                 <input type="text" class="form-control" list="dataListLocal" id="localidad" placeholder="Seleccione una localidad" readonly/>
+                                  <datalist id="dataListLocal">
+                                  </datalist>
+                               </div>
+
+                             </div>
+                             <div class="row">
+
+                               <div class="form-group col-md-5">
+                                 <label for="calle">Calle</label>
+                                 <input type="text" class="form-control" list="dataListCalles" id="calle" placeholder="Seleccione una calle" readonly/>
+                                  <datalist id="dataListCalles">
+                                  </datalist>
+                               </div>
+
+                               <div class="form-group col-md-2">
+                                 <label for="nroPuerta">Nro Puerta</label>
+                                  <input type="text" class="form-control" id="nroPuerta" placeholder="Nro Puerta" readonly>
+                               </div>
+                               <div class="form-group col-md-2">
+                                 <label for="piso">Piso</label>
+                                  <input type="text" class="form-control" id="piso" placeholder="Piso" readonly>
+                               </div>
+                               <div class="form-group col-md-2">
+                                 <label for="depto">Depto</label>
+                                  <input type="text" class="form-control" id="depto" placeholder="Depto" readonly>
+                               </div>
+                               <div class="form-group col-md-1">
+                                 <label for="cp">CP</label>
+                                  <input type="text" class="form-control" id="cp" placeholder="CP" readonly>
+                               </div>
+
+                             </div>
+
+                             <div class="row">
+                               <div class="col-md-12">
+                                 <div class="callout callout-danger" style="display:none" id="mensajeError">
+                                    <!-- <p>No existen localidades ni calles con esta combinacion de provincia y departamento</p> -->
+                                  </div>
+                               </div>
+                             </div>
+
+                             <div class="row">
+                               <div class="col-md-12">
+                                 <div class="text-center">
+                                   <a href="javascript:void(0)" onclick="cargarCoordDomicilio()" >Actualizar domicilio en el Mapa</a>
+                                   <iframe width="100%" height="600" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" id="googleMap">
+                                   </iframe>
+                                 </div>
+                               </div>
+                             </div>
+
+                             <div class="conf">
+                               <div class="text-center">
+                                 <div class="checkbox">
+                                    <label><input type="checkbox" value="" id="checkCoordenadas" disabled>Obtener ubicacion desde coordenadas</label>
+                                 </div>
+                                 <form class="form-inline">
+                                   <div class="form-group">
+                                     <label class="conf" for="lat">Lat: </label>
+                                     <input type="text" class="form-control" id="lat" value="-34.603700" placeholder="-34.603700" style="width:100px" onchange="cargarCoordenadas()" readonly>
+                                   </div>
+                                  <div class="form-group">
+                                    <label class="conf" for="lon">Lon: </label>
+                                    <input type="text" class="form-control" id="lon" value="-58.381566" placeholder="-58.381566" style="width:100px" onchange="cargarCoordenadas()" readonly>
+                                  </div>
+                                 </form>
+                               </div>
+
+                               <br/>
+
+                             </div>
+
+                           </div>
+
+                    </div>
+
+                    <div class="box-footer">
+                      <div class="conf">
+                        <button type="button" class="btn btn-primary" onclick="modificarDatosCliente()" id="btnModificarCliente">Modificar Datos</button>
+                        <button type="button" class="btn btn-danger ml-7" onclick="guardarCambiosCliente()" id="btnGuardarCliente" disabled>Guardar Cambios</button>
+                      </div>
+                    </div>
+
+                </div>
+
+               </div>
+              </div>
+              <!-- /.tab-pane -->
+
+              <!-- TAB DATOS DE FACTURACION -->
+              <div class="tab-pane" id="tab_2">
+                <div class="container-fluid my-3">
+                  <!-- Panel Opciones -->
+                  <div class="panel panel-primary">
+                      <div class="panel-heading">
+                        <h3 class="panel-title">Datos de Facturacion General</h3>
+                      </div>
+                      <br/>
+                      <div class="container-fluid">
+                         <form>
+                           <div class="conf">
+                               <div class="row">
+                                 <div class="col-md-1">
+                                 </div>
+                               </div>
+                               <div class="row">
+
+                               </div>
+                             </div>
+                           </form>
+                      </div>
+                      <div class="box-footer">
+                        <div class="conf">
+                          <button type="button" class="btn btn-primary" onclick="cargarPuestosSetting()">Modificar Datos</button>
+                          <button type="button" class="btn btn-danger ml-7" onclick="cargarHistorial()">Guardar Cambios</button>
+                        </div>
+                      </div>
+                  </div>
+
+                </div>
+                <!-- ./container-fluid -->
+              </div>
+              <!-- /.tab-pane -->
+
+              <!-- TAB DATOS DE LIQUIDACION -->
+              <div class="tab-pane" id="tab_3">
+                <div class="container-fluid my-3">
+                  <!-- Panel Opciones -->
+                  <div class="panel panel-primary">
+                      <div class="panel-heading">
+                        <h3 class="panel-title">Datos de Liquidacion General</h3>
+                      </div>
+                      <br/>
+                      <div class="container-fluid">
+                         <form>
+                           <div class="conf">
+                               <div class="row">
+                                 <div class="col-md-1">
+                                 </div>
+                               </div>
+                               <div class="row">
+
+                               </div>
+                             </div>
+                           </form>
+                      </div>
+                      <div class="box-footer">
+                        <div class="conf">
+                          <button type="button" class="btn btn-primary" onclick="cargarPuestosSetting()">Modificar Datos</button>
+                          <button type="button" class="btn btn-danger ml-7" onclick="cargarHistorial()">Guardar Cambios</button>
+                        </div>
+                      </div>
+                  </div>
+
+                </div>
+                <!-- ./container-fluid -->
+              </div>
+              <!-- /.tab-pane -->
+
+              <!-- TAB OBJETIVOS -->
+              <div class="tab-pane" id="tab_4">
+                <div class="container-fluid my-3">
+                  <!-- Panel Opciones -->
+                  <div class="panel panel-primary">
+                      <div class="panel-heading">
+                        <h3 class="panel-title">Objetivos</h3>
+                      </div>
+                      <br/>
+                      <div class="container-fluid">
+                         <form>
+                           <div class="conf">
+                               <div class="row">
+                                 <div class="col-md-1">
+                                 </div>
+                               </div>
+                               <div class="row">
+
+                               </div>
+                             </div>
+                           </form>
+                      </div>
+                      <div class="box-footer">
+                        <div class="conf">
+                          <button type="button" class="btn btn-primary" onclick="cargarPuestosSetting()">Modificar Datos</button>
+                          <button type="button" class="btn btn-danger ml-7" onclick="cargarHistorial()">Guardar Cambios</button>
+                        </div>
+                      </div>
+                  </div>
+
+                </div>
+                <!-- ./container-fluid -->
+              </div>
+              <!-- /.tab-pane -->
+
+            </div>
+            <!-- /.tab-content -->
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+  <!-- /.content -->
+</div>
+<!-- /.content-wrapper -->

@@ -163,6 +163,7 @@
         <h4 id="titulo" class="modal-title">DIA - 143</h4>
       </div>
       <div class="modal-body modal-body-detalle" >
+
         <div class="container-fluid" style="margin-bottom:7px;">
           <div class="row">
             <div class="col-md-3">
@@ -173,22 +174,8 @@
             </div>
             <!-- Zona a cargarse el menu dropdown -->
             <div class="col-md-3" id="menu-detalle">
-
             </div>
           </div>
-        </div>
-
-        <!-- Menu Dropdown a Clonar -->
-        <div class="dropdown" id="dropdown-clone" style="display:none" >
-          <div class="dropdown-toggle" style="text-align:center; color:white; font-size:20px; display:flex; align-items: center; justify-content: flex-end;" data-toggle="dropdown">
-          <span style="margin-right:14px; font-size:10px;" id="estado-detalle"></span>
-          <a href="javascript:void(0)" class="fas fa-bars" style="color:white; "></a>
-          </div>
-          <ul class="dropdown-menu pull-right">
-            <li id="confirmar-verificacion"><a href="javascript:void(0)"><span class="fas fa-user-check" style="margin-right:6px;" ></span>Confirmar Verificacion</a></li>
-            <li id="deshabilitar-verificacion"><a href="javascript:void(0)"><span class="fas fa-user-times" style="margin-right:6px;"  ></span>Deshabilitar Verificacion</a></li>
-            <li id="unificar-turno"><a href="javascript:void(0)"><span class="fas fa-magic" style="margin-right:6px;" ></span>Unificar por turno</a></li>
-          </ul>
         </div>
 
         <!-- Zona a cargarse los panel detalle -->
@@ -197,158 +184,8 @@
 
       </div>
 
-      <!-- Panel a Clonar -->
-      <div class="panel panel-default" id="panel-clone" style="display:none">
-        <div class="panel-heading">
-          <h3 class="panel-title" id="tituloPuesto">Puesto 1 - TM</h3>
-        </div>
-
-        <div class="card-contenedor" id="card-contenedor">
-
-          <div class="card">
-              <div class="card-image card3" style="background-size: cover" id="foto-ingreso"></div>
-              <div class="card-stats card3">
-                <div class="stat">
-                  <div class="value"><b id="horaIngresoReal"></b></div>
-                </div>
-              </div>
-          </div>
-
-          <div class="card">
-            <div class="card-image card2" style="background-size: cover" id="foto-egreso"></div>
-            <div class="card-stats card2">
-              <div class="stat">
-                <div class="value"><b id="horaEgresoReal"></b></div>
-              </div>
-            </div>
-          </div>
-
-        </div>
-
-        <div class="container-fluid">
-
-          <div class="conf">
-            <br>
-            <div id="horas-turno-detalle">
-              <h4 class="text-center m-5" title="Horas del Turno" id="horasTurnoDetalle">00:00</h4>
-              <h5 class="text-center text-muted m-5" title="Horas del Turno">HORAS TURNO</h5>
-            </div>
-            <input type="text" class="js-range-slider" name="my_range" id="slider-detalle" />
-          </div>
-
-          <div class="conf">
-            <br>
-              <h3 class="text-center m-5 text-danger" style="display:none" id="turno-eliminar">TURNO A ELIMINARSE</h3>
-              <h1 class="text-center m-5" title="Horas Registradas" id="horasRegitradasDetalle">00:00</h1>
-              <h5 class="text-center text-muted m-5" title="Horas Registradas">HORAS REGISTRADAS</h5>
-            <br>
-          </div>
-
-          <!-- Sector de Botones -->
-          <div id="mostrar-botones">
-
-            <div class="conf">
-
-              <div class="text-center">
-                <div class="btn-group">
-                  <button type="button" class="btn btn-success button-fix" id="turnoOriginalDetalle" >Turno Original</button>
-                  <!-- <button type="button" class="btn btn-primary" id="completarTurnoDetalle" >Completar Turno</button> -->
-                  <div class="btn-group">
-                      <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" id="completarTurnoDetalle">
-                      Completar Turno </button>
-                      <ul class="dropdown-menu" role="menu">
-                        <li><a href="javascript:void(0)" id="turno-completo">Turno Completo</a></li>
-                        <li><a href="javascript:void(0)" id="turno-inicio">Desde el inicio</a></li>
-                        <li><a href="javascript:void(0)" id="turno-final">Hasta el final</a></li>
-                      </ul>
-                    </div>
-                  <div class="btn-group">
-                      <button type="button" class="btn btn-danger dropdown-toggle button-fix" data-toggle="dropdown" id="penalizarDetalle">
-                      Penalizar </button>
-                      <ul class="dropdown-menu" role="menu">
-                        <li><a href="javascript:void(0)" id="descontar-hora">Descontar una Hora</a></li>
-                        <li><a href="javascript:void(0)" id="descontar-turno" >Descontar Turno</a></li>
-                      </ul>
-                    </div>
-                </div>
-
-              </div>
-
-            </div>
-            <div class="text-center text-muted m-10" title="Ver / Ocultar Informe" id="container-icon">
-              <i class="fas fa-angle-double-down" id="icon-informe"></i>
-            </div>
-            <div id="mostrarInforme" style="display:none">
-              <div class="row">
-                <div class="col-md-5">
-
-                  <div class="form-group" id="variacion-horas" style="display:none">
-                    <label for="sel1">Motivo de ampliacion de horas</label>
-                    <select class="form-control" name="select">
-                      <option value="0">Sin Internet</option>
-                      <option value="1">Sin Celular</option>
-                      <option value="2">Sin Aplicacion Instalada / Configurada</option>
-                      <option value="3">Problemas con la Aplicacion</option>
-                      <option value="4">Desconocimiento de Uso</option>
-                      <option value="5">Olvido de Ingreso / Cierre del Servicio</option>
-                      <option value="6">Otros</option>
-                    </select>
-                  </div>
-
-                  <div class="form-group" id="penalizacionHora" style="display:none">
-                    <label for="sel2">Motivo de reduccion de horas</label>
-                    <select class="form-control" name="select">
-                      <option value="0">Foto Adulterada</option>
-                      <option value="1">Foto Mal Sacada</option>
-                      <option value="2">Foto y Persona No Coincidente</option>
-                      <option value="3">No realiza el Ingreso / Cierre del Servicio</option>
-                      <option value="4">Otros</option>
-                    </select>
-                  </div>
-
-                  <div class="form-group" id="penalizacionTurno" style="display:none">
-                    <label for="sel3">Motivo descuento de Turno</label>
-                    <select class="form-control" name="select">
-                      <option value="0">Reincidencia de acciones fraudulentas</option>
-                      <option value="1">Superposicion de Puesto sin Autorizacion</option>
-                      <option value="2">Otros</option>
-                    </select>
-                  </div>
-
-                </div>
-              </div>
-              <div class="row">
-                <div class="col-md-12">
-                  <div class="form-group">
-                    <label for="comment">Comentarios</label>
-                    <textarea class="form-control" rows="4" id="comment"></textarea>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-          </div>
-
-        </div>
-
-        <div class="panel-footer">
-          <div class="text-center">
-            <div class="btn-group">
-              <button type="button" class="btn btn-primary button-fix" id="boton-habilitar-turno" disabled>Habilitar Turno</button>
-              <button type="button" class="btn btn-danger button-fix" id="boton-eliminar-turno" >Eliminar Turno</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <!-- Zona a cargarse los botones del footer -->
       <div id="modal-footer-detalle">
-      </div>
-
-      <!-- Modal Footer a Clonar -->
-      <div class="modal-footer" id="footer-clone" style="display:none">
-        <button type="button" class="btn btn-primary" id="guardar-cambios-detalle">Guardar Cambios</button>
-        <button type="button" class="btn" data-dismiss="modal">Cerrar</button>
       </div>
 
     </div>
@@ -357,6 +194,175 @@
 
   </div>
 </div>
+
+    <!-- Menu Dropdown a Clonar Modal detalle-dia -->
+    <div class="dropdown" id="dropdown-clone" style="display:none" >
+      <div class="dropdown-toggle" style="text-align:center; color:white; font-size:20px; display:flex; align-items: center; justify-content: flex-end;" data-toggle="dropdown">
+      <span style="margin-right:14px; font-size:10px;" id="estado-detalle"></span>
+      <a href="javascript:void(0)" class="fas fa-bars" style="color:white; "></a>
+      </div>
+      <ul class="dropdown-menu pull-right">
+        <li id="confirmar-verificacion"><a href="javascript:void(0)"><span class="fas fa-user-check" style="margin-right:6px;" ></span>Confirmar Verificacion</a></li>
+        <li id="deshabilitar-verificacion"><a href="javascript:void(0)"><span class="fas fa-user-times" style="margin-right:6px;"  ></span>Deshabilitar Verificacion</a></li>
+        <li id="unificar-turno"><a href="javascript:void(0)"><span class="fas fa-magic" style="margin-right:6px;" ></span>Unificar por turno</a></li>
+      </ul>
+    </div>
+
+    <!-- Panel a Clonar Modal detalle-dia -->
+    <div class="panel panel-default" id="panel-clone" style="display:none">
+      <div class="panel-heading">
+        <h3 class="panel-title" id="tituloPuesto">Puesto 1 - TM</h3>
+      </div>
+
+      <div class="card-contenedor" id="card-contenedor">
+
+        <div class="card">
+            <div class="card-image card3" style="background-size: cover" id="foto-ingreso"></div>
+            <div class="card-stats card3">
+              <div class="stat">
+                <div class="value"><b id="horaIngresoReal"></b></div>
+              </div>
+            </div>
+        </div>
+
+        <div class="card">
+          <div class="card-image card2" style="background-size: cover" id="foto-egreso"></div>
+          <div class="card-stats card2">
+            <div class="stat">
+              <div class="value"><b id="horaEgresoReal"></b></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="container-fluid">
+
+        <div class="conf">
+          <br>
+          <div id="horas-turno-detalle">
+            <h4 class="text-center m-5" title="Horas del Turno" id="horasTurnoDetalle">00:00</h4>
+            <h5 class="text-center text-muted m-5" title="Horas del Turno">HORAS TURNO</h5>
+          </div>
+          <input type="text" class="js-range-slider" name="my_range" id="slider-detalle" />
+        </div>
+
+        <div class="conf">
+          <br>
+            <h3 class="text-center m-5 text-danger" style="display:none" id="turno-eliminar">TURNO A ELIMINARSE</h3>
+            <h1 class="text-center m-5" title="Horas Registradas" id="horasRegitradasDetalle">00:00</h1>
+            <h5 class="text-center text-muted m-5" title="Horas Registradas">HORAS REGISTRADAS</h5>
+          <br>
+        </div>
+
+        <!-- Sector de Botones -->
+        <div id="mostrar-botones">
+
+          <div class="conf">
+
+            <div class="text-center">
+              <div class="btn-group">
+                <button type="button" class="btn btn-success button-fix" id="turnoOriginalDetalle" >Turno Original</button>
+                <!-- <button type="button" class="btn btn-primary" id="completarTurnoDetalle" >Completar Turno</button> -->
+                <div class="btn-group">
+                    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" id="completarTurnoDetalle">
+                    Completar Turno </button>
+                    <ul class="dropdown-menu" role="menu">
+                      <li><a href="javascript:void(0)" id="turno-completo">Turno Completo</a></li>
+                      <li><a href="javascript:void(0)" id="turno-inicio">Desde el inicio</a></li>
+                      <li><a href="javascript:void(0)" id="turno-final">Hasta el final</a></li>
+                    </ul>
+                  </div>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-danger dropdown-toggle button-fix" data-toggle="dropdown" id="penalizarDetalle">
+                    Penalizar </button>
+                    <ul class="dropdown-menu" role="menu">
+                      <li><a href="javascript:void(0)" id="descontar-hora">Descontar una Hora</a></li>
+                      <li><a href="javascript:void(0)" id="descontar-turno" >Descontar Turno</a></li>
+                    </ul>
+                  </div>
+              </div>
+
+            </div>
+
+          </div>
+          <div class="text-center text-muted m-10" title="Ver / Ocultar Informe" id="container-icon">
+            <i class="fas fa-angle-double-down" id="icon-informe"></i>
+          </div>
+          <div id="mostrarInforme" style="display:none">
+            <div class="row">
+              <div class="col-md-5">
+
+                <div class="form-group" id="variacion-horas" style="display:none">
+                  <label >Motivo de ampliacion de horas</label>
+                  <select class="form-control" name="select" id="sel-amp-horas">
+                    <option value="0" selected>Seleccione un motivo</option>
+                    <option value="1">Sin internet</option>
+                    <option value="2">Sin celular</option>
+                    <option value="3">Sin aplicacion instalada / configurada</option>
+                    <option value="4">Problemas con la aplicacion</option>
+                    <option value="5">Desconocimiento de uso</option>
+                    <option value="6">Olvido de ingreso / cierre del servicio</option>
+                    <option value="7">Otros</option>
+                  </select>
+                  <span class="help-block" style="display:none">Por favor elija el motivo de la ampliacion de horas</span>
+                </div>
+
+                <div class="form-group" id="penalizacionHora" style="display:none">
+                  <label >Motivo de reduccion de horas</label>
+                  <select class="form-control" name="select" id="sel-red-horas">
+                    <option value="0" selected>Seleccione un motivo</option>
+                    <option value="1">Foto adulterada</option>
+                    <option value="2">Foto mal sacada</option>
+                    <option value="3">Foto y persona no coincidente</option>
+                    <option value="4">No realiza el ingreso / cierre del servicio</option>
+                    <option value="5">Otros</option>
+                  </select>
+                  <span class="help-block" style="display:none">Por favor elija el motivo de la reduccion de horas</span>
+                </div>
+
+                <div class="form-group" id="penalizacionTurno" style="display:none">
+                  <label>Motivo descuento del turno</label>
+                  <select class="form-control" name="select" id="sel-eli-turno">
+                    <option value="0" selected>Seleccione un motivo</option>
+                    <option value="1">Reincidencia de acciones fraudulentas</option>
+                    <option value="2">Cubrimiento del turno sin autorizacion</option>
+                    <option value="3">Otros</option>
+                  </select>
+                  <span class="help-block" style="display:none">Por favor elija el motivo del descuento del turno</span>
+                </div>
+
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label for="comment">Comentarios</label>
+                  <textarea class="form-control" rows="4" id="comment"></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <div class="panel-footer">
+        <div class="text-center">
+          <div class="btn-group">
+            <button type="button" class="btn btn-primary button-fix" id="boton-habilitar-turno" disabled>Habilitar Turno</button>
+            <button type="button" class="btn btn-danger button-fix" id="boton-eliminar-turno" >Eliminar Turno</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Footer a Clonar Modal detalle-dia -->
+    <div class="modal-footer" id="footer-clone" style="display:none">
+      <button type="button" class="btn btn-primary" id="guardar-cambios-detalle">Guardar Cambios</button>
+      <button type="button" class="btn" data-dismiss="modal">Cerrar</button>
+    </div>
 
 <!-- Modal Unificar Turnos -->
 <div id="unificar-turno" class="modal fade" role="dialog">

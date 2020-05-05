@@ -16,6 +16,8 @@
 var db = firebase.firestore();
 var storageRef = firebase.storage().ref();
 
+var primerDiaGlobal="";
+var ultimoDiaGlobal="";
 
 function mostrarCubrimiento(){
 
@@ -40,6 +42,9 @@ function mostrarCubrimiento(){
   }
 
   if(validarFormulario()){
+
+    primerDiaGlobal = primerDia;
+    ultimoDiaGlobal = ultimoDia;
 
     loaderStateCubrimiento();
     eliminarContenidoPanel();
@@ -306,15 +311,15 @@ function cargarHorasPersonal(idCliente,idObjetivo,puesto,fechaInicial,fechaFinal
   let egresoReal = new Date( Date.parse(puesto.fechaEgreso+"T"+puesto.horaEgreso+":00") );
   let ingresoPuesto = new Date( Date.parse(puesto.fechaPuesto+"T"+puesto.ingresoPuesto+":00") );
   let egresoPuesto = new Date( Date.parse(puesto.fechaPuesto+"T"+puesto.egresoPuesto+":00") );
-  if(puesto.turnoNoche){
+  if(compararHorasString(puesto.ingresoPuesto,puesto.egresoPuesto)==-1){
     egresoPuesto = new Date( egresoPuesto.getTime() + 24*60*60*1000 ); // La fecha de salida del puesto es un dia posterior
   }
 
   let ingresoParam = ingresoParametrizado(ingresoPuesto,ingresoReal);
   let egresoParam = egresoParametrizado(ingresoPuesto,egresoPuesto,egresoReal);
 
-
   difHoras = totalHoras(ingresoParam,egresoParam);
+
   let horaIngresoParam = componerHorasDate(ingresoParam);
   let horaEgresoParam = componerHorasDate(egresoParam);
 
@@ -343,21 +348,26 @@ function cargarHorasPersonal(idCliente,idObjetivo,puesto,fechaInicial,fechaFinal
                   columnas[posDia].setAttribute("estado", "ver");
               } else if(puesto.estado=="mod"){
               	  columnas[posDia].style.color="#265a88";
-                  columnas[posDia].setAttribute("estado", "ver");
+                  columnas[posDia].setAttribute("estado", "mod");
               } else {
                   columnas[posDia].style.color="#c23321";
                   columnas[posDia].setAttribute("estado", "no-ver");
               }
           } else if (puesto.estado=="mod"){
-          	  columnas[posDia].style.color="#265a88";
-              columnas[posDia].setAttribute("estado", "mod");
+        	  columnas[posDia].style.color="#265a88";
+            columnas[posDia].setAttribute("estado", "mod");
           } else if (puesto.horaEgreso==""){
             columnas[posDia].style.color="#c23321";
             columnas[posDia].setAttribute("estado", "no-ver");
+          } else if (puesto.estado=="no-ver"){
+            columnas[posDia].style.color="#c23321";
+            columnas[posDia].setAttribute("estado", "no-ver");
+          } else if (puesto.estado=="ver"){
+            columnas[posDia].setAttribute("estado", "ver");
           }
           columnas[posDia].setAttribute("id", idCell);
           columnas[posDia].onclick = function () {
-            mostrarModalDetalleDia(idCliente,idObjetivo,idDia,puesto,variosPuestos,idCell);
+            mostrarModalDetalleDia(idCliente,idObjetivo,idDia,puesto,variosPuestos,idCell,idTable);
           };
   				columnas[posDia].textContent= sumarHoras(totalHoras,horas);
           columnas[posDia].style.textAlign = "center";
@@ -370,7 +380,7 @@ function cargarHorasPersonal(idCliente,idObjetivo,puesto,fechaInicial,fechaFinal
 	});
 
 	if(!encontrado){
-	   crearFilaNueva(idCliente,idObjetivo,puesto,horas,fechaInicial,fechaFinal,idTable)
+	   crearFilaNueva(idCliente,idObjetivo,idDia,puesto,horas,fechaInicial,fechaFinal,idTable)
      .then(function(){
        resolve(); //Si la funcion crearFilaNueva funciona correctamente se devuelve resolve()
      })
@@ -383,7 +393,7 @@ function cargarHorasPersonal(idCliente,idObjetivo,puesto,fechaInicial,fechaFinal
 
 }
 
-function crearFilaNueva(idCliente,idObjetivo,puesto,horas,fechaInicial,fechaFinal,idTable) {
+function crearFilaNueva(idCliente,idObjetivo,idDia,puesto,horas,fechaInicial,fechaFinal,idTable) {
 
   return new Promise(function(resolve,reject){
 
@@ -416,10 +426,15 @@ function crearFilaNueva(idCliente,idObjetivo,puesto,horas,fechaInicial,fechaFina
      } else if (puesto.horaEgreso==""){
        columnas[posDia].style.color="#c23321";
        columnas[posDia].setAttribute("estado", "no-ver");
+     } else if (puesto.estado=="no-ver"){
+       columnas[posDia].style.color="#c23321";
+       columnas[posDia].setAttribute("estado", "no-ver");
+     } else if (puesto.estado=="ver"){
+       columnas[posDia].setAttribute("estado", "ver");
      }
      columnas[posDia].setAttribute("id", idCell);
      columnas[posDia].onclick = function () {
-       mostrarModalDetalleDia(idCliente,idObjetivo,idDia,puesto,variosPuestos,idCell);
+       mostrarModalDetalleDia(idCliente,idObjetivo,idDia,puesto,variosPuestos,idCell,idTable);
      };
      //Genera la clase totalHs del Legajo y la inicializa en cero
      columnas[tamanioTabla-1].className="ltotalHs"+puesto.idPersonal;
@@ -439,9 +454,10 @@ function crearFilaNueva(idCliente,idObjetivo,puesto,horas,fechaInicial,fechaFina
      });
 
   });
+
 }
 
-function generaTabla(fecha1,fecha2,nomCliente,nomObjetivo,razonSocial,idTable) {
+function generaTabla(primerDia,ultimoDia,nomCliente,nomObjetivo,razonSocial,idTable) {
 
   return new Promise(function(resolve,reject){
 
@@ -457,10 +473,10 @@ function generaTabla(fecha1,fecha2,nomCliente,nomObjetivo,razonSocial,idTable) {
     $("#razon-social-"+idTable).show();
   }
 
-  let fechaGT = new Date(fecha1.getTime());
+  let fechaGT = new Date(primerDia.getTime());
 
   let cantidadColumnasFijas=3;
-  let cantidadDias=cantidadDeDias(fecha1,fecha2);
+  let cantidadDias=cantidadDeDias(primerDia,ultimoDia);
   let tamanioTabla=cantidadDias+cantidadColumnasFijas;
 
   // Obtener la referencia del elemento body
@@ -523,7 +539,7 @@ function generaTabla(fecha1,fecha2,nomCliente,nomObjetivo,razonSocial,idTable) {
   }
 
   // Crea las celdas del thead DIAS DE LA SEMANA
-  fechaGT = new Date(fecha1.getTime()); // Se reinician la fecha a la inicial
+  fechaGT = new Date(primerDia.getTime()); // Se reinician la fecha a la inicial
   for (var i = 0; i < 1; i++) {
     // Crea las hileras de la tabla
     let hilera = document.createElement("tr");
@@ -548,7 +564,7 @@ function generaTabla(fecha1,fecha2,nomCliente,nomObjetivo,razonSocial,idTable) {
   }
 
   // Crea las celdas del tfoot HORAS A LIQUIDAR
-  fechaGT = new Date(fecha1.getTime()); // Se reinicia la fecha a la inicial
+  fechaGT = new Date(primerDia.getTime()); // Se reinicia la fecha a la inicial
   for (var i = 0; i < 1; i++) {
     // Crea las hileras de la tabla
     var hilera = document.createElement("tr");
@@ -579,7 +595,7 @@ function generaTabla(fecha1,fecha2,nomCliente,nomObjetivo,razonSocial,idTable) {
   }
 
   // Crea las celdas del tfoot HORAS A FACTURAR
-  fechaGT = new Date(fecha1.getTime()); // Se reinicia la fecha a la inicial
+  fechaGT = new Date(primerDia.getTime()); // Se reinicia la fecha a la inicial
   for (var i = 0; i < 1; i++) {
     // Crea las hileras de la tabla
     var hilera = document.createElement("tr");
@@ -611,7 +627,7 @@ function generaTabla(fecha1,fecha2,nomCliente,nomObjetivo,razonSocial,idTable) {
   }
 
   // Crea las celdas del tfoot DIFERENCIA DE HORAS
-  fechaGT = new Date(fecha1.getTime()); // Se reinicia la fecha a la inicial
+  fechaGT = new Date(primerDia.getTime()); // Se reinicia la fecha a la inicial
   for (var i = 0; i < 1; i++) {
     // Crea las hileras de la tabla
     var hilera = document.createElement("tr");
@@ -872,7 +888,7 @@ function cargarRangeSlider(){
 // FUNCIONES MODAL DETALLE DIA
 ////////////////////////////////////////////////////////////////////////////////
 
-function mostrarModalDetalleDia(idCliente,idObjetivo,idDia,turno,variosPuestos,idCell){
+function mostrarModalDetalleDia(idCliente,idObjetivo,idDia,turno,variosPuestos,idCell,idTable){
 
   clearOptionsFast("modal-body-detalle");
   clearOptionsFast("menu-detalle");
@@ -883,7 +899,7 @@ function mostrarModalDetalleDia(idCliente,idObjetivo,idDia,turno,variosPuestos,i
     let arrayTurnos = [];
     arrayTurnos.push(turno);
     cargarNombrePersonal(turno.idPersonal,"nombreDetalleDia");
-    cargarFuncionesModal(idCliente,idObjetivo,idDia,idCell,arrayTurnos);
+    cargarFuncionesModal(idCliente,idObjetivo,idDia,idCell,arrayTurnos,idTable);
     generarPanel(turno,"0");
     $("#detalle-dia").modal("show");
   } else {
@@ -922,7 +938,7 @@ function mostrarModalDetalleDia(idCliente,idObjetivo,idDia,turno,variosPuestos,i
                 arrayTurnos.push(turnoArray);
               }
             });
-            cargarFuncionesModal(idCliente,idObjetivo,idDia,idCell,arrayTurnos);
+            cargarFuncionesModal(idCliente,idObjetivo,idDia,idCell,arrayTurnos,idTable);
           }
           $("#detalle-dia").modal("show");
     })
@@ -1009,8 +1025,6 @@ function cargarDatosTurnos(puesto,idPanel){
 
 function cargarRangeSliderDetalleDia(puesto,idPanel){
 
-  console.log(puesto);
-
   //Initialise range slider instance
   $("#slider-detalle-"+idPanel).ionRangeSlider({
   grid: true,
@@ -1038,12 +1052,16 @@ function cargarRangeSliderDetalleDia(puesto,idPanel){
       $("#variacion-horas-"+idPanel).show(300);
       $("#penalizacionHora-"+idPanel).hide(300);
       $("#penalizacionTurno-"+idPanel).hide(300);
+      $("#variacion-horas-"+idPanel).removeClass("has-error");
+      $("#variacion-horas-"+idPanel+" span").hide();
     } else if ( difHoras < oldHours ){
       document.getElementById('icon-informe-'+idPanel).className = 'fas fa-angle-double-down open';
       $("#mostrarInforme-"+idPanel).show(300);
       $("#variacion-horas-"+idPanel).hide(300);
       $("#penalizacionHora-"+idPanel).show(300);
       $("#penalizacionTurno-"+idPanel).hide(300);
+      $("#penalizacionHora-"+idPanel).removeClass("has-error");
+      $("#penalizacionHora-"+idPanel+" span").hide();
     } else {
       document.getElementById('icon-informe-'+idPanel).className = 'fas fa-angle-double-down';
       $("#mostrarInforme-"+idPanel).hide(300);
@@ -1248,7 +1266,7 @@ function cargarRangeSliderDetalleDia(puesto,idPanel){
     $("#variacion-horas-"+idPanel).hide();
     $("#penalizacionHora-"+idPanel).hide();
     $("#penalizacionTurno-"+idPanel).hide();
-    $("#slider-detalle-"+idPanel).attr( "delete", true );
+    $("#slider-detalle-"+idPanel).attr( "delete", "true" );
     $("#turno-eliminar-"+idPanel).show();
   });
 
@@ -1265,6 +1283,27 @@ function cargarRangeSliderDetalleDia(puesto,idPanel){
         to: egresoParam.valueOf(),
         disable: false,
     });
+  });
+
+  $("#sel-amp-horas-"+idPanel).change(function () {
+    if ( $("#variacion-horas-"+idPanel).hasClass("has-error") && $("#sel-amp-horas-"+idPanel).val()!=0 ){
+      $("#variacion-horas-"+idPanel).removeClass("has-error");
+      $("#variacion-horas-"+idPanel+" span").hide();
+    }
+  });
+
+  $("#sel-red-horas-"+idPanel).change(function (){
+    if ( $("#penalizacionHora-"+idPanel).hasClass("has-error") && $("#sel-red-horas-"+idPanel).val()!=0 ){
+      $("#penalizacionHora-"+idPanel).removeClass("has-error");
+      $("#penalizacionHora-"+idPanel+" span").hide();
+    }
+  });
+
+  $("#sel-eli-turno-"+idPanel).change(function (){
+    if ( $("#penalizacionTurno-"+idPanel).hasClass("has-error") && $("#sel-eli-turno-"+idPanel).val()!=0 ){
+      $("#penalizacionTurno-"+idPanel).removeClass("has-error");
+      $("#penalizacionTurno-"+idPanel+" span").hide();
+    }
   });
 
 }
@@ -1322,6 +1361,9 @@ function clonarPanelDetalle(idPanel) {
   $("#"+panelIdName).find("#slider-detalle").attr("id","slider-detalle-"+idPanel);
   $("#"+panelIdName).find("#descontar-hora").attr("id","descontar-hora-"+idPanel);
   $("#"+panelIdName).find("#descontar-turno").attr("id","descontar-turno-"+idPanel);
+  $("#"+panelIdName).find("#sel-amp-horas").attr("id","sel-amp-horas-"+idPanel);
+  $("#"+panelIdName).find("#sel-red-horas").attr("id","sel-red-horas-"+idPanel);
+  $("#"+panelIdName).find("#sel-eli-turno").attr("id","sel-eli-turno-"+idPanel);
   $("#"+panelIdName).find("#comment").attr("id","comment-"+idPanel);
   $("#"+panelIdName).find("#foto-ingreso").attr("id","foto-ingreso-"+idPanel);
   $("#"+panelIdName).find("#foto-egreso").attr("id","foto-egreso-"+idPanel);
@@ -1333,13 +1375,10 @@ function clonarPanelDetalle(idPanel) {
 
 }
 
-function cargarFuncionesModal(idCliente,idObjetivo,idDia,idCell,arrayTurnos){
-  // turnosObject se utiliza solamente cuando se hace una unificacion de turnos
-  // turnosObject = {}
+function cargarFuncionesModal(idCliente,idObjetivo,idDia,idCell,arrayTurnos,idTable){
+
   let arrayTurnosMod = [];
 
-  let estadoInicial="";
-  let estadoActual="";
   let celda = document.getElementById(idCell);
 
   //Se clona el elemento y se le cambia el id
@@ -1362,24 +1401,28 @@ function cargarFuncionesModal(idCliente,idObjetivo,idDia,idCell,arrayTurnos){
 
   if(celda.getAttribute("estado")=="no-ver"){
     $("#estado-detalle-"+idCell).text("No Verificado");
-    estadoInicial="no-ver";
     document.getElementById("estado-detalle-"+idCell).className = "label label-danger";
     document.getElementById("deshabilitar-verificacion-"+idCell).className = "disabled";
+    if(arrayTurnos.length==1){
+      document.getElementById("unificar-turno-"+idCell).className = "disabled";
+    }
   } else if (celda.getAttribute("estado")=="ver"){
     $("#estado-detalle-"+idCell).text("Verificado");
-    estadoInicial="ver";
     document.getElementById("estado-detalle-"+idCell).className = "label label-success";
     document.getElementById("confirmar-verificacion-"+idCell).className = "disabled";
+    if(arrayTurnos.length==1){
+      document.getElementById("unificar-turno-"+idCell).className = "disabled";
+    }
   } else if (celda.getAttribute("estado")=="mod"){
     $("#estado-detalle-"+idCell).text("Modificado");
-    estadoInicial="mod";
     document.getElementById("estado-detalle-"+idCell).className = "label label-primary";
     document.getElementById("confirmar-verificacion-"+idCell).className = "disabled";
     document.getElementById("deshabilitar-verificacion-"+idCell).className = "disabled";
-    document.getElementById("unificar-turno-"+idCell).className = "disabled";
+    if(arrayTurnos.length==1){
+      document.getElementById("unificar-turno-"+idCell).className = "disabled";
+    }
   } else {
     $("#estado-detalle-"+idCell).text("");
-    estadoInicial="";
     document.getElementById("estado-detalle-"+idCell).className = "";
     document.getElementById("confirmar-verificacion-"+idCell).className = "disabled";
     document.getElementById("deshabilitar-verificacion-"+idCell).className = "disabled";
@@ -1388,22 +1431,21 @@ function cargarFuncionesModal(idCliente,idObjetivo,idDia,idCell,arrayTurnos){
 
   $("#confirmar-verificacion-"+idCell).click(function() {
     $("#estado-detalle-"+idCell).text("Verificado");
-    estadoActual="ver";
     document.getElementById("estado-detalle-"+idCell).className = "label label-success";
     document.getElementById("confirmar-verificacion-"+idCell).className = "disabled";
     document.getElementById("deshabilitar-verificacion-"+idCell).className = "";
+    cambiarEstadoArray(arrayTurnos,"ver");
   });
 
   $("#deshabilitar-verificacion-"+idCell).click(function() {
     $("#estado-detalle-"+idCell).text("No Verificado");
-    estadoActual="no-ver";
     document.getElementById("estado-detalle-"+idCell).className = "label label-danger";
     document.getElementById("deshabilitar-verificacion-"+idCell).className = "disabled";
     document.getElementById("confirmar-verificacion-"+idCell).className = "";
+    cambiarEstadoArray(arrayTurnos,"no-ver");
   });
 
-  $("#unificar-turno-"+idCell).click(function() {
-
+ $("#unificar-turno-"+idCell).click(function() {
     arrayTurnos.forEach(function(turno){
       let encontrado=false;
         for (let turnoMod of arrayTurnosMod) {
@@ -1458,14 +1500,13 @@ function cargarFuncionesModal(idCliente,idObjetivo,idDia,idCell,arrayTurnos){
    });
 
     //Mostrar Turnos Unificados y no Unificados
-    // let key = Object.keys(turnosObject);
     if( arrayTurnosMod.length == 1){
       let variosPuestos = false;
-      mostrarTurnosProcesados(idCliente,idObjetivo,idDia,arrayTurnosMod,variosPuestos,idCell);
+      mostrarTurnosProcesados(idCliente,idObjetivo,idDia,arrayTurnosMod,variosPuestos,idCell,idTable);
       //Poner en disaabled Unificar Turnos
     } else {
       let variosPuestos = true;
-      mostrarTurnosProcesados(idCliente,idObjetivo,idDia,arrayTurnosMod,variosPuestos,idCell);
+      mostrarTurnosProcesados(idCliente,idObjetivo,idDia,arrayTurnosMod,variosPuestos,idCell,idTable);
       //Poner en disaabled Unificar Turnos
     }
 
@@ -1489,51 +1530,550 @@ function cargarFuncionesModal(idCliente,idObjetivo,idDia,idCell,arrayTurnos){
 
    $("#guardar-cambios-detalle-"+idCell).click(function() {
 
-   guardarCambiosDetalle(idCliente,idObjetivo,idDia,arrayTurnos);
-   $("#detalle-dia").modal("hide");
+     $("#detalle-dia").modal("hide");
+     $("#guardar-cambios-detalle-"+idCell).attr("disabled", true);
+     loaderStateCubrimiento();
+     guardarCambiosDetalle(idCliente,idObjetivo,idDia,arrayTurnos,idTable);
+
    });
 
 }
 
-function guardarCambiosDetalle(idCliente,idObjetivo,idDia,arrayTurnos){
+function cambiarEstadoArray(arrayTurnos,estado){
+  console.log("El array de turnos antes de cambiar de estado");
+  console.log(arrayTurnos);
+  for (i=0;i<arrayTurnos.length;i++){
+    arrayTurnos[i].estado = estado;
+    arrayTurnos[i].changed = true;
+  }
+}
 
-for (let i=0 ; i < arrayTurnos.length ; i++){
-  let slider = $("#slider-detalle-"+i).data("ionRangeSlider");
-  let from = new Date(slider.result.from);
-  let to = new Date(slider.result.to);
-  let oldFrom = $("#slider-detalle-"+i).attr("from");
-  let oldTo = $("#slider-detalle-"+i).attr("to");
+function guardarCambiosDetalle(idCliente,idObjetivo,idDia,arrayTurnos,idTable){
 
-  if(from!=oldFrom || to!=oldTo){
-    console.log("Slider Anterior Nro: "+i+" Hora Desde: "+oldFrom+" Hora Hasta: "+oldTo);
-    console.log("Slider Posterior Nro: "+i+" Hora Desde: "+from+" Hora Hasta: "+to);
+  let errorMessage=false;
+
+  for (let i=0 ; i < arrayTurnos.length ; i++){
+
+    let slider = $("#slider-detalle-"+i).data("ionRangeSlider");
+    let from = new Date(slider.result.from);
+    let to = new Date(slider.result.to);
+    let oldFrom = $("#slider-detalle-"+i).attr("from");
+    let oldTo = $("#slider-detalle-"+i).attr("to");
+    let oldHours = $("#slider-detalle-"+i).attr("hours");
+    let delTurno = $("#slider-detalle-"+i).attr("delete");
+    let comment = $("#comment-"+i).val();
+    let difHoras = totalHorasDetalle(from,to);
+
+    if (delTurno == "true"){
+      arrayTurnos[i].delete = true;
+    } else if (oldHours < difHoras){
+
+      let oldData = {}
+
+      if(arrayTurnos[i].oldData){
+        oldData = {
+          oldFrom : arrayTurnos[i].oldData.oldFrom,
+          oldTo : arrayTurnos[i].oldData.oldTo,
+        }
+      } else {
+        oldData = {
+          oldFrom : oldFrom,
+          oldTo : oldTo,
+        }
+      }
+
+      // Ampliacion de Horas
+      if( $("#sel-amp-horas-"+i).val() != 0) {
+
+        if(oldFrom!=from){
+          arrayTurnos[i].horaIngreso = getHoursStr(from);
+          arrayTurnos[i].fechaIngreso = getDateStr(from);
+        }
+        if(oldTo!=to){
+          arrayTurnos[i].horaEgreso = getHoursStr(to);
+          arrayTurnos[i].fechaEgreso = getDateStr(to);
+        }
+        oldData.motive = $("#sel-amp-horas-"+i+" option:selected").text();
+        if(comment!=""){
+          oldData.comment = $("#comment-"+i).val();
+        }
+        oldData.idOper = "1";
+        arrayTurnos[i].oldData = oldData;
+        arrayTurnos[i].estado = "mod";
+        arrayTurnos[i].changed = true;
+
+
+      } else {
+        errorMessage=true;
+        document.getElementById("icon-informe-"+i).className = "fas fa-angle-double-down open";
+        $("#mostrarInforme-"+i).show(300);
+        $("#variacion-horas-"+i).show(300);
+        $("#penalizacionHora-"+i).hide(300);
+        $("#penalizacionTurno-"+i).hide(300);
+        $("#variacion-horas-"+i).addClass("has-error");
+        $("#variacion-horas-"+i+" span").show(300);
+      }
+
+    } else if (oldHours > difHoras){
+
+      let oldData = {}
+
+      if(arrayTurnos[i].oldData){
+        oldData = {
+          oldFrom : arrayTurnos[i].oldData.oldFrom,
+          oldTo : arrayTurnos[i].oldData.oldTo,
+        }
+      } else {
+        oldData = {
+          oldFrom : oldFrom,
+          oldTo : oldTo,
+        }
+      }
+
+      if (oldFrom == from && oldFrom == to){
+        // Descuento de Turno
+        if( $("#sel-eli-turno-"+i).val() != 0 || $("#sel-red-horas-"+i).val() != 0) {
+          if(oldFrom!=from){
+            arrayTurnos[i].horaIngreso = getHoursStr(from);
+            arrayTurnos[i].fechaIngreso = getDateStr(from);
+          }
+          if(oldTo!=to){
+            arrayTurnos[i].horaEgreso = getHoursStr(to);
+            arrayTurnos[i].fechaEgreso = getDateStr(to);
+          }
+          if ($("#sel-eli-turno-"+i).text()!=""){
+            oldData.motive = $("#sel-eli-turno-"+i+" option:selected").text();
+          } else {
+            oldData.motive = $("#sel-red-horas-"+i+" option:selected").text();
+          }
+          if(comment!=""){
+            oldData.comment = $("#comment-"+i).val();
+          }
+          oldData.idOper = "1";
+          arrayTurnos[i].oldData = oldData;
+          arrayTurnos[i].estado = "mod";
+          arrayTurnos[i].changed = true;
+
+        } else {
+          errorMessage=true;
+          document.getElementById("icon-informe-"+i).className = "fas fa-angle-double-down open";
+          $("#mostrarInforme-"+i).show(300);
+          $("#variacion-horas-"+i).hide(300);
+          $("#penalizacionHora-"+i).hide(300);
+          $("#penalizacionTurno-"+i).show(300);
+          $("#penalizacionTurno-"+i).addClass("has-error");
+          $("#penalizacionTurno-"+i+" span").show(300);
+        }
+
+      } else {
+        // Reduccion de Horas
+        if( $("#sel-red-horas-"+i).val() != 0) {
+
+        if(oldFrom!=from){
+          arrayTurnos[i].horaIngreso = getHoursStr(from);
+          arrayTurnos[i].fechaIngreso = getDateStr(from);
+        }
+        if(oldTo!=to){
+          arrayTurnos[i].horaEgreso = getHoursStr(to);
+          arrayTurnos[i].fechaEgreso = getDateStr(to);
+        }
+        oldData.motive = $("#sel-red-horas-"+i+" option:selected").text();
+        if(comment!=""){
+          oldData.comment = $("#comment-"+i).val();
+        }
+        oldData.idOper = "1";
+        arrayTurnos[i].oldData = oldData;
+        arrayTurnos[i].estado = "mod";
+        arrayTurnos[i].changed = true;
+
+        } else {
+          errorMessage=true;
+          document.getElementById("icon-informe-"+i).className = "fas fa-angle-double-down open";
+          $("#mostrarInforme-"+i).show(300);
+          $("#variacion-horas-"+i).hide(300);
+          $("#penalizacionHora-"+i).show(300);
+          $("#penalizacionTurno-"+i).hide(300);
+          $("#penalizacionHora-"+i).addClass("has-error");
+          $("#penalizacionHora-"+i+" span").show(300);
+        }
+
+      }
+
+    }
+
+  } // End For
+
+
+  if (errorMessage){
+    Swal.fire({
+      icon: 'error',
+      title: 'Falta completar motivos',
+      text: 'Por favor complete los motivos faltantes',
+      // footer: '<a href>Why do I have this issue?</a>'
+    })
   } else {
-    console.log("Slider Nro: "+i+" sin cambios");
+
+    procesarCambiosDetalle(idCliente,idObjetivo,idDia,arrayTurnos)
+    .then(function(){
+      recargarTabla(idTable);
+      cargarCobertura(idCliente,idObjetivo,primerDiaGlobal,ultimoDiaGlobal,idTable);
+      cargarCubrimiento(idCliente,idObjetivo,primerDiaGlobal,ultimoDiaGlobal,idTable);
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Cambios guardados correctamente',
+        showConfirmButton: false,
+        timer: 1500
+      })
+
+      clearOptionsFast("modal-body-detalle");
+      clearOptionsFast("menu-detalle");
+      clearOptionsFast("modal-footer-detalle");
+      $("#nombreDetalleDia").text("");
+
+      loaderStateFinishCubrimiento();
+    });
+
   }
 
 }
 
+function procesarCambiosDetalle(idCliente,idObjetivo,idDia,arrayTurnos){
 
-  //Si arrayTurnos es vacio, entonces no se hicieron unificaciones
-  if(arrayTurnos.length > 0){
+  return new Promise(function(resolve,reject){
+
     arrayTurnos.forEach(function(turno){
-      if(turno.count > 1){
-        //Carga el nuevo turno en la DB y las imagenes en Storage
+
+      if(turno.delete){
+        if(turno.arrayId != undefined){
+          eliminarArrayId(idCliente,idObjetivo,idDia,turno)
+          .then(function(){
+            eliminarTurnoDB(idCliente,idObjetivo,idDia,turno,turno.idTurno)
+            .then(function(){
+              resolve();
+            });
+          })
+        } else {
+          eliminarTurnoDB(idCliente,idObjetivo,idDia,turno,turno.idTurno)
+          .then(function(){
+            resolve();
+          });
+        }
+      } else if (turno.count > 1){
         cargarTurnoDB(idCliente,idObjetivo,idDia,turno)
         .then(function(turno){
-          //ELimina los turnos antiguos y las imagenes asociadas
-          turno.arrayId.forEach(function(idTurno){
-            eliminarTurnoDB(idCliente,idObjetivo,idDia,turno.fechaPuesto,idTurno);
-          });
+          eliminarArrayId(idCliente,idObjetivo,idDia,turno)
+          .then(function(){
+            resolve();
+          })
         })
+      } else if (turno.changed){
+        cargarTurnoMod(idCliente,idObjetivo,idDia,turno)
+        .then(function(){
+          resolve();
+        });
+      } else {
+        resolve();
       }
+
     });
+
+  });
+
+}
+
+function eliminarArrayId(idCliente,idObjetivo,idDia,turno){
+
+  return new Promise(function(resolve,reject){
+
+    let promises = [];
+
+    turno.arrayId.forEach(function(idTurno){
+      promises.push( eliminarTurnoDB(idCliente,idObjetivo,idDia,turno,idTurno) );
+    });
+
+    Promise.all(promises)
+    .then(function(){
+      resolve();
+    })
+    .catch(function(){
+      reject();
+    })
+
+  });
+
+}
+
+function recargarTabla(idTable){
+
+  return new Promise(function(resolve,reject){
+
+  let primerDia = primerDiaGlobal;
+  let ultimoDia = ultimoDiaGlobal;
+
+  clearOptionsFast("table-"+idTable);
+
+  let fechaGT = new Date(primerDia.getTime());
+
+  let cantidadColumnasFijas=3;
+  let cantidadDias=cantidadDeDias(primerDia,ultimoDia);
+  let tamanioTabla=cantidadDias+cantidadColumnasFijas;
+
+  // Obtener la referencia del elemento table
+  let tabla = document.getElementById("table-"+idTable);
+
+  // Crea los elementos que componen el <table>
+  let tblHead = document.createElement("thead");
+  let tblBody = document.createElement("tbody");
+  let tblFoot = document.createElement("tfoot");
+  tblHead.setAttribute("id", "tHead");
+  tblBody.setAttribute("id", "tBody-"+idTable);
+  tblFoot.setAttribute("id", "tFoot");
+
+  // Crea las celdas del thead NUMEROS DEL DIA
+  for (var i = 0; i < 1; i++) {
+    // Crea las hileras de la tabla
+    let hilera = document.createElement("tr");
+    let textoCelda;
+    for (var j = 0; j < tamanioTabla; j++) {
+      // Crea un elemento <td> y un nodo de texto, haz que el nodo de
+      // texto sea el contenido de <td>, ubica el elemento <td> al final
+      // de la hilera de la tabla
+      let celda = document.createElement("th");
+      celda.style.textAlign = "center";
+      celda.style.padding = "1px";
+      textoCelda = document.createTextNode("");
+      if(j>1 && j<tamanioTabla-1) celda.style.borderBottom = "none";
+      if(j>1){
+        textoCelda = document.createTextNode(fechaGT.getDate());
+        fechaGT.setDate(fechaGT.getDate()+1);
+      }
+
+      celda.appendChild(textoCelda);
+      hilera.appendChild(celda);
+    }
+
+    //Asignar valores iniciales
+    let columnas=hilera.querySelectorAll("th");
+     columnas[0].innerHTML='<a style="cursor:pointer;" class="text-nowrap" >Legajo<i class="fas fa-arrows-alt-v sort-icon" ></i></a>';
+     columnas[0].style.textAlign = "center";
+     columnas[0].style.verticalAlign = "middle";
+     columnas[0].rowSpan="2";
+     columnas[0].style.padding = "6px";
+     columnas[0].setAttribute('onclick', 'sortTable(0,"int","tBody-'+idTable+'")');
+     columnas[1].innerHTML='<a style="cursor:pointer;" class="text-nowrap" >Nombre y Apellido<i class="fas fa-arrows-alt-v sort-icon" ></i></a>';
+     columnas[1].style.textAlign = "center";
+     columnas[1].style.verticalAlign = "middle";
+     columnas[1].rowSpan="2";
+     columnas[1].style.padding = "6px";
+     columnas[1].setAttribute('onclick', 'sortTable(1,"str","tBody-'+idTable+'")' );
+     columnas[tamanioTabla-1].textContent="Total Hs";
+     columnas[tamanioTabla-1].style.textAlign = "center";
+     columnas[tamanioTabla-1].style.verticalAlign = "middle";
+     columnas[tamanioTabla-1].rowSpan="2";
+     columnas[tamanioTabla-1].style.padding ="6px";
+
+    // agrega la hilera al final de la tabla (al final del elemento tblbody)
+    tblHead.appendChild(hilera);
   }
+
+  // Crea las celdas del thead DIAS DE LA SEMANA
+  fechaGT = new Date(primerDia.getTime()); // Se reinician la fecha a la inicial
+  for (var i = 0; i < 1; i++) {
+    // Crea las hileras de la tabla
+    let hilera = document.createElement("tr");
+
+    for (var j = 0; j < cantidadDias; j++) {
+      // Crea un elemento <td> y un nodo de texto, haz que el nodo de
+      // texto sea el contenido de <td>, ubica el elemento <td> al final
+      // de la hilera de la tabla
+      let celda = document.createElement("th");
+      celda.className="sdia"+fechaGT.getDate();
+      celda.style.color = "#265a88";
+      celda.style.fontSize = "10px";
+      celda.style.textAlign = "center";
+      celda.style.padding = "1px";
+      textoCelda = document.createTextNode(fechaGT.getDate());
+      fechaGT.setDate(fechaGT.getDate()+1);
+      celda.appendChild(textoCelda);
+      hilera.appendChild(celda);
+    }
+    // agrega la hilera al final de la tabla (al final del elemento tblbody)
+    tblHead.appendChild(hilera);
+  }
+
+  // Crea las celdas del tfoot HORAS A LIQUIDAR
+  fechaGT = new Date(primerDia.getTime()); // Se reinicia la fecha a la inicial
+  for (var i = 0; i < 1; i++) {
+    // Crea las hileras de la tabla
+    var hilera = document.createElement("tr");
+
+    for (var j = 0; j < tamanioTabla-1; j++) {
+      // Crea un elemento <td> y un nodo de texto, haz que el nodo de
+      // texto sea el contenido de <td>, ubica el elemento <td> al final
+      // de la hilera de la tabla
+      var celda = document.createElement("th");
+      celda.style.textAlign = "center";
+      celda.style.padding = "2px";
+      if (j>0) {
+        celda.className="ldia"+fechaGT.getDate();
+        fechaGT.setDate(fechaGT.getDate()+1);
+      }
+      var textoCelda = document.createTextNode("0:00");
+      celda.appendChild(textoCelda);
+      hilera.appendChild(celda);
+    }
+    //Asignar valores iniciales
+    var columnas=hilera.querySelectorAll("th");
+     columnas[0].textContent="Horas a Liquidar";
+     columnas[0].colSpan="2";
+     columnas[tamanioTabla-2].className="ltotalHs";
+     columnas[tamanioTabla-2].style.textAlign = "right";
+    // agrega la hilera al final de la tabla (al final del elemento tblbody)
+    tblFoot.appendChild(hilera);
+  }
+
+  // Crea las celdas del tfoot HORAS A FACTURAR
+  fechaGT = new Date(primerDia.getTime()); // Se reinicia la fecha a la inicial
+  for (var i = 0; i < 1; i++) {
+    // Crea las hileras de la tabla
+    var hilera = document.createElement("tr");
+
+    for (var j = 0; j < tamanioTabla-1; j++) {
+      // Crea un elemento <td> y un nodo de texto, haz que el nodo de
+      // texto sea el contenido de <td>, ubica el elemento <td> al final
+      // de la hilera de la tabla
+      var celda = document.createElement("th");
+      celda.style.textAlign = "center";
+      celda.style.color = "#265a88";
+      celda.style.padding = "2px";
+      if (j>0) {
+        celda.className="fdia"+fechaGT.getDate();
+        fechaGT.setDate(fechaGT.getDate()+1);
+      }
+      var textoCelda = document.createTextNode("0:00");
+      celda.appendChild(textoCelda);
+      hilera.appendChild(celda);
+    }
+    //Asignar valores iniciales
+    var columnas=hilera.querySelectorAll("th");
+     columnas[0].textContent="Horas a Facturar";
+     columnas[0].colSpan="2";
+     columnas[tamanioTabla-2].className="ftotalHs";
+     columnas[tamanioTabla-2].style.textAlign = "right";
+    // agrega la hilera al final de la tabla (al final del elemento tblbody)
+    tblFoot.appendChild(hilera);
+  }
+
+  // Crea las celdas del tfoot DIFERENCIA DE HORAS
+  fechaGT = new Date(primerDia.getTime()); // Se reinicia la fecha a la inicial
+  for (var i = 0; i < 1; i++) {
+    // Crea las hileras de la tabla
+    var hilera = document.createElement("tr");
+
+    for (var j = 0; j < tamanioTabla-1; j++) {
+      // Crea un elemento <td> y un nodo de texto, haz que el nodo de
+      // texto sea el contenido de <td>, ubica el elemento <td> al final
+      // de la hilera de la tabla
+      var celda = document.createElement("th");
+      celda.style.textAlign = "center";
+      celda.style.color = "#3c763d";
+      celda.style.padding = "2px";
+      if (j>0) {
+        celda.className="ddia"+fechaGT.getDate();
+        //console.log("HORAS DIFERENCIAS: "+j+" "+fechaGT.getDate());
+        fechaGT.setDate(fechaGT.getDate()+1);
+      }
+      var textoCelda = document.createTextNode("0:00");
+      celda.appendChild(textoCelda);
+      hilera.appendChild(celda);
+    }
+    //Asignar valores iniciales
+    var columnas=hilera.querySelectorAll("th");
+     columnas[0].textContent="Diferencia de Horas";
+     columnas[0].colSpan="2";
+     columnas[tamanioTabla-2].className="dtotalHs";
+     columnas[tamanioTabla-2].style.textAlign = "right";
+    // agrega la hilera al final de la tabla (al final del elemento tblbody)
+    tblFoot.appendChild(hilera);
+  }
+
+  // posiciona el <tbody> debajo del elemento <table>
+  tabla.appendChild(tblHead);
+  tabla.appendChild(tblBody);
+  tabla.appendChild(tblFoot);
+
+  resolve();
+
+  });
+
+}
+
+function cargarTurnoMod(idCliente,idObjetivo,idDia,turno){
+
+  return new Promise(function(resolve,reject){
+
+    let nuevoTurno = {
+      idPersonal: turno.idPersonal,
+      nombrePuesto: turno.nombrePuesto,
+      fechaPuesto: turno.fechaPuesto,
+      fechaIngreso: turno.fechaIngreso,
+      fechaEgreso: turno.fechaEgreso,
+      turnoNoche: turno.turnoNoche,
+      ingresoPuesto: turno.ingresoPuesto,
+      egresoPuesto: turno.egresoPuesto,
+      horaIngreso: turno.horaIngreso,
+      horaEgreso: turno.horaEgreso,
+      horasTurno: turno.horasTurno,
+      imagePath: turno.imagePath,
+      estado: turno.estado,
+    }
+
+    if(turno.oldData!=undefined){
+      nuevoTurno.oldData = turno.oldData;
+    }
+
+    if(turno.idTurno==undefined){
+
+      db.collection("clientes").doc(idCliente).collection("objetivos").doc(idObjetivo).collection("cobertura")
+      .doc(idDia).collection("puestos").where("idPersonal","==",turno.idPersonal)
+      .get()
+      .then(function(querySnapshot){
+        if(querySnapshot.empty){
+          console.log("No se encontro el idPersonal");
+          reject();
+        } else {
+           querySnapshot.forEach(function(doc) {
+             if(turno.imagePath==doc.data().imagePath){
+                doc.ref.set(nuevoTurno);
+                console.log("Turno modificado correctamente");
+                resolve();
+             }
+           });
+         }
+      })
+      .catch(function(error) {
+          console.error("Error delete document: ", error);
+          reject();
+      });
+
+    } else {
+      db.collection("clientes").doc(idCliente).collection("objetivos").doc(idObjetivo).collection("cobertura")
+      .doc(idDia).collection("puestos").doc(turno.idTurno)
+      .set(nuevoTurno)
+      .then(function(doc) {
+        console.log("Turno cargado con exito");
+        resolve();
+      }).catch(function(error) {
+        console.error("Error added document: ", error);
+        reject();
+      });
+    }
+  });
+
 }
 
 function cargarTurnoDB(idCliente,idObjetivo,idDia,turno){
-
-  console.log(turno);
 
   return new Promise(function(resolve,reject){
     let imagePathNuevo = idCliente+"/"+idObjetivo+"/CAPTURAS/"+turno.fechaPuesto+"/";
@@ -1584,26 +2124,60 @@ function cargarTurnoDB(idCliente,idObjetivo,idDia,turno){
         reject(error);
     });
   });
+
 }
 
-function eliminarTurnoDB(idCliente,idObjetivo,idDia,fechaPuesto,idTurno){
+function eliminarTurnoDB(idCliente,idObjetivo,idDia,turno,idTurno){
 
-  let imagePathEliminar = idCliente+"/"+idObjetivo+"/CAPTURAS/"+fechaPuesto+"/"+idTurno;
+  return new Promise(function(resolve,reject){
 
-  db.collection("clientes").doc(idCliente).collection("objetivos").doc(idObjetivo).collection("cobertura")
-  .doc(idDia).collection("puestos").doc(idTurno)
-  .delete()
-  .then(function() {
-      console.log("Document successfully deleted!");
-  }).catch(function(error) {
-      console.error("Error removing document: ", error);
+    if(idTurno==undefined){
+
+      let imagePathEliminar = idCliente+"/"+idObjetivo+"/CAPTURAS/"+turno.fechaPuesto+"/";
+
+      db.collection("clientes").doc(idCliente).collection("objetivos").doc(idObjetivo).collection("cobertura")
+      .doc(idDia).collection("puestos").where("idPersonal","==",turno.idPersonal)
+      .get()
+      .then(function(querySnapshot){
+        if(querySnapshot.empty){
+          console.log("No se encontro el idPersonal");
+          reject();
+        } else {
+           querySnapshot.forEach(function(doc) {
+             doc.ref.delete();
+             deleteFolderContents(imagePathEliminar+doc.id);
+             resolve();
+           });
+         }
+      })
+      .catch(function(error) {
+          console.error("Error delete document: ", error);
+          reject();
+      });
+
+    } else {
+      let imagePathEliminar = idCliente+"/"+idObjetivo+"/CAPTURAS/"+turno.fechaPuesto+"/"+idTurno;
+      db.collection("clientes").doc(idCliente).collection("objetivos").doc(idObjetivo).collection("cobertura")
+      .doc(idDia).collection("puestos").doc(idTurno)
+      .delete()
+      .then(function() {
+          deleteFolderContents(imagePathEliminar);
+          console.log("Document successfully deleted!");
+          resolve();
+      }).catch(function(error) {
+          console.error("Error removing document: ", error);
+          reject()
+      });
+
+    }
   });
 
-  deleteFolderContents(imagePathEliminar);
-
 }
 
-function mostrarTurnosProcesados(idCliente,idObjetivo,idDia,arrayTurnosMod,variosPuestos,idCell){
+function mostrarTurnosProcesados(idCliente,idObjetivo,idDia,arrayTurnosMod,variosPuestos,idCell,idTable){
+
+  console.log("Array a Unificados");
+  console.log(arrayTurnosMod);
 
   clearOptionsFast("modal-body-detalle");
   clearOptionsFast("menu-detalle");
@@ -1612,16 +2186,16 @@ function mostrarTurnosProcesados(idCliente,idObjetivo,idDia,arrayTurnosMod,vario
 
   if(variosPuestos==false){
     cargarNombrePersonal(arrayTurnosMod[0].idPersonal,"nombreDetalleDia");
-    cargarFuncionesModal(idCliente,idObjetivo,idDia,idCell,arrayTurnosMod);
-    generarPanel(arrayTurnosMod[0],"1");
+    cargarFuncionesModal(idCliente,idObjetivo,idDia,idCell,arrayTurnosMod,idTable);
+    generarPanel(arrayTurnosMod[0],"0");
   } else {
     cargarNombrePersonal(arrayTurnosMod[0].idPersonal,"nombreDetalleDia");
-    let idPanel=1;
+    let idPanel=0;
     arrayTurnosMod.forEach(function(turno) {
       generarPanel(turno,idPanel);
       idPanel++;
     });
-    cargarFuncionesModal(idCliente,idObjetivo,idDia,idCell,arrayTurnosMod);
+    cargarFuncionesModal(idCliente,idObjetivo,idDia,idCell,arrayTurnosMod,idTable);
   }
 }
 
@@ -1635,7 +2209,6 @@ function cargarImagen(imagePath,idImage){
   .then(function(url) {
     $("#"+idImage).css("background", "url("+url+")");
     $("#"+idImage).css("background-size", "cover");
-    // document.getElementById(idImage).style.backgroundSize = "cover";
   }).catch(function(error) {
     console.log("Error al cargar imagen",error);
   });
@@ -1654,7 +2227,7 @@ function moveFirebaseFile(currentPath, destinationPath) {
         var blob = xhr.response;
         blob = blob.slice(0, blob.size, "image/jpeg")
         newRef.put(blob).then(function(snapshot) {
-        console.log('Uploaded a blob or file!');
+        console.log('Imagen movida correctamente');
         resolve();
         });
       };
@@ -1699,7 +2272,7 @@ function getHoursStr(date){
 }
 
 function getDateStr(date){
-  return date.getFullYear()+"/"+addZero(date.getMonth())+"/"+addZero(dateObj.getDate());
+  return date.getFullYear()+"-"+addZero(date.getMonth()+1)+"-"+addZero(date.getDate());
 }
 
 function addZero(i) {
@@ -1707,4 +2280,14 @@ function addZero(i) {
     i = "0" + i;
   }
   return i;
+}
+
+function vaciarTabla(idTable){
+  var elmtTable = document.getElementById("tBody-"+idTable);
+  var tableRows = elmtTable.getElementsByTagName('tr');
+  var rowCount = tableRows.length;
+
+  for (var x=rowCount-1; x>=0; x--) {
+        elmtTable.removeChild(tableRows[x]);
+  }
 }

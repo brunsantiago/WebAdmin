@@ -41,6 +41,16 @@ const appRoutesLayouts: Routes = [
                 path: 'setting',
                 //component: ControlComponent
                 loadChildren: '../setting/setting.module#SettingModule'
+            },
+            {
+                path: 'client',
+                //component: ControlComponent
+                loadChildren: '../client/client.module#ClientModule'
+            },
+            {
+                path: 'branch',
+                //component: ControlComponent
+                loadChildren: '../branch/branch.module#BranchModule'
             }
         ]
     }
