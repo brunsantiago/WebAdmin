@@ -1,3 +1,4 @@
+
 .conf {
   margin:7px;
 }
@@ -16,4 +17,23 @@
   background-size: cover;
   background-position: center;
   height:100px;
+}
+
+.button-fix {
+  width: 75px;
+}
+
+.no-wrap-button {
+  white-space:nowrap;
+  /* width: 100px; */
+}
+
+#tabla-coincidencia th {
+  font-size: 11px;
+  text-align: center;
+}
+
+#tabla-coincidencia tbody tr td {
+  font-size: 11px;
+  text-align: center;
 }

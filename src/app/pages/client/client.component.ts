@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 declare var jQuery: any;
 declare var $: any;
 declare var listadoClientesClient: any;
-declare var formatoCuit: any;
+declare var formatoInputs: any;
 declare var checkCoordenadas: any;
 
 @Component({
@@ -17,7 +17,7 @@ export class ClientComponent implements OnInit {
 
   ngOnInit() {
     listadoClientesClient();
-    formatoCuit();
+    formatoInputs();
     checkCoordenadas();
   }
 
