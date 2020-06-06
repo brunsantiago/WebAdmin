@@ -1014,6 +1014,7 @@ function cargarDatosTurnos(puesto,idPanel){
     $("#horaIngresoReal-"+idPanel).text(puesto.horaIngreso);
     if(puesto.horaEgreso.length>0){
       $("#horaEgresoReal-"+idPanel).text(puesto.horaEgreso);
+      document.getElementById("horaEgresoReal-"+idPanel).style.fontSize = "25px";
     } else {
       $("#horaEgresoReal-"+idPanel).text("SIN CIERRE");
       document.getElementById("horaEgresoReal-"+idPanel).style.fontSize = "16px";
@@ -1529,11 +1530,8 @@ function cargarFuncionesModal(idCliente,idObjetivo,idDia,idCell,arrayTurnos,idTa
    $("#"+footerIdName).show();
 
    $("#guardar-cambios-detalle-"+idCell).click(function() {
-
-     $("#detalle-dia").modal("hide");
      $("#guardar-cambios-detalle-"+idCell).attr("disabled", true);
-     loaderStateCubrimiento();
-     guardarCambiosDetalle(idCliente,idObjetivo,idDia,arrayTurnos,idTable);
+     guardarCambiosDetalle(idCliente,idObjetivo,idDia,idCell,arrayTurnos,idTable);
 
    });
 
@@ -1548,7 +1546,7 @@ function cambiarEstadoArray(arrayTurnos,estado){
   }
 }
 
-function guardarCambiosDetalle(idCliente,idObjetivo,idDia,arrayTurnos,idTable){
+function guardarCambiosDetalle(idCliente,idObjetivo,idDia,idCell,arrayTurnos,idTable){
 
   let errorMessage=false;
 
@@ -1703,36 +1701,39 @@ function guardarCambiosDetalle(idCliente,idObjetivo,idDia,arrayTurnos,idTable){
 
   } // End For
 
-
   if (errorMessage){
     Swal.fire({
       icon: 'error',
       title: 'Falta completar motivos',
       text: 'Por favor complete los motivos faltantes',
-      // footer: '<a href>Why do I have this issue?</a>'
     })
+    $("#guardar-cambios-detalle-"+idCell).attr("disabled", false);
   } else {
-
+    loaderStateCubrimiento();
     procesarCambiosDetalle(idCliente,idObjetivo,idDia,arrayTurnos)
     .then(function(){
       recargarTabla(idTable);
       cargarCobertura(idCliente,idObjetivo,primerDiaGlobal,ultimoDiaGlobal,idTable);
       cargarCubrimiento(idCliente,idObjetivo,primerDiaGlobal,ultimoDiaGlobal,idTable);
-
       Swal.fire({
         icon: 'success',
         title: 'Cambios guardados correctamente',
         showConfirmButton: false,
         timer: 1500
       })
-
       clearOptionsFast("modal-body-detalle");
       clearOptionsFast("menu-detalle");
       clearOptionsFast("modal-footer-detalle");
       $("#nombreDetalleDia").text("");
-
+      $("#detalle-dia").modal("hide");
       loaderStateFinishCubrimiento();
-    });
+      $("#guardar-cambios-detalle-"+idCell).attr("disabled", false);
+    })
+    .catch(function(err){
+      console.log(err);
+      $("#guardar-cambios-detalle-"+idCell).attr("disabled", false);
+      loaderStateFinishCubrimiento();
+    })
 
   }
 
@@ -2210,7 +2211,9 @@ function cargarImagen(imagePath,idImage){
     $("#"+idImage).css("background", "url("+url+")");
     $("#"+idImage).css("background-size", "cover");
   }).catch(function(error) {
-    console.log("Error al cargar imagen",error);
+    // console.log("Error al cargar imagen",error);
+    $("#"+idImage).css("background", "url(/assets/img/sin-foto.png)");
+    $("#"+idImage).css("background-size", "cover");
   });
 }
 

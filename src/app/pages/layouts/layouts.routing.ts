@@ -51,6 +51,16 @@ const appRoutesLayouts: Routes = [
                 path: 'branch',
                 //component: ControlComponent
                 loadChildren: '../branch/branch.module#BranchModule'
+            },
+            {
+                path: 'staff',
+                //component: ControlComponent
+                loadChildren: '../staff/staff.module#StaffModule'
+            },
+            {
+                path: 'device',
+                //component: ControlComponent
+                loadChildren: '../device/device.module#DeviceModule'
             }
         ]
     }

@@ -1,0 +1,254 @@
+<!-- Content Wrapper. Contains page content -->
+<div class="content-wrapper">
+  <!-- Content Header (Page header) -->
+  <section class="content-header">
+    <h1>
+      Configuracion
+      <small>Version 1.0</small>
+    </h1>
+    <ol class="breadcrumb">
+      <li><a routerLink="/layouts/home"><i class="fa fa-calendar"></i> Home</a></li>
+      <li class="active">Configuracion</li>
+      <li class="active">Dispositivos</li>
+    </ol>
+  </section>
+
+  <!-- Main content -->
+  <section class="content">
+
+      <div class="row">
+        <div class="col-md-12">
+
+          <div class="box box-danger">
+            <div class="box-header with-border">
+              <h3 class="box-title">Dispositivos</h3>
+
+              <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+              </div>
+            </div>
+
+            <div class="box-body">
+
+             <div class="container-fluid">
+
+               <div class="row">
+
+                 <div class="col-md-12">
+
+                   <div class="panel panel-primary">
+
+                     <div class="panel-heading">
+                       <h3 class="panel-title">Tabla de Dispositivos</h3>
+                     </div>
+                     <br/>
+
+                     <div class="container-fluid">
+                       <div class="row conf">
+                         <div class="col-lg-12">
+                           <div class="table-responsive">
+                             <table align="center" id="devicetable" class="table table-condensed table-striped table-bordered table-hover rwd_auto text-nowrap" >
+                               <thead>
+                                 <tr>
+                                   <th style="text-align:center">Nombre Cliente</th>
+                                   <th style="text-align:center">Nombre Objetivo</th>
+                                   <th style="text-align:center">IMEI</th>
+                                   <th style="text-align:center">Marca</th>
+                                   <th style="text-align:center">Modelo</th>
+                                   <th style="text-align:center">Estado</th>
+                                   <th style="text-align:center">Editar</th>
+                                 </tr>
+                               </thead>
+                               <tbody>
+                               </tbody>
+                             </table>
+                           </div>
+                         </div>
+                       </div>
+                     </div><br>
+
+                     <div class="box-footer">
+                      <div class="conf text-center">
+                         <button type="button" class="btn btn-success" onclick="agregarDispositivos()">Agregar Dispositivo</button>
+                      </div>
+                     </div>
+                   </div>
+
+
+                 </div>
+
+               </div>
+
+
+              </div>
+
+            </div>
+
+            <!-- /.box-footer -->
+            <div class="loader loader-default" data-text="Cargando..." data-blink id="loader-state-client">
+                 <!-- <i class="fas fa-cog fa-spin"></i> -->
+            </div>
+          </div>
+          <!-- /.box -->
+        </div>
+
+      </div>
+
+  </section>
+  <!-- /.content -->
+</div>
+<!-- /.content-wrapper -->
+
+<!-- MODAL SECTION -->
+
+<!-- Modal Agregar Dispositivo -->
+<div id="agregar-dispositivo" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+  <!-- Modal content-->
+  <div class="modal-content">
+
+    <div class="modal-header bg-primary">
+      <button type="button" class="close" data-dismiss="modal">&times;</button>
+      <h4 class="modal-title">Agregar Dispositivo</h4>
+    </div>
+  <form name="formAgregarDispositivo" >
+    <div class="modal-body">
+
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-md-6 ml-7">
+
+            <div class="form-group">
+                <i class="far fa-handshake mr-7"></i><label class="conf">Nombre Cliente</label>
+                <input class="form-control" type="text" list="dataListClient" name="nombreCliente" id="nombreCliente" onchange="listadoObjetivosBranch('nombreCliente','nombreObjetivo','dataListBranch')" autocomplete="off" placeholder="Seleccione un cliente">
+                <datalist id="dataListClient">
+                </datalist>
+            </div>
+
+              <div class="form-group">
+                  <i class="far fa-building mr-7"></i><label class="conf">Nombre Objetivo</label>
+                  <input class="form-control" type="text" list="dataListBranch" name="nombreObjetivo" id="nombreObjetivo" autocomplete="off" placeholder="Esperando un cliente...">
+                  <datalist id="dataListBranch">
+                  </datalist>
+              </div>
+
+            <div class="form-group">
+                <i class="fas fa-microchip mr-7"></i><label class="conf">IMEI</label>
+                <input class="form-control" type="text" name="imei" id="imei" autocomplete="off" placeholder="Nro IMEI">
+            </div>
+
+            <div class="form-group">
+                <i class="fas fa-mobile-alt mr-7"></i><label class="conf">Marca</label>
+                <input class="form-control" type="text" list="dataListMarca" name="marca" id="marca" onchange="desplegableModeloDispositivo('dataListMarca','dataListModelo','marca','modelo')" autocomplete="off" placeholder="Marca Dispositivo">
+                <datalist id="dataListMarca">
+                </datalist>
+            </div>
+
+            <div class="form-group">
+                <i class="fas fa-mobile-alt mr-7"></i><label class="conf">Modelo</label>
+                <input class="form-control" type="text" list="dataListModelo" name="modelo" id="modelo" autocomplete="off" placeholder="Modelo Dispositivo">
+                <datalist id="dataListModelo">
+                </datalist>
+            </div>
+
+            <div class="form-group">
+                <i class="far fa-check-square mr-7"></i><label class="conf">Estado</label>
+                <input class="form-control" type="text" list="dataListEstado" name="estado" id="estado" autocomplete="off" placeholder="Estado Dispositivo">
+                <datalist id="dataListEstado">
+                </datalist>
+            </div>
+
+            <!-- <span id="idDevice"></span> -->
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <button type="submit" class="btn btn-primary" id="cargarDispositivo">Agregar</button>
+      <button type="submit" class="btn" data-dismiss="modal" onclick="disableFormAgregarDispositivo()">Cerrar</button>
+    </div>
+  </form>
+
+  </div>
+
+  </div>
+</div>
+
+<!-- Modal Modificar Dispositivo -->
+<div id="modificar-dispositivo" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+  <!-- Modal content-->
+  <div class="modal-content">
+
+    <div class="modal-header bg-primary">
+      <button type="button" class="close" data-dismiss="modal">&times;</button>
+      <h4 class="modal-title">Modificar Dispositivo</h4>
+    </div>
+  <form name="formModificarDispositivo" >
+    <div class="modal-body">
+
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-md-6 ml-7">
+
+            <div class="form-group">
+                <i class="far fa-handshake mr-7"></i><label class="conf">Nombre Cliente</label>
+                <input class="form-control" type="text" list="dataListClientMod" name="nombreClienteMod" id="nombreClienteMod" onchange="listadoObjetivosBranch('nombreClienteMod','nombreObjetivoMod','dataListBranchMod')" autocomplete="off" placeholder="Seleccione un cliente">
+                <datalist id="dataListClientMod">
+                </datalist>
+            </div>
+
+              <div class="form-group">
+                  <i class="far fa-building mr-7"></i><label class="conf">Nombre Objetivo</label>
+                  <input class="form-control" type="text" list="dataListBranchMod" name="nombreObjetivoMod" id="nombreObjetivoMod" onchange="listadoObjetivosDevice('nombreClienteMod','nombreObjetivoMod','dataListBranchMod')" autocomplete="off" placeholder="Esperando un cliente...">
+                  <datalist id="dataListBranchMod">
+                  </datalist>
+              </div>
+
+            <div class="form-group">
+                <i class="fas fa-microchip mr-7"></i><label class="conf">IMEI</label>
+                <input class="form-control" type="text" name="imeiMod" id="imeiMod" autocomplete="off" placeholder="Nro IMEI">
+            </div>
+
+            <div class="form-group">
+                <i class="fas fa-mobile-alt mr-7"></i><label class="conf">Marca</label>
+                <input class="form-control" type="text" list="dataListMarcaMod" name="marcaMod" id="marcaMod" onchange="desplegableModeloDispositivo('dataListMarcaMod','dataListModeloMod','marcaMod','modeloMod')" autocomplete="off" placeholder="Marca Dispositivo">
+                <datalist id="dataListMarcaMod">
+                </datalist>
+            </div>
+
+            <div class="form-group">
+                <i class="fas fa-mobile-alt mr-7"></i><label class="conf">Modelo</label>
+                <input class="form-control" type="text" list="dataListModeloMod" name="modeloMod" id="modeloMod" autocomplete="off" placeholder="Modelo Dispositivo">
+                <datalist id="dataListModeloMod">
+                </datalist>
+            </div>
+
+            <div class="form-group">
+                <i class="far fa-check-square mr-7"></i><label class="conf">Estado</label>
+                <input class="form-control" type="text" list="dataListEstadoMod" name="estadoMod" id="estadoMod" autocomplete="off" placeholder="Estado Dispositivo">
+                <datalist id="dataListEstadoMod">
+                </datalist>
+            </div>
+
+            <span id="idDevice"></span>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <button type="submit" class="btn btn-primary" id="modificarDispositivo">Modificar</button>
+      <button type="submit" class="btn" data-dismiss="modal" onclick="disableFormModificarDispositivo()">Cerrar</button>
+    </div>
+  </form>
+
+  </div>
+
+  </div>
+</div>

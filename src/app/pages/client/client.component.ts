@@ -2,9 +2,7 @@ import { Component, OnInit } from '@angular/core';
 
 declare var jQuery: any;
 declare var $: any;
-declare var listadoClientesClient: any;
-declare var formatoInputs: any;
-declare var checkCoordenadas: any;
+declare var inicializarFuncionesClient: any;
 
 @Component({
   selector: 'app-client',
@@ -16,9 +14,7 @@ export class ClientComponent implements OnInit {
   constructor() { }
 
   ngOnInit() {
-    listadoClientesClient();
-    formatoInputs();
-    checkCoordenadas();
+    inicializarFuncionesClient();
   }
 
 }

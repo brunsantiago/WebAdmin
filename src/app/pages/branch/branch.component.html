@@ -3,61 +3,365 @@
   <!-- Content Header (Page header) -->
   <section class="content-header">
     <h1>
-      Control de Horas
+      Configuracion
       <small>Version 1.0</small>
     </h1>
     <ol class="breadcrumb">
       <li><a routerLink="/layouts/home"><i class="fa fa-calendar"></i> Home</a></li>
-      <li class="active">Control de Horas</li>
-      <li class="active">Control de Asistencia</li>
+      <li class="active">Configuracion</li>
+      <li class="active">Objetivos</li>
     </ol>
   </section>
 
   <!-- Main content -->
   <section class="content">
 
-    <div class="row">
-      <div class="col-md-12">
+      <div class="row">
+        <div class="col-md-12">
 
-        <div class="box box-danger">
-          <div class="box-header with-border">
-            <h3 class="box-title">Control de Asistencia</h3>
+          <div class="box box-danger">
+            <div class="box-header with-border">
+              <h3 class="box-title">Objetivos</h3>
 
-            <div class="box-tools pull-right">
-              <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
-              <div class="btn-group">
-                <button type="button" class="btn btn-box-tool dropdown-toggle" data-toggle="dropdown">
-                  <i class="fa fa-wrench"></i></button>
-                <ul class="dropdown-menu" role="menu">
-                  <li><a href="#">Elegir un periodo</a></li>
-                  <li><a href="#">Cambiar Servicio</a></li>
-                  <li class="divider"></li>
-                  <li><a href="#">Configuracion</a></li>
-                </ul>
+              <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
               </div>
-              <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+            </div>
+
+            <div class="box-body">
+
+             <div class="container-fluid">
+
+               <div class="row">
+
+                 <div class="col-md-12">
+
+                   <div class="panel panel-primary">
+
+                     <div class="panel-heading">
+                       <h3 class="panel-title">Opciones</h3>
+                     </div>
+                     <br/>
+
+                     <div class="container-fluid">
+                       <div class="row conf">
+
+                         <div class=" col-sm-6 col-md-5 col-lg-3">
+                           <div class="form-group">
+                               <label for="selectCliente">Cliente</label>
+                                <input type="text" class="form-control" list="dataListClient" id="selectCliente" placeholder="Seleccione un cliente" onchange="listadoObjetivosBranch('selectCliente','selectObjetivo','dataListObjetivo')" autocomplete="off">
+                                <datalist id="dataListClient">
+                                </datalist>
+                           </div>
+                         </div>
+
+                         <div class=" col-sm-6 col-md-5 col-lg-3">
+                           <div class="form-group">
+                               <label for="selectObjetivo">Objetivo</label>
+                                <input type="text" class="form-control" list="dataListObjetivo" id="selectObjetivo" placeholder="Esperando un cliente..." autocomplete="off">
+                                <datalist id="dataListObjetivo">
+                                </datalist>
+                           </div>
+                         </div>
+
+                       </div>
+                     </div><br>
+
+                     <div class="box-footer">
+                      <div class="conf">
+                         <button type="button" class="btn btn-primary" onclick="mostrarObjetivoBranch()">Mostrar Objetivo</button>
+                         <button type="button" class="btn btn-success ml-7" onclick="agregarObjetivoBranch()" >Agregar Objetivo</button>
+                      </div>
+                     </div>
+                   </div>
+
+
+                 </div>
+
+               </div>
+
+
+              </div>
+
+            </div>
+
+            <!-- /.box-footer -->
+            <div class="loader loader-default" data-text="Cargando..." data-blink id="loader-state-client">
+                 <!-- <i class="fas fa-cog fa-spin"></i> -->
             </div>
           </div>
-
-          <div class="box-body">
-
-          </div>
-
-          <div class="box-footer">
-            <div class="row">
-            </div>
-            <!-- /.row -->
-          </div>
-          <!-- /.box-footer -->
-          <div class="loader loader-default" data-text="Cargando..." data-blink id="loader-state">
-               <!-- <i class="fas fa-cog fa-spin"></i> -->
-          </div>
+          <!-- /.box -->
         </div>
-        <!-- /.box -->
+
       </div>
-      <!-- /.col -->
-    </div>
-    <!-- /.row -->
+
+      <div class="row" style="display:none;" id="tab-objetivo">
+
+        <div class="col-md-12">
+          <!-- Custom Tabs -->
+          <div class="nav-tabs-custom">
+
+            <ul class="nav nav-tabs">
+              <li class="active"><a href="#tab_1" data-toggle="tab">Datos Basicos</a></li>
+              <li><a href="#tab_2" data-toggle="tab">Datos de Facturacion</a></li>
+              <li><a href="#tab_3" data-toggle="tab">Datos de Liquidacion</a></li>
+            </ul>
+
+            <div class="tab-content">
+
+              <!-- TAB DATOS BASICOS -->
+              <div class="tab-pane active" id="tab_1">
+               <div class="container-fluid">
+                <!-- Panel Opciones -->
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                      <h3 class="panel-title">Datos Basicos</h3>
+                    </div>
+                    <br/>
+                    <div class="container-fluid">
+
+                         <div class="conf">
+
+                            <div class="row">
+                              <div class="col-lg-5">
+                                <div class="form-group">
+                                  <label for="nombreCliente">Nombre del Objetivo</label>
+                                   <input type="text" class="form-control" id="nombreObjetivo" placeholder="Nombre del Objetivo" style="text-transform:uppercase" readonly>
+                                </div>
+                              </div>
+                              <div class="col-lg-5">
+                                <div class="form-group">
+                                  <label for="nombreCliente">Nombre del Cliente</label>
+                                   <input type="text" class="form-control" id="nombreCliente" placeholder="Nombre del Cliente" style="text-transform:uppercase" readonly>
+                                </div>
+                              </div>
+                              <div class="col-md-4 col-lg-2">
+                                <div class="form-group">
+                                  <label>Estado</label><br>
+                                  <div class="btn-group btn-group-justified">
+                                    <a href="javascript:void(0)" class="btn btn-success button-fix" id="estadoActivo" onclick="cambiarEstadoActivo()" disabled>Activo</a>
+                                    <a href="javascript:void(0)" class="btn btn-default button-fix" id="estadoInactivo" onclick="cambiarEstadoInactivo()" disabled>Inactivo</a>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div class="row">
+                              <div class="col-lg-8">
+                                <div class="form-group">
+                                  <label for="supervisor">Supervisor</label>
+                                   <input type="text" class="form-control" list="dataListSuper" id="supervisor" placeholder="Supervisor" style="text-transform:uppercase" readonly>
+                                   <datalist id="dataListSuper">
+                                   </datalist>
+                                </div>
+                              </div>
+                              <div class="col-lg-4">
+                                <div class="form-group">
+                                  <label for="tipo">Tipo de Objetivo</label>
+                                   <input type="text" class="form-control" id="tipoObjetivo" placeholder="Tipo de Objetivo" style="text-transform:uppercase" readonly>
+                                </div>
+                              </div>
+                            </div>
+                            <hr>
+                            <h5 style="color:#ABB2B9;">Domicilio</h5>
+                             <div class="row">
+                               <div class="form-group col-md-2">
+                                 <label for="pais">Pais</label>
+                                 <input type="text" class="form-control" list="dataListPais" id="pais" placeholder="Pais" style="text-transform:uppercase" readonly/>
+                                  <datalist id="dataListPais">
+                                    <option selected>ARGENTINA</option>
+                                  </datalist>
+                               </div>
+
+                               <div class="form-group col-md-4">
+                                 <label for="provincia">Provincia</label>
+                                 <input type="text" class="form-control" list="dataListPcia" id="provincia" placeholder="Seleccione una provincia" onchange="cargarDeptoLocalCalles()" style="text-transform:uppercase" readonly/>
+                                  <datalist id="dataListPcia">
+                                  </datalist>
+                               </div>
+
+                               <div class="form-group col-md-3">
+                                 <label for="departamento">Departamento / Comuna</label>
+                                 <input type="text" class="form-control" list="dataListDepto" id="departamento" placeholder="Seleccione un departamento" onchange="cargarLocalCalles()" style="text-transform:uppercase" readonly/>
+                                  <datalist id="dataListDepto">
+                                  </datalist>
+                               </div>
+
+                               <div class="form-group col-md-3">
+                                 <label for="localidad">Localidad / Barrio</label>
+                                 <input type="text" class="form-control" list="dataListLocal" id="localidad" placeholder="Seleccione una localidad" style="text-transform:uppercase" readonly/>
+                                  <datalist id="dataListLocal">
+                                  </datalist>
+                               </div>
+
+                             </div>
+                             <div class="row">
+
+                               <div class="form-group col-md-5">
+                                 <label for="calle">Calle</label>
+                                 <input type="text" class="form-control" list="dataListCalles" id="calle" placeholder="Seleccione una calle" style="text-transform:uppercase" readonly/>
+                                  <datalist id="dataListCalles">
+                                  </datalist>
+                               </div>
+
+                               <div class="form-group col-md-2">
+                                 <label for="nroPuerta">Nro Puerta</label>
+                                  <input type="text" class="form-control" id="nroPuerta" placeholder="Nro Puerta" style="text-transform:uppercase" readonly>
+                               </div>
+                               <div class="form-group col-md-2">
+                                 <label for="piso">Piso</label>
+                                  <input type="text" class="form-control" id="piso" placeholder="Piso" style="text-transform:uppercase" readonly>
+                               </div>
+                               <div class="form-group col-md-2">
+                                 <label for="depto">Depto</label>
+                                  <input type="text" class="form-control" id="depto" placeholder="Depto" style="text-transform:uppercase" readonly>
+                               </div>
+                               <div class="form-group col-md-1">
+                                 <label for="cp">CP</label>
+                                  <input type="text" class="form-control" id="cp" placeholder="CP" style="text-transform:uppercase" readonly>
+                               </div>
+
+                             </div>
+
+                             <div class="row">
+                               <div class="col-lg-3">
+                                   <div class="form-group">
+                                     <label for="lat">Latitud</label>
+                                     <input type="text" class="form-control" id="lat" value="" placeholder="Indique una latitud" onchange="cargarCoordenadas()" style="text-transform:uppercase" readonly>
+                                   </div>
+                               </div>
+                               <div class="col-lg-3">
+                                 <div class="form-group">
+                                   <label for="lon">Longitud</label>
+                                   <input type="text" class="form-control" id="lon" value="" placeholder="Indique una longitud" onchange="cargarCoordenadas()" style="text-transform:uppercase" readonly>
+                                 </div>
+                               </div>
+                               <div class="col-lg-6">
+                                   <h5><b>Ubicacion</b></h5>
+                                   <form>
+                                   <label class="radio-inline">
+                                     <input type="radio" name="check-ubicacion" id="checkDomicilio" disabled>Desde domicilio
+                                   </label>
+                                   <label class="radio-inline" style="margin-left:50px;">
+                                     <input type="radio" name="check-ubicacion" id="checkCoordenadas" disabled>Desde coordenadas
+                                   </label>
+                                 </form>
+                               </div>
+                             </div>
+
+                             <div class="row">
+                               <div class="col-md-12">
+                                 <div class="callout callout-warning" style="display:none" id="mensajeError">
+                                  </div>
+                               </div>
+                             </div>
+
+                             <div class="row">
+                               <div class="col-md-12">
+                                 <div class="text-center">
+                                   <a href="javascript:void(0)" onclick="cargarCoordMapa()" >Actualizar ubicacion en el Mapa</a>
+                                   <iframe width="100%" height="600" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" id="googleMap">
+                                   </iframe>
+                                 </div>
+                               </div>
+                               <br>
+                             </div>
+
+                           </div>
+
+                    </div>
+
+                    <div class="box-footer">
+                      <div class="conf">
+                        <button type="button" class="btn btn-primary" onclick="modificarDatosObjetivo()" id="btnModificarObjetivo">Modificar Datos</button>
+                        <button type="button" class="btn btn-danger ml-7" onclick="guardarCambiosObjetivo()" id="btnGuardarObjetivo" disabled>Guardar Cambios</button>
+                        <button type="button" class="btn btn-default ml-7" onclick="cancelarCambiosObjetivo()" id="btnCancelarObjetivo" disabled>Cancelar Cambios</button>
+                      </div>
+                    </div>
+
+                </div>
+
+               </div>
+              </div>
+              <!-- /.tab-pane -->
+
+              <!-- TAB DATOS DE FACTURACION -->
+              <div class="tab-pane" id="tab_2">
+                <div class="container-fluid my-3">
+                  <!-- Panel Opciones -->
+                  <div class="panel panel-primary">
+                      <div class="panel-heading">
+                        <h3 class="panel-title">Datos de Facturacion</h3>
+                      </div>
+                      <br/>
+                      <div class="container-fluid">
+                         <form>
+                           <div class="conf">
+                               <div class="row">
+                                 <div class="col-md-1">
+                                 </div>
+                               </div>
+                               <div class="row">
+
+                               </div>
+                             </div>
+                           </form>
+                      </div>
+                      <div class="box-footer">
+                        <div class="conf">
+                          <button type="button" class="btn btn-primary" onclick="cargarPuestosSetting()">Modificar Datos</button>
+                          <button type="button" class="btn btn-danger ml-7" onclick="cargarHistorial()">Guardar Cambios</button>
+                        </div>
+                      </div>
+                  </div>
+
+                </div>
+                <!-- ./container-fluid -->
+              </div>
+              <!-- /.tab-pane -->
+
+              <!-- TAB DATOS DE LIQUIDACION -->
+              <div class="tab-pane" id="tab_3">
+                <div class="container-fluid my-3">
+                  <!-- Panel Opciones -->
+                  <div class="panel panel-primary">
+                      <div class="panel-heading">
+                        <h3 class="panel-title">Datos de Liquidacion</h3>
+                      </div>
+                      <br/>
+                      <div class="container-fluid">
+                         <form>
+                           <div class="conf">
+                               <div class="row">
+                                 <div class="col-md-1">
+                                 </div>
+                               </div>
+                               <div class="row">
+
+                               </div>
+                             </div>
+                           </form>
+                      </div>
+                      <div class="box-footer">
+                        <div class="conf">
+                          <button type="button" class="btn btn-primary" onclick="cargarPuestosSetting()">Modificar Datos</button>
+                          <button type="button" class="btn btn-danger ml-7" onclick="cargarHistorial()">Guardar Cambios</button>
+                        </div>
+                      </div>
+                  </div>
+
+                </div>
+                <!-- ./container-fluid -->
+              </div>
+              <!-- /.tab-pane -->
+
+            </div>
+            <!-- /.tab-content -->
+          </div>
+
+        </div>
+
+      </div>
 
   </section>
   <!-- /.content -->

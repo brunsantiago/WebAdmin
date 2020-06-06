@@ -1,0 +1,490 @@
+<!-- Content Wrapper. Contains page content -->
+<div class="content-wrapper">
+  <!-- Content Header (Page header) -->
+  <section class="content-header">
+    <h1>
+      Configuracion
+      <small>Version 1.0</small>
+    </h1>
+    <ol class="breadcrumb">
+      <li><a routerLink="/layouts/home"><i class="fa fa-calendar"></i> Home</a></li>
+      <li class="active">Configuracion</li>
+      <li class="active">Personal</li>
+    </ol>
+  </section>
+
+  <!-- Main content -->
+  <section class="content">
+
+      <div class="row">
+        <div class="col-md-12">
+
+          <div class="box box-danger">
+            <div class="box-header with-border">
+              <h3 class="box-title">Personal</h3>
+
+              <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+              </div>
+            </div>
+
+            <div class="box-body">
+
+             <div class="container-fluid">
+
+               <div class="row">
+
+                 <div class="col-md-12">
+
+                   <div class="panel panel-primary">
+
+                     <div class="panel-heading">
+                       <h3 class="panel-title">Opciones</h3>
+                     </div>
+                     <br/>
+
+                     <div class="container-fluid">
+                       <div class="row conf">
+
+                         <div class=" col-sm-6 col-md-5 col-lg-3">
+                           <div class="form-group">
+                               <label for="personal">Personal</label>
+                                <input type="text" class="form-control" list="dataListPersonal" id="personal" placeholder="Seleccione una persona">
+                                <datalist id="dataListPersonal">
+                                </datalist>
+                           </div>
+                         </div>
+
+                       </div>
+                     </div><br>
+
+                     <div class="box-footer">
+                      <div class="conf">
+                         <button type="button" class="btn btn-primary" onclick="mostrarPersonal()">Mostrar Personal</button>
+                         <button type="button" class="btn btn-success ml-7" onclick="agregarPersonal()" >Agregar Personal</button>
+                      </div>
+                     </div>
+                   </div>
+
+
+                 </div>
+
+               </div>
+
+
+              </div>
+
+            </div>
+
+            <!-- /.box-footer -->
+            <div class="loader loader-default" data-text="Cargando..." data-blink id="loader-state-client">
+                 <!-- <i class="fas fa-cog fa-spin"></i> -->
+            </div>
+          </div>
+          <!-- /.box -->
+        </div>
+
+      </div>
+
+      <div class="row" id="tab-personal" style="display:none;" >
+
+        <div class="col-md-12">
+          <!-- Custom Tabs -->
+          <div class="nav-tabs-custom">
+
+            <ul class="nav nav-tabs">
+              <li class="active"><a href="#tab_1" data-toggle="tab">Datos Personales</a></li>
+              <li><a href="#tab_2" data-toggle="tab">Datos de Liquidacion</a></li>
+              <li><a href="#tab_3" data-toggle="tab">Usuario App</a></li>
+            </ul>
+
+            <div class="tab-content">
+
+              <!-- TAB DATOS PERSONALES -->
+              <div class="tab-pane active" id="tab_1">
+               <div class="container-fluid">
+                <!-- Panel Opciones -->
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                      <h3 class="panel-title">Datos Personales</h3>
+                    </div>
+                    <br/>
+                    <div class="container-fluid">
+
+                         <div class="conf">
+                            <div class="row">
+                              <div class="col-lg-1">
+                                <div class="form-group">
+                                  <label for="legajo">Legajo *</label>
+                                   <input type="text" class="form-control" id="legajo" placeholder="Leg" style="text-transform:uppercase" readonly>
+                                </div>
+                              </div>
+                              <div class="col-lg-7">
+                                <div class="form-group">
+                                  <label for="apellidoNombre">Apellido y Nombre *</label>
+                                   <input type="text" class="form-control" id="apellidoNombre" placeholder="Apellido y Nombre" style="text-transform:uppercase" readonly>
+                                </div>
+                              </div>
+                              <div class="col-lg-2">
+                                <div class="form-group">
+                                  <label for="fechaNac">Fecha Nacimiento *</label>
+                                   <input type="text" class="form-control input-fechaNac" id="fechaNac" placeholder="Fecha Nac" style="text-transform:uppercase" readonly>
+                                </div>
+                              </div>
+                              <div class="col-md-4 col-lg-2">
+                                <div class="form-group">
+                                  <label>Estado</label><br>
+                                  <div class="btn-group btn-group-justified">
+                                    <a href="javascript:void(0)" class="btn btn-success button-fix" id="estadoActivo" onclick="cambiarEstadoActivo()" disabled>Activo</a>
+                                    <a href="javascript:void(0)" class="btn btn-default button-fix" id="estadoInactivo" onclick="cambiarEstadoInactivo()" disabled>Baja</a>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div class="row">
+                              <div class="col-lg-4">
+                                <div class="form-group">
+                                  <label for="categoria">Categoria</label>
+                                   <input type="text" class="form-control" list="dataListCategoria" id="categoria" placeholder="Categoria" style="text-transform:uppercase" readonly>
+                                   <datalist id="dataListCategoria">
+                                   </datalist>
+                                </div>
+                              </div>
+                              <div class="col-lg-2">
+                                <div class="form-group">
+                                  <label for="estadoCivil">Estado Civil</label>
+                                   <input type="text" class="form-control" list="dataListEstadoCivil" id="estadoCivil" placeholder="Estado Civil" style="text-transform:uppercase" readonly>
+                                   <datalist id="dataListEstadoCivil">
+                                   </datalist>
+                                </div>
+                              </div>
+                              <div class="col-lg-2">
+                                <div class="form-group">
+                                  <label for="sexo">Sexo *</label>
+                                   <input type="text" class="form-control" list="dataListSexo" id="sexo" placeholder="Sexo" style="text-transform:uppercase" readonly>
+                                   <datalist id="dataListSexo">
+                                   </datalist>
+                                </div>
+                              </div>
+                              <div class="col-lg-2">
+                                <div class="form-group">
+                                  <label for="dni">DNI *</label>
+                                   <input type="text" class="form-control input-dni" id="dni" placeholder="DNI" style="text-transform:uppercase" readonly>
+                                </div>
+                              </div>
+                              <div class="col-lg-2">
+                                <div class="form-group">
+                                  <label for="cuit">CUIT *</label>
+                                   <input type="text" class="form-control input-cuit" id="cuit" placeholder="CUIT" style="text-transform:uppercase" readonly>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div class="row">
+                              <div class="col-lg-4">
+                                <div class="form-group">
+                                  <label for="objetivo">Objetivo</label>
+                                   <input type="text" class="form-control" list="dataListObjetivo" id="objetivo" placeholder="Objetivo" style="text-transform:uppercase" readonly>
+                                   <datalist id="dataListObjetivo">
+                                   </datalist>
+                                </div>
+                              </div>
+                              <div class="col-lg-4">
+                                <div class="form-group">
+                                  <label for="supervisor">Supervisor / Gerente</label>
+                                   <input type="text" class="form-control" list="dataListSuper" id="supervisor" placeholder="Supervisor" style="text-transform:uppercase" readonly>
+                                   <datalist id="dataListSuper">
+                                   </datalist>
+                                </div>
+                              </div>
+                              <div class="col-lg-2">
+                                <div class="form-group">
+                                  <label for="fechaIngreso">Fecha Ingreso *</label>
+                                   <input type="text" class="form-control input-fechaIngreso" id="fechaIngreso" placeholder="Fecha Ingreso" style="text-transform:uppercase" readonly>
+                                </div>
+                              </div>
+                              <div class="col-lg-2">
+                                <div class="form-group">
+                                  <label for="fechaEgreso">Fecha Egreso</label>
+                                   <input type="text" class="form-control input-fechaEgreso" id="fechaEgreso" placeholder="Fecha Egreso" style="text-transform:uppercase" readonly>
+                                </div>
+                              </div>
+                            </div>
+                            <hr>
+                            <h5 style="color:#ABB2B9;">Domicilio</h5>
+                             <div class="row">
+                               <div class="form-group col-md-2">
+                                 <label for="pais">Pais *</label>
+                                 <input type="text" class="form-control" list="dataListPais" id="pais" value="PAIS" style="text-transform:uppercase" readonly/>
+                                 <datalist id="dataListPais">
+                                   <option>ARGENTINA</option>
+                                 </datalist>
+                               </div>
+
+                               <div class="form-group col-md-4">
+                                 <label for="provincia">Provincia *</label>
+                                 <input type="text" class="form-control" list="dataListPcia" id="provincia" placeholder="Seleccione una provincia" onchange="cargarDeptoLocalCalles()" style="text-transform:uppercase" readonly/>
+                                  <datalist id="dataListPcia">
+                                  </datalist>
+                               </div>
+
+                               <div class="form-group col-md-3">
+                                 <label for="departamento">Departamento / Comuna  *</label>
+                                 <input type="text" class="form-control" list="dataListDepto" id="departamento" placeholder="Seleccione un departamento" onchange="cargarLocalCalles()" style="text-transform:uppercase" readonly/>
+                                  <datalist id="dataListDepto">
+                                  </datalist>
+                               </div>
+
+                               <div class="form-group col-md-3">
+                                 <label for="localidad">Localidad / Barrio *</label>
+                                 <input type="text" class="form-control" list="dataListLocal" id="localidad" placeholder="Seleccione una localidad" style="text-transform:uppercase" readonly/>
+                                  <datalist id="dataListLocal">
+                                  </datalist>
+                               </div>
+
+                             </div>
+                             <div class="row">
+
+                               <div class="form-group col-md-5">
+                                 <label for="calle">Calle *</label>
+                                 <input type="text" class="form-control" list="dataListCalles" id="calle" placeholder="Seleccione una calle" style="text-transform:uppercase" readonly/>
+                                  <datalist id="dataListCalles">
+                                  </datalist>
+                               </div>
+
+                               <div class="form-group col-md-2">
+                                 <label for="nroPuerta">Nro Puerta *</label>
+                                  <input type="text" class="form-control" id="nroPuerta" placeholder="Nro Puerta" style="text-transform:uppercase" readonly>
+                               </div>
+                               <div class="form-group col-md-2">
+                                 <label for="piso">Piso</label>
+                                  <input type="text" class="form-control" id="piso" placeholder="Piso" style="text-transform:uppercase" readonly>
+                               </div>
+                               <div class="form-group col-md-2">
+                                 <label for="depto">Depto</label>
+                                  <input type="text" class="form-control" id="depto" placeholder="Depto" style="text-transform:uppercase" readonly>
+                               </div>
+                               <div class="form-group col-md-1">
+                                 <label for="cp">CP</label>
+                                  <input type="text" class="form-control" id="cp" placeholder="CP" style="text-transform:uppercase" readonly>
+                               </div>
+
+                             </div>
+
+                             <div class="row">
+                               <div class="col-lg-3">
+                                   <div class="form-group">
+                                     <label for="lat">Latitud</label>
+                                     <input type="text" class="form-control" id="lat" value="" placeholder="Indique una latitud" onchange="cargarCoordenadas()" style="text-transform:uppercase" readonly>
+                                   </div>
+                               </div>
+                               <div class="col-lg-3">
+                                 <div class="form-group">
+                                   <label for="lon">Longitud</label>
+                                   <input type="text" class="form-control" id="lon" value="" placeholder="Indique una longitud" onchange="cargarCoordenadas()" style="text-transform:uppercase" readonly>
+                                 </div>
+                               </div>
+                               <div class="col-lg-6">
+                                   <h5><b>Ubicacion</b></h5>
+                                   <form>
+                                   <label class="radio-inline">
+                                     <input type="radio" name="check-ubicacion" id="checkDomicilio" disabled>Desde domicilio
+                                   </label>
+                                   <label class="radio-inline" style="margin-left:50px;">
+                                     <input type="radio" name="check-ubicacion" id="checkCoordenadas" disabled>Desde coordenadas
+                                   </label>
+                                 </form>
+                               </div>
+                             </div>
+
+                             <div class="row">
+                               <div class="col-md-12">
+                                 <div class="callout callout-warning" style="display:none" id="mensajeError">
+                                  </div>
+                               </div>
+                             </div>
+
+                             <div class="row">
+                               <div class="col-md-12">
+                                 <div class="text-center">
+                                   <a href="javascript:void(0)" onclick="cargarCoordMapa()" >Actualizar ubicacion en el Mapa</a>
+                                   <iframe width="100%" height="600" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" id="googleMap">
+                                   </iframe>
+                                 </div>
+                               </div>
+                               <br>
+                             </div>
+
+                           </div>
+
+                    </div>
+
+                    <div class="box-footer">
+                      <div class="conf">
+                        <button type="button" class="btn btn-primary" onclick="modificarDatosPersonal()" id="btnModificarPersonal">Modificar Datos</button>
+                        <button type="button" class="btn btn-danger ml-7" onclick="guardarCambiosPersonal()" id="btnGuardarPersonal" disabled>Guardar Cambios</button>
+                        <button type="button" class="btn btn-default ml-7" onclick="cancelarCambiosPersonal()" id="btnCancelarPersonal" disabled>Cancelar Cambios</button>
+                      </div>
+                    </div>
+
+                </div>
+
+               </div>
+              </div>
+              <!-- /.tab-pane -->
+
+              <!-- TAB DATOS DE LIQUIDACION -->
+              <div class="tab-pane" id="tab_2">
+                <div class="container-fluid my-3">
+                  <!-- Panel Opciones -->
+                  <div class="panel panel-primary">
+                      <div class="panel-heading">
+                        <h3 class="panel-title">Datos de Liquidacion</h3>
+                      </div>
+                      <br/>
+                      <div class="container-fluid">
+
+                           <div class="conf">
+
+                             <h5 style="color:#ABB2B9;">Datos Bancarios</h5>
+                              <div class="row">
+                                <div class="col-lg-3">
+                                  <div class="form-group">
+                                    <label for="banco">Banco</label>
+                                     <input type="text" class="form-control" id="banco" placeholder="Nombre Banco" style="text-transform:uppercase" readonly>
+                                  </div>
+                                </div>
+                                <div class="col-lg-2">
+                                  <div class="form-group">
+                                    <label for="nroCuenta">Nro Cuenta</label>
+                                     <input type="text" class="form-control" id="nroCuenta" placeholder="Nro Cuenta" style="text-transform:uppercase" readonly>
+                                  </div>
+                                </div>
+                                <div class="col-lg-2">
+                                  <div class="form-group">
+                                    <label for="alias">Alias</label>
+                                     <input type="text" class="form-control" id="alias" placeholder="Alias" style="text-transform:uppercase" readonly>
+                                  </div>
+                                </div>
+                                <div class="col-lg-4">
+                                  <div class="form-group">
+                                    <label for="cbu">CBU</label>
+                                     <input type="text" class="form-control" id="cbu" placeholder="CBU" style="text-transform:uppercase" readonly>
+                                  </div>
+                                </div>
+                              </div>
+                              <hr>
+                                <h5 style="color:#ABB2B9;">Datos Monotributo</h5>
+                              <div class="row">
+                                <div class="col-lg-2">
+                                  <div class="form-group">
+                                    <label for="cuitMonotributo">CUIT</label>
+                                     <input type="text" class="form-control" id="cuitMonotributo" placeholder="CUIT" style="text-transform:uppercase" onchange="cargarSupervisorNuevo(this)" readonly>
+                                  </div>
+                                </div>
+                                <div class="col-lg-2">
+                                  <div class="form-group">
+                                    <label for="cur">CUR</label>
+                                     <input type="text" class="form-control" id="cur" placeholder="CUR" style="text-transform:uppercase" readonly>
+                                  </div>
+                                </div>
+                                <div class="col-lg-3">
+                                  <div class="form-group">
+                                    <label for="sexo">Clave Fiscal</label>
+                                     <input type="text" class="form-control" id="claveFiscal" placeholder="Clave Fiscal" style="text-transform:uppercase" readonly>
+                                  </div>
+                                </div>
+                              </div>
+
+                            </div>
+                      </div>
+
+                      <div class="box-footer">
+                        <div class="conf">
+                          <button type="button" class="btn btn-primary" onclick="cargarPuestosSetting()">Modificar Datos</button>
+                          <button type="button" class="btn btn-danger ml-7" onclick="cargarHistorial()">Guardar Cambios</button>
+                        </div>
+                      </div>
+                  </div>
+
+                </div>
+                <!-- ./container-fluid -->
+              </div>
+              <!-- /.tab-pane -->
+
+              <!-- TAB USUARIO APP -->
+              <div class="tab-pane" id="tab_3">
+                <div class="container-fluid my-3">
+                  <!-- Panel Opciones -->
+                  <div class="panel panel-primary">
+                      <div class="panel-heading">
+                        <h3 class="panel-title">Usuario App</h3>
+                      </div>
+                      <br/>
+                      <div class="container-fluid">
+
+                           <div class="conf">
+                             <div class="row">
+                               <div class="col-lg-2">
+                                 <div class="form-group">
+                                   <label for="estadoUsuario">Estado de Usuario</label>
+                                    <input type="text" class="form-control" id="estadoUsuario" placeholder="Estado de Usuario" style="text-transform:uppercase" readonly>
+                                 </div>
+                               </div>
+                               <div class="col-lg-2">
+                                 <div class="form-group" id="mostrarUsuario">
+                                   <label style="opacity:0;">Generar Usuario</label><br>
+                                   <button type="button" class="btn btn-success" onclick="mostrarUsuario()">Generar Usuario</button>
+                                 </div>
+                               </div>
+                             </div>
+                             <div id="datos-usuario" style="display:none">
+                               <h5 style="color:#ABB2B9;">Datos Usuario</h5>
+                                <div class="row">
+                                  <div class="col-lg-2">
+                                    <div class="form-group">
+                                      <label for="usuario">Usuario</label>
+                                       <input type="text" class="form-control" id="usuario" placeholder="Nro Usuario" style="text-transform:uppercase" readonly>
+                                    </div>
+                                  </div>
+                                  <div class="col-lg-2">
+                                    <div class="form-group">
+                                      <label for="clave">Clave</label>
+                                       <input type="text" class="form-control" id="clave" placeholder="Clave" style="text-transform:uppercase" readonly>
+                                    </div>
+                                  </div>
+                                  <div class="col-lg-2">
+                                    <div class="form-group">
+                                      <label style="opacity:0;">Cambiar Clave</label><br>
+                                      <button type="button" class="btn btn-primary" onclick="generarUsuario()" id="btnGenerarUsuario" style="display:none">Confirmar</button>
+                                      <button type="button" class="btn btn-primary" onclick="cambiarClave()" id="cambiarClave" style="display:none">Confirmar nueva clave</button>
+                                      <button type="button" class="btn btn-warning" onclick="btnCambiarClave()" id="btnCambiarClave" style="display:none">Cambiar clave</button>
+                                    </div>
+                                  </div>
+                                </div>
+                             </div>
+                          </div>
+                      </div>
+
+                      <div class="box-footer">
+                      </div>
+                  </div>
+
+                </div>
+                <!-- ./container-fluid -->
+              </div>
+              <!-- /.tab-pane -->
+
+            </div>
+            <!-- /.tab-content -->
+          </div>
+
+        </div>
+
+      </div>
+
+  </section>
+  <!-- /.content -->
+</div>
+<!-- /.content-wrapper -->

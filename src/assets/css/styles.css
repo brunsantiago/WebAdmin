@@ -1,3 +1,7 @@
+.mr-7{
+    margin-right: 7px;
+}
+
 .col-center{
     float: none;
     margin: 0 auto;
@@ -35,4 +39,29 @@
 .disabled {
     pointer-events:none; //This makes it not clickable
     opacity:0.6;         //This grays it out to look disabled
+}
+
+.grupo-descubierto{
+  color:#FF6347;
+}
+.grupo-no-iniciado{
+  color:#558B2F;
+}
+.grupo-cubierto-tarde{
+  color:#AD1457;
+}
+.grupo-cubierto{
+  color:#34495E;
+}
+.grupo-cerrado{
+  color:#34495E;
+}
+.grupo-cierre-anticipado{
+  color:#AD1457;
+}
+.grupo-cubriendose{
+  color:#3498DB;
+}
+.grupo-no-cerrado{
+  color:#76448A;
 }

@@ -27,14 +27,16 @@
               "src/styles.css"
             ],
             "scripts": [
-              "node_modules/jquery/dist/jquery.min.js",
-              "node_modules/bootstrap/dist/js/bootstrap.min.js",
+              "src/assets/jquery-ui/jquery-ui.min.js",
               "node_modules/admin-lte/dist/js/adminlte.min.js",
               "src/assets/js/cobertura.js",
               "src/assets/js/cubrimiento.js",
               "src/assets/js/asistencia.js",
               "src/assets/js/setting.js",
               "src/assets/js/client.js",
+              "src/assets/js/branch.js",
+              "src/assets/js/staff.js",
+              "src/assets/js/device.js",
               "src/assets/js/datepicker/bootstrap-datepicker.min.js",
               "src/assets/js/datepicker/locales/bootstrap-datepicker.es.js",
               "src/assets/bower_components/datatables.net/js/jquery.dataTables.min.js",

@@ -5,6 +5,8 @@ Todos los archivos
 
 2) Ver de enviar objetos como parametro en las funciones para achicar la lista de parametros
 
+3) Revisar todas las funciones agregadas con .click() o .on() y darlas de baja para no sobre cargar la pagina.
+
 Setting.js
 
 Falla al cargar Puesto TT masivo el en diferentes dias. Posible problema se actualiza al mismo tiempo que se carga

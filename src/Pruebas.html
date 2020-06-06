@@ -4,20 +4,45 @@
   <title>Bootstrap Example</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-
-  <!-- Jquery-3.3.1 -->
-  <script type="text/javascript" src="assets/jquery/dist/jquery.min.js"></script>
-  <!-- Bootstrap 3.3.7 -->
-  <link rel="stylesheet" href="assets/bootstrap3/dist/css/bootstrap.min.css">
-  <script type="text/javascript" src="assets/bootstrap3/dist/js/bootstrap.min.js" ></script>
-
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  <style>
+  a {
+    font-size: 25px;
+  }
+  </style>
 </head>
 <body>
 
 <div class="container">
-
-
+  <h3>Tooltip Methods</h3>
+  <a href="#" data-toggle="tooltip" title="Hooray!">Tooltip Example</a>
+  <div>
+    <p>Click on the buttons to manually control the tooltip above:</p>
+    <button type="button" class="btn btn-primary">Show</button>
+    <button type="button" class="btn btn-warning">Hide</button>
+    <button type="button" class="btn btn-success">Toggle</button>
+    <button type="button" class="btn btn-danger">Destroy</button>
+  </div>
 </div>
+
+<script>
+$(document).ready(function(){
+  $(".btn-primary").click(function(){
+    $("[data-toggle='tooltip']").tooltip('show');
+  });
+  $(".btn-warning").click(function(){
+    $("[data-toggle='tooltip']").tooltip('hide');
+  });
+  $(".btn-success").click(function(){
+    $("[data-toggle='tooltip']").tooltip('toggle');
+  });
+  $(".btn-danger").click(function(){
+   $("[data-toggle='tooltip']").tooltip('destroy');
+  });
+});
+</script>
 
 </body>
 </html>

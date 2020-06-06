@@ -3,7 +3,7 @@
 
 let clienteObject;
 
-function listadoClientesClient(){
+function listadoClientesClient(idDataList,allClients){
   let listadoClientes = [];
   db.collection("clientes").orderBy("nombreCliente")
   .get()
@@ -15,14 +15,22 @@ function listadoClientesClient(){
         };
         listadoClientes.push(item);
       });
-      desplegableClientesClient(listadoClientes);
+      desplegableClientesClient(listadoClientes,idDataList,allClients);
     });
-    //Se cargan los listados de los select departamento, localidades
-    //cargarDepartamentos();
 }
 
-function desplegableClientesClient(listadoClientes){
-  var datalist = document.getElementById("dataListClient");
+function desplegableClientesClient(listadoClientes,idDataList,allClients){
+
+  var datalist = document.getElementById(idDataList);
+
+  $("#"+idDataList).empty();
+
+  if(allClients){
+    var option = document.createElement("option");
+    option.value = "TODOS";
+    datalist.appendChild(option);
+  }
+
   listadoClientes.forEach(function(item){
      var option = document.createElement("option");
      option.text = item.rs;
@@ -46,15 +54,20 @@ function formatoInputs(){
 
 function mostrarCliente(){
 
+  allFieldsDisable();
+
   $("#tab-cliente").hide(200);
+  $("#btnGuardarCliente").prop("disabled", true);
+  $("#btnCancelarCliente").prop("disabled", true);
+  $("#btnModificarCliente").prop("disabled", false);
 
-  let cliente = $("#cliente").val();
+  let nombreCliente = $("#selectCliente").val();
 
-  db.collection("clientes").where("nombreCliente","==",cliente)
+  db.collection("clientes").where("nombreCliente","==",nombreCliente)
   .get()
   .then(function(querySnapshot) {
     if (querySnapshot.empty){
-      console.log("No se econtro el Cliente");
+      mensajeErrorCampoVacio("Cliente no seleccionado")
     } else {
       querySnapshot.forEach(function(doc){
         clienteObject = doc.data();
@@ -72,14 +85,20 @@ function mostrarCliente(){
 function agregarCliente(){
 
   $("#tab-cliente").hide(200);
-
-  vaciarFormularioCliente();
-
+  $("#btnGuardarCliente").prop("disabled", false);
+  $("#btnCancelarCliente").prop("disabled", false);
+  $("#btnModificarCliente").prop("disabled", true);
+  inicializarFormularioCliente();
+  allFieldsEnable();
+  clienteObject="";
+  cargarDataListDomicilio();
   $("#tab-cliente").show(200);
 
 }
 
 function cargarDatosBasicosCliente(doc){
+
+  inicializarFormularioCliente();
 
   let calle = "";
   let nroPuerta = "";
@@ -119,19 +138,32 @@ function cargarDatosBasicosCliente(doc){
     cambiarEstadoInactivo();
   }
 
+  let mostrarUbicacion = asignarValores(doc.mostrarUbicacion);
+
+  let lat = "";
+  let lon = "";
+
   if(doc.coordenadas!=undefined && doc.coordenadas!=""){
-    let lat = asignarValores(doc.coordenadas.lat);
-    let lon = asignarValores(doc.coordenadas.lon);
-    $("#lat").val(lat);
-    $("#lon").val(lon);
+    lat = asignarValores(doc.coordenadas.lat);
+    lon = asignarValores(doc.coordenadas.lon);
+  }
+
+  $("#lat").val(lat);
+  $("#lon").val(lon);
+
+  if(mostrarUbicacion=="COORDENADAS"){
     $("#googleMap").attr("src", "https://maps.google.com/maps?&hl=es&q="+lat+","+lon+"&ie=UTF8&t=&z=14&iwloc=B&output=embed");
     $("#checkCoordenadas").prop("checked", true);
   } else {
+    $("#checkDomicilio").prop("checked", true);
     if(provincia=="CIUDAD AUTÓNOMA DE BUENOS AIRES"){
       provincia="CABA";
+      departamento="";
     }
     $("#googleMap").attr("src", "https://maps.google.com/maps?&hl=es&q="+calle+nroPuerta+localidad+departamento+provincia+pais+"&ie=UTF8&t=&z=14&iwloc=B&output=embed");
   }
+
+  cargarDataListDomicilio();
 
   $("#tab-cliente").show(200);
 
@@ -139,6 +171,15 @@ function cargarDatosBasicosCliente(doc){
 
 function modificarDatosCliente(){
 
+  allFieldsEnable();
+
+  $("#btnGuardarCliente").prop("disabled", false);
+  $("#btnCancelarCliente").prop("disabled", false);
+  $("#btnModificarCliente").prop("disabled", true);
+
+}
+
+function allFieldsEnable(){
   $("#nombreCliente").prop("readonly",false);
   $("#razonSocial").prop("readonly",false);
   $("#cuit").prop("readonly",false);
@@ -153,24 +194,14 @@ function modificarDatosCliente(){
   $("#cp").prop("readonly",false);
   $("#lat").prop("readonly",false);
   $("#lon").prop("readonly",false);
-  $("#estadoActivo").prop("disabled",false);
-  $("#estadoInactivo").prop("disabled",false);
+  $("#estadoActivo").attr("disabled",false);
+  $("#estadoInactivo").attr("disabled",false);
   $("#checkCoordenadas").prop("disabled", false);
-  $("#btnGuardarCliente").prop("disabled", false);
-  $("#btnCancelarCliente").prop("disabled", false);
-
-  cargarProvincia();
-
-  cargarDepartamentos();
-
-  cargarLocalidades();
-
-  cargarCalles();
+  $("#checkDomicilio").prop("disabled", false);
 
 }
 
-function guardarCambiosCliente(){
-
+function allFieldsDisable(){
   $("#nombreCliente").prop("readonly",true);
   $("#razonSocial").prop("readonly",true);
   $("#cuit").prop("readonly",true);
@@ -185,104 +216,89 @@ function guardarCambiosCliente(){
   $("#cp").prop("readonly",true);
   $("#lat").prop("readonly",true);
   $("#lon").prop("readonly",true);
-  $("#estadoActivo").prop("disabled",true);
-  $("#estadoInactivo").prop("disabled",true);
+  $("#estadoActivo").attr("disabled",true);
+  $("#estadoInactivo").attr("disabled",true);
   $("#checkCoordenadas").prop("disabled", true);
-  $("#btnGuardarCliente").prop("disabled", true);
-  $("#btnCancelarCliente").prop("disabled", true);
+  $("#checkDomicilio").prop("disabled", true);
+}
 
+function verificarCamposPpales(){
 
-  let nombreCliente = $("#nombreCliente").val().toUpperCase();
-  let razonSocial = $("#razonSocial").val().toUpperCase();
-  let cuit = $("#cuit").val().toUpperCase();
-  let estado = "";
-
-  let domicilio = {
-    pais : $("#pais").val().toUpperCase(),
-    provincia : $("#provincia").val().toUpperCase(),
-    departamento : $("#departamento").val().toUpperCase(),
-    localidad : $("#localidad").val().toUpperCase(),
-    calle : $("#calle").val().toUpperCase(),
-    nroPuerta : $("#nroPuerta").val().toUpperCase(),
-    piso : $("#piso").val().toUpperCase(),
-    depto : $("#depto").val().toUpperCase(),
-    cp : $("#cp").val().toUpperCase(),
-  }
-
-  let coordenadas="";
-
-  if($("#checkCoordenadas").prop('checked')){
-    coordenadas = {
-      lat : $("#lat").val(),
-      lon : $("#lon").val(),
-    }
-  }
-
-  if($("#estadoActivo").prop("enable")==true){
-    estado = true;
+  if ( $("#nombreCliente").val()=="" ){
+    mensajeErrorCampoVacio("Nombre del cliente vacio");
+    return false;
+  } else if ( $("#razonSocial").val()=="" ){
+    mensajeErrorCampoVacio("Razon social vacia");
+    return false;
+  } else if ( $("#cuit").val()=="" ){
+    mensajeErrorCampoVacio("CUIT vacio");
+    return false;
   } else {
-    estado = false;
+    return true;
   }
 
-  if(clienteObject!=undefined && clienteObject!=""){
+}
 
-    db.collection("clientes").doc(clienteObject.id)
-    .update({ nombreCliente : nombreCliente,
-              razonSocial : razonSocial,
-              cuit : cuit,
-              vigente: estado,
-              domicilio : domicilio,
-              coordenadas : coordenadas,
-    })
-    .then(function(){
+function guardarCambiosCliente(){
 
-      let docId = clienteObject.id;
+  if (verificarCamposPpales()){
 
-      clienteObject = {
-        nombreCliente : nombreCliente,
-        razonSocial : razonSocial,
-        cuit : cuit,
-        vigente : estado,
-        domicilio : domicilio,
-        coordenadas : coordenadas,
-        id: docId,
+    allFieldsDisable();
+
+    $("#btnGuardarCliente").prop("disabled", true);
+    $("#btnCancelarCliente").prop("disabled", true);
+    $("#btnModificarCliente").prop("disabled", false);
+
+    let nombreCliente = $("#nombreCliente").val().toUpperCase();
+    let razonSocial = $("#razonSocial").val().toUpperCase();
+    let cuit = $("#cuit").val().toUpperCase();
+    let estado = "";
+
+    let domicilio = {
+      pais : $("#pais").val().toUpperCase(),
+      provincia : $("#provincia").val().toUpperCase(),
+      departamento : $("#departamento").val().toUpperCase(),
+      localidad : $("#localidad").val().toUpperCase(),
+      calle : $("#calle").val().toUpperCase(),
+      nroPuerta : $("#nroPuerta").val().toUpperCase(),
+      piso : $("#piso").val().toUpperCase(),
+      depto : $("#depto").val().toUpperCase(),
+      cp : $("#cp").val().toUpperCase(),
+    }
+
+    let coordenadas = {
+        lat : $("#lat").val(),
+        lon : $("#lon").val(),
       }
 
-      mensajeOk();
-    })
-    .catch(function(error){
-      console.log("Error al actualizar el Cliente",error);
-    });
+    let mostrarUbicacion="";
 
-  } else {
-    // Debe recorrer todos los clientes para verificar que no haya alguno ya cargado con los datos principales
-    // Datos principales: nombreCliente - razon Social - cuit
-    db.collection("clientes")
-    .get()
-    .then(function(querySnapshot){
+    if($("#checkCoordenadas").prop('checked')){
+      mostrarUbicacion="coordenadas";
+    } else {
+      mostrarUbicacion="domicilio";
+    }
 
-      let listaClientes = [];
+    if($("#estadoActivo").prop("enable")==true){
+      estado = true;
+    } else {
+      estado = false;
+    }
 
-      querySnapshot.forEach(function(doc){
+    if(clienteObject!=undefined && clienteObject!=""){
 
-        let docNombreCliente = (doc.data().nombreCliente).toUpperCase();
-        let docRazonSocial = (doc.data().razonSocial).toUpperCase();
-        let docCuit = (doc.data().cuit).toUpperCase();
-        let docId = doc.id;
+      db.collection("clientes").doc(clienteObject.id)
+      .update({ nombreCliente : nombreCliente,
+                razonSocial : razonSocial,
+                cuit : cuit,
+                vigente: estado,
+                domicilio : domicilio,
+                coordenadas : coordenadas,
+                mostrarUbicacion : mostrarUbicacion,
+      })
+      .then(function(){
 
-        if(docNombreCliente.includes(nombreCliente.toUpperCase()) && nombreCliente!=""){
-          listaClientes.push({nc:docNombreCliente,rz:docRazonSocial,c:docCuit,id:docId})
-        } else if (docRazonSocial.includes(razonSocial.toUpperCase()) && razonSocial!=""){
-          listaClientes.push({nc:docNombreCliente,rz:docRazonSocial,c:docCuit,id:docId})
-        } else if (docCuit.includes(cuit.toUpperCase()) && cuit!=""){
-          listaClientes.push({nc:docNombreCliente,rz:docRazonSocial,c:docCuit,id:docId})
-        }
-
-      });
-
-      if(listaClientes.length>0){
-        cargarCoincidenciasClientes(listaClientes);
-      } else {
+        let docId = clienteObject.id;
 
         clienteObject = {
           nombreCliente : nombreCliente,
@@ -291,24 +307,69 @@ function guardarCambiosCliente(){
           vigente : estado,
           domicilio : domicilio,
           coordenadas : coordenadas,
+          mostrarUbicacion : mostrarUbicacion,
+          id: docId,
         }
 
-        db.collection("clientes")
-        .add(clienteObject)
-        .then(function(doc){
-          clienteObject.id=doc.id;
-          mensajeOk();
-        })
-        .catch(function(error){
-          console.log("Error al intentar cargar cliente nuevo",error);
+        mensajeOk();
+      })
+      .catch(function(error){
+        console.log("Error al actualizar el Cliente",error);
+      });
+
+    } else {
+      // Debe recorrer todos los clientes para verificar que no haya alguno ya cargado con los datos principales
+      // Datos principales: nombreCliente - razon Social - cuit
+      db.collection("clientes")
+      .get()
+      .then(function(querySnapshot){
+        let listaClientes = [];
+        querySnapshot.forEach(function(doc){
+
+          let docNombreCliente = (doc.data().nombreCliente).toUpperCase();
+          let docRazonSocial = (doc.data().razonSocial).toUpperCase();
+          let docCuit = (doc.data().cuit).toUpperCase();
+          let docId = doc.id;
+
+          if(docNombreCliente.includes(nombreCliente.toUpperCase()) && nombreCliente!=""){
+            listaClientes.push({nc:docNombreCliente,rz:docRazonSocial,c:docCuit,id:docId})
+          } else if (docRazonSocial.includes(razonSocial.toUpperCase()) && razonSocial!=""){
+            listaClientes.push({nc:docNombreCliente,rz:docRazonSocial,c:docCuit,id:docId})
+          } else if (docCuit.includes(cuit.toUpperCase()) && cuit!=""){
+            listaClientes.push({nc:docNombreCliente,rz:docRazonSocial,c:docCuit,id:docId})
+          }
+
         });
-      }
 
-    })
-    .catch(function(error){
-      console.log("Error al verificar los Clientes cargados",error);
-    });
+        if(listaClientes.length>0){
+          cargarCoincidenciasClientes(listaClientes);
+        } else {
+          clienteObject = {
+            nombreCliente : nombreCliente,
+            razonSocial : razonSocial,
+            cuit : cuit,
+            vigente : estado,
+            domicilio : domicilio,
+            coordenadas : coordenadas,
+            mostrarUbicacion : mostrarUbicacion,
+          }
+          db.collection("clientes")
+          .add(clienteObject)
+          .then(function(doc){
+            clienteObject.id = doc.id;
+            mensajeOk();
+            listadoClientesClient();
+          })
+          .catch(function(error){
+            console.log("Error al intentar cargar cliente nuevo",error);
+          });
+        }
+      })
+      .catch(function(error){
+        console.log("Error al verificar los Clientes cargados",error);
+      });
 
+    }
   }
 
 }
@@ -368,71 +429,47 @@ function mostrarClienteDesdeTabla(idCliente){
   catch(function(error){
     console.log("Error al buscar Cliente",error);
   });
+
+  $("#btnModificarCliente").prop("disabled", false);
 }
 
 function cancelarCambiosCliente(){
-
-  cargarDatosBasicosCliente(clienteObject)
-
-  $("#nombreCliente").prop("readonly",true);
-  $("#razonSocial").prop("readonly",true);
-  $("#cuit").prop("readonly",true);
-  $("#pais").prop("readonly",true);
-  $("#provincia").prop("readonly",true);
-  $("#departamento").prop("readonly",true);
-  $("#localidad").prop("readonly",true);
-  $("#calle").prop("readonly",true);
-  $("#nroPuerta").prop("readonly",true);
-  $("#piso").prop("readonly",true);
-  $("#depto").prop("readonly",true);
-  $("#cp").prop("readonly",true);
-  $("#lat").prop("readonly",true);
-  $("#lon").prop("readonly",true);
-  $("#estadoActivo").prop("disabled",true);
-  $("#estadoInactivo").prop("disabled",true);
-  $("#checkCoordenadas").prop("disabled", true);
-  $("#btnGuardarCliente").prop("disabled", true);
-  $("#btnCancelarCliente").prop("disabled", true);
-
+  $("#tab-cliente").hide(300);
 }
 
 function checkCoordenadas(){
-  $("#checkCoordenadas").change(function(){
-    if($(this).is(':checked')) {
-        // Checkbox is checked..
-        let lat = $("#lat").val();
-        let lon = $("#lon").val();
-        $("#googleMap").attr("src", "https://maps.google.com/maps?&hl=es&q="+lat+","+lon+"&ie=UTF8&t=&z=14&iwloc=B&output=embed");
-    } else {
-        // Checkbox is not checked..
-        let provincia="";
-        if($("#provincia").val()=="CIUDAD AUTÓNOMA DE BUENOS AIRES"){
-          provincia="CABA";
-        } else {
-          provincia=$("#provincia").val();
-        }
 
-        $("#googleMap").attr("src", "https://maps.google.com/maps?&hl=es&q="+$("#calle").val()+" "+$("#nroPuerta").val()
-        +" "+$("#localidad").val()+" "+$("#departamento").val()+" "+provincia+" "+$("#pais").val()+" "+"&ie=UTF8&t=&z=14&iwloc=B&output=embed");
-    }
+  $("#checkDomicilio").change(function(){
+    cargarCoordMapa();
+  });
+
+  $("#checkCoordenadas").change(function(){
+    cargarCoordMapa();
   });
 }
 
-function cargarCoordDomicilio(){
-  let provincia="";
-  if($("#provincia").val()=="CIUDAD AUTÓNOMA DE BUENOS AIRES"){
-    provincia="CABA";
+function cargarCoordMapa(){
+
+  if($("#checkDomicilio").prop("checked")){
+    let provincia="";
+    let departamento="";
+    if($("#provincia").val()=="CIUDAD AUTÓNOMA DE BUENOS AIRES"){
+      provincia="CABA";
+      departamento="";
+    } else {
+      provincia=$("#provincia").val();
+      departamento=$("#departamento").val();
+    }
+    $("#googleMap").attr("src", "https://maps.google.com/maps?&hl=es&q="+$("#calle").val()+$("#nroPuerta").val()
+    +$("#localidad").val()+departamento+provincia+$("#pais").val()+"&ie=UTF8&t=&z=14&iwloc=B&output=embed");
   } else {
-    provincia=$("#provincia").val();
+    $("#googleMap").attr("src", "https://maps.google.com/maps?&hl=es&q="+$("#lat").val()+","+$("#lon").val()+"&ie=UTF8&t=&z=14&iwloc=B&output=embed");
   }
 
-  $("#googleMap").attr("src", "https://maps.google.com/maps?&hl=es&q="+$("#calle").val()+$("#nroPuerta").val()
-  +$("#localidad").val()+$("#departamento").val()+provincia+$("#pais").val()+"&ie=UTF8&t=&z=14&iwloc=B&output=embed");
 }
 
 function cargarCoordenadas(){
   if($("#checkCoordenadas").is(':checked')) {
-      // Checkbox is checked..
       let lat = $("#lat").val();
       let lon = $("#lon").val();
       $("#googleMap").attr("src", "https://maps.google.com/maps?&hl=es&q="+lat+","+lon+"&ie=UTF8&t=&z=14&iwloc=B&output=embed");
@@ -441,11 +478,17 @@ function cargarCoordenadas(){
 
 function cargarProvincia(){
 
-  fetch("https://apis.datos.gob.ar/georef/api/provincias?&orden=nombre")
-    .then(res => res.json())
-    .then((out) => {
-        desplegableProvincia(out.provincias);
-    }).catch(err => console.error(err));
+  return new Promise(function(resolve,reject){
+    fetch("https://apis.datos.gob.ar/georef/api/provincias?&orden=nombre")
+      .then(res => res.json())
+      .then((out) => {
+          desplegableProvincia(out.provincias);
+          resolve();
+      }).catch(err => {
+        console.error(err);
+        resolve();
+      });
+  });
 
 }
 
@@ -465,17 +508,33 @@ function desplegableProvincia(listaProvincias){
 
 function cargarDepartamentos(){
 
+  return new Promise(function(resolve,reject){
+
   let provincia = $("#provincia").val();
 
   if(provincia!=""){
-    fetch("https://apis.datos.gob.ar/georef/api/departamentos?provincia="+provincia+"&orden=nombre&max=150&exacto=true")
-      .then(res => res.json())
-      .then((out) => {
-          desplegableDepartamentos(out.departamentos);
-      }).catch(err => console.error(err));
+    if(provincia=="CIUDAD AUTÓNOMA DE BUENOS AIRES"){
+      $("#departamento").val("Ciudad Autónoma de Buenos Aires")
+      desplegableDepartamentos([{nombre : "Ciudad Autónoma de Buenos Aires"}]);
+      resolve();
+    } else {
+      fetch("https://apis.datos.gob.ar/georef/api/departamentos?provincia="+provincia+"&orden=nombre&max=150&exacto=true")
+        .then(res => res.json())
+        .then((out) => {
+            desplegableDepartamentos(out.departamentos);
+            resolve();
+        }).catch(err => {
+          console.error(err);
+          resolve();
+        });
+    }
   } else {
     mensajeErrorShow(0);
+    resolve();
+    $("#dataListDepto").empty();
   }
+
+  });
 
 }
 
@@ -495,24 +554,55 @@ function desplegableDepartamentos(listaDepartamentos){
 
 function cargarLocalidades(){
 
+  return new Promise(function(resolve,reject){
+
   let provincia = $("#provincia").val();
   let departamento = $("#departamento").val();
 
   if (provincia!="" && departamento!=""){
-    fetch("https://apis.datos.gob.ar/georef/api/localidades?provincia="+provincia+"&departamento="+departamento+"&orden=nombre&max=150&exacto=true")
-      .then(res => res.json())
-      .then((out) => {
-        if(out.localidades.length==0){
-          mensajeErrorShow(1);
-        } else {
-          mensajeErrorHide();
-          desplegableLocalidades(out.localidades);
-        }
+    if(provincia=="CIUDAD AUTÓNOMA DE BUENOS AIRES"){
+      fetch("https://apis.datos.gob.ar/georef/api/localidades?provincia="+provincia+"&orden=nombre&max=150&exacto=true")
+        .then(res => res.json())
+        .then((out) => {
+          if(out.localidades.length==0){
+            mensajeErrorShow(1);
+            $("#dataListLocal").empty();
+            resolve();
+          } else {
+            mensajeErrorHide();
+            desplegableLocalidades(out.localidades);
+            resolve();
+          }
 
-      }).catch(err => console.error(err));
+        }).catch(err => {
+          console.error(err);
+          resolve();
+        });
+    } else {
+      fetch("https://apis.datos.gob.ar/georef/api/localidades?provincia="+provincia+"&departamento="+departamento+"&orden=nombre&max=150&exacto=true")
+        .then(res => res.json())
+        .then((out) => {
+          if(out.localidades.length==0){
+            mensajeErrorShow(1);
+            $("#dataListLocal").empty();
+            resolve();
+          } else {
+            mensajeErrorHide();
+            desplegableLocalidades(out.localidades);
+            resolve();
+          }
+        }).catch(err => {
+          console.error(err);
+          resolve();
+        });
+    }
   } else {
     mensajeErrorShow(0);
+    $("#dataListLocal").empty();
+    resolve();
   }
+
+  });
 
 }
 
@@ -532,24 +622,56 @@ function desplegableLocalidades(listaLocalidades){
 
 function cargarCalles(){
 
+  return new Promise(function(resolve,reject){
+
   let provincia = $("#provincia").val();
   let departamento = $("#departamento").val();
 
   if (provincia!="" && departamento!=""){
-    fetch("https://apis.datos.gob.ar/georef/api/calles?provincia="+provincia+"&departamento="+departamento+"&orden=nombre&max=1000&exacto=true")
-      .then(res => res.json())
-      .then((out) => {
-          if(out.calles.length==0){
-            mensajeErrorShow(1);
-          } else {
-            mensajeErrorHide();
-            desplegableCalles(out.calles);
-          }
+    if(provincia=="CIUDAD AUTÓNOMA DE BUENOS AIRES"){
+      fetch("https://apis.datos.gob.ar/georef/api/calles?provincia="+provincia+"&orden=nombre&max=3000&exacto=true")
+        .then(res => res.json())
+        .then((out) => {
+            if(out.calles.length==0){
+              mensajeErrorShow(1);
+              $("#dataListCalles").empty();
+              resolve();
+            } else {
+              mensajeErrorHide();
+              desplegableCalles(out.calles);
+              resolve();
+            }
 
-      }).catch(err => console.error(err));
+        }).catch(err => {
+          console.error(err);
+          resolve();
+        });
+    } else {
+      fetch("https://apis.datos.gob.ar/georef/api/calles?provincia="+provincia+"&departamento="+departamento+"&orden=nombre&max=1000&exacto=true")
+        .then(res => res.json())
+        .then((out) => {
+            if(out.calles.length==0){
+              mensajeErrorShow(1);
+              $("#dataListCalles").empty();
+              resolve();
+            } else {
+              mensajeErrorHide();
+              desplegableCalles(out.calles);
+              resolve();
+            }
+
+        }).catch(err => {
+          console.error(err);
+          resolve();
+        });
+    }
   } else {
     mensajeErrorShow(0);
+    $("#dataListCalles").empty();
+    resolve();
   }
+
+  });
 
 }
 
@@ -564,26 +686,45 @@ function desplegableCalles(listadoCalles){
      option.value = mayus(item.nombre);
      datalist.appendChild(option);
   });
+
 }
 
 function cargarDeptoLocalCalles(){
-  cargarDepartamentos();
-  cargarLocalidades();
-  cargarCalles();
+    cargarDepartamentos()
+    .then(function(){
+        cargarLocalidades()
+        .then(function(){
+            cargarCalles();
+        });
+    });
 }
 
 function cargarLocalCalles(){
-  cargarLocalidades();
-  cargarCalles();
+    cargarLocalidades()
+    .then(function(){
+        cargarCalles();
+    });
+}
+
+function mensajeErrorCampoVacio(title){
+  Swal.fire({
+    icon: 'error',
+    title: title,
+    text: 'Por favor complete el campo faltante',
+    // footer: '<a href>Why do I have this issue?</a>'
+  })
 }
 
 function mensajeErrorShow(error){
+
   if (error==0){
     $("#mensajeError").text('Falta ingresar la Provincia o Departamento');
     $("#mensajeError").show(300);
+    console.log('Falta ingresar la Provincia o Departamento');
   } else if (error==1){
-    $("#mensajeError").text('No existen localidades ni calles con esta combinacion de Provincia y Departamento');
+    $("#mensajeError").text('No existen localidades o calles con esta combinacion de Provincia y Departamento');
     $("#mensajeError").show(300);
+    console.log('No existen localidades ni calles con esta combinacion de Provincia y Departamento');
   } else if (error==2){
     $("#mensajeError").text('Debe ingresar un Estado VIGENTE o NO VIGENTE');
     $("#mensajeError").show(300);
@@ -628,26 +769,7 @@ function cambiarEstadoActivo(){
 
 }
 
-function vaciarFormularioCliente(){
-
-  $("#nombreCliente").prop("readonly",false);
-  $("#razonSocial").prop("readonly",false);
-  $("#cuit").prop("readonly",false);
-  $("#pais").prop("readonly",false);
-  $("#provincia").prop("readonly",false);
-  $("#departamento").prop("readonly",false);
-  $("#localidad").prop("readonly",false);
-  $("#calle").prop("readonly",false);
-  $("#nroPuerta").prop("readonly",false);
-  $("#piso").prop("readonly",false);
-  $("#depto").prop("readonly",false);
-  $("#cp").prop("readonly",false);
-  $("#lat").prop("readonly",false);
-  $("#lon").prop("readonly",false);
-  $("#estadoActivo").prop("disabled",false);
-  $("#estadoInactivo").prop("disabled",false);
-  $("#checkCoordenadas").prop("disabled", false);
-  $("#btnGuardarCliente").prop("disabled", false);
+function inicializarFormularioCliente(){
 
   $("#nombreCliente").val("");
   $("#razonSocial").val("");
@@ -665,10 +787,16 @@ function vaciarFormularioCliente(){
   $("#lon").val("");
   cambiarEstadoActivo();
   $("#checkCoordenadas").prop("checked", false);
+  $("#checkDomicilio").prop("checked", true);
   $("#googleMap").attr("src", "https://maps.google.com/maps?&hl=es&ie=UTF8&t=&z=14&iwloc=B&output=embed");
 
-  clienteObject=""; // Se vacia la variable global clienteObject
+}
 
+function cerrarModalCoincidencia(){
+  allFieldsEnable();
+  $("#btnGuardarCliente").prop("disabled", false);
+  $("#btnCancelarCliente").prop("disabled", false);
+  $("#btnModificarCliente").prop("disabled", true);
 }
 
 function mayus(str) {
@@ -683,6 +811,29 @@ function asignarValores(value){
     return mayus(value);
   }
 
+}
+
+function cargarDataListDomicilio(){
+  cargarProvincia()
+  .then(function(){
+    cargarDepartamentos()
+    .then(function(){
+        cargarLocalidades()
+        .then(function(){
+            cargarCalles()
+            .then(function(){
+              mensajeErrorHide();
+            });
+        });
+    });
+  });
+}
+
+function inicializarFuncionesClient(){
+  listadoClientesClient("dataListClient");
+  formatoInputs();
+  checkCoordenadas();
+  enforcingValueDataList();
 }
 
 // Fin Funciones Tab Datos Basicos

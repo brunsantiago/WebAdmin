@@ -54,23 +54,29 @@
                    </div>
                    <br/>
 
-                   <form [formGroup]="form">
+                   <div class="container-fluid">
 
                      <div class="row conf">
 
-                       <div class="form-group col-sm-4 col-md-4 col-lg-3">
-                         <label for="selectClientes">Cliente</label>
-                         <select class="form-control"  name="selectClientes" id="selectClientes2" onchange="listadoObjetivosAsistencia()">
-                           <option value="0" selected>Seleccione un Cliente</option>
-                         </select>
+                       <div class=" col-sm-6 col-md-5 col-lg-3">
+                         <div class="form-group">
+                             <label for="selectCliente">Cliente</label>
+                              <input type="text" class="form-control" list="dataListClient" id="selectCliente" placeholder="Seleccione un cliente" onchange="listadoObjetivosBranch('selectCliente','selectObjetivo','dataListObjetivo',true)" autocomplete="off">
+                              <datalist id="dataListClient">
+                              </datalist>
+                         </div>
                        </div>
-                       <div class="form-group col-sm-4 col-md-4 col-lg-3">
-                         <label for="selectObjetivos">Objetivo</label>
-                         <select class="form-control" name="selectObjetivos" id="selectObjetivos2">
-                           <option value="0" selected>Seleccione un Objetivo</option>
-                         </select>
+
+                       <div class=" col-sm-6 col-md-5 col-lg-3">
+                         <div class="form-group">
+                             <label for="selectObjetivo">Objetivo</label>
+                              <input type="text" class="form-control" list="dataListObjetivo" id="selectObjetivo" placeholder="Esperando un cliente..." autocomplete="off">
+                              <datalist id="dataListObjetivo">
+                              </datalist>
+                         </div>
                        </div>
-                       <div class="form-group col-sm-2 col-md-2 col-lg-2">
+
+                       <div class="form-group col-sm-4 col-md-4 col-lg-3">
                          <label for="datetimepicker3">Hora Desde</label>
                          <div class="input-group date" id="datetimepicker1">
                              <input type="text" class="form-control" value="00:00"/>
@@ -79,7 +85,7 @@
                              </span>
                          </div>
                        </div>
-                       <div class="form-group col-sm-2 col-md-2 col-lg-2">
+                       <div class="form-group col-sm-4 col-md-4 col-lg-3">
                          <label for="datetimepicker4">Hora Hasta</label>
                          <div class="input-group date" id="datetimepicker2">
                              <input type="text" class="form-control" value="23:00"/>
@@ -91,7 +97,7 @@
 
                      </div>
 
-                   </form>
+                    </div><br>
 
                    <div class="box-footer">
                     <div class="conf">
@@ -117,37 +123,37 @@
                        <div id="visualizar-ingreso" class="ml-7" style="display:none">
                          <h6 style="color:#ABB2B9;">Control de Ingresos</h6>
                         <div class="checkbox">
-                          <label style="color:#000000;"><input type="checkbox" name="checkbox-ingreso" id="ingreso-cubierto"  onchange="visualizarIngresoCubierto()" checked>Cubierto</label>
+                          <label style="color:#000000;"><input type="checkbox" name="checkbox-ingreso" id="ingreso-cubierto"  onchange="actualizarAsistenciaTabla()" checked><span class="label" style="background-color:#34495E;">Cubierto</span></label>
                         </div>
                         <div class="checkbox">
-                          <label style="color:#558B2F;"><input type="checkbox" name="checkbox-ingreso" id="ingreso-no-iniciado" onchange="visualizarIngresoNoIniciado()" checked>No iniciado</label>
+                          <label style="color:#558B2F;"><input type="checkbox" name="checkbox-ingreso" id="ingreso-no-iniciado" onchange="actualizarAsistenciaTabla()" checked><span class="label" style="background-color:#558B2F;">No Iniciado</span></label>
                         </div>
                         <div class="checkbox">
-                          <label style="color:#AD1457;"><input type="checkbox" name="checkbox-ingreso" id="ingreso-cubierto-tarde"  onchange="visualizarIngresoCubiertoTarde()" checked>Cubierto Tarde</label>
+                          <label style="color:#AD1457;"><input type="checkbox" name="checkbox-ingreso" id="ingreso-cubierto-tarde"  onchange="actualizarAsistenciaTabla()" checked><span class="label" style="background-color:#AD1457;">Cubierto Tarde</span></label>
                         </div>
                         <div class="checkbox">
-                          <label style="color:#FF6347;"><input type="checkbox" name="checkbox-ingreso" id="ingreso-descubierto" onchange="visualizarIngresoDescubierto()" checked>Descubierto</label>
+                          <label style="color:#FF6347;"><input type="checkbox" name="checkbox-ingreso" id="ingreso-descubierto" onchange="actualizarAsistenciaTabla()" checked><span class="label" style="background-color:#FF6347;">Descubierto</span></label>
                         </div>
                        </div>
                        <div id="visualizar-egreso" class="ml-7" style="display:none">
                          <h6 style="color:#ABB2B9;" >Control de Egresos</h6>
                          <div class="checkbox">
-                           <label style="color:#000000;"><input type="checkbox" name="checkbox-egreso" id="egreso-cerrado"  onchange="visualizarEgresoCerrado()" checked>Cerrado</label>
+                           <label style="color:#000000;"><input type="checkbox" name="checkbox-egreso" id="egreso-cerrado"  onchange="actualizarAsistenciaTabla()" checked><span class="label" style="background-color:#34495E;">Cerrado</span></label>
                          </div>
                          <div class="checkbox">
-                           <label style="color:#558B2F;"><input type="checkbox" name="checkbox-egreso" id="egreso-no-iniciado" onchange="visualizarEgresoNoIniciado()" checked>No iniciado</label>
+                           <label style="color:#558B2F;"><input type="checkbox" name="checkbox-egreso" id="egreso-no-iniciado" onchange="actualizarAsistenciaTabla()" checked><span class="label" style="background-color:#558B2F;">No Iniciado</span></label>
                          </div>
                          <div class="checkbox">
-                           <label style="color:#AD1457;"><input type="checkbox" name="checkbox-egreso" id="egreso-cierre-anticipado" onchange="visualizarEgresoCierreAnticipado()" checked>Cierre Anticipado</label>
+                           <label style="color:#AD1457;"><input type="checkbox" name="checkbox-egreso" id="egreso-cierre-anticipado" onchange="actualizarAsistenciaTabla()" checked><span class="label" style="background-color:#AD1457;">Cierre Anticipado</span></label>
                          </div>
                          <div class="checkbox">
-                           <label style="color:#3498DB;"><input type="checkbox" name="checkbox-egreso" id="egreso-cubriendose" onchange="visualizarEgresoCubriendose()" checked>Cubriendose</label>
+                           <label style="color:#3498DB;"><input type="checkbox" name="checkbox-egreso" id="egreso-cubriendose" onchange="actualizarAsistenciaTabla()" checked><span class="label" style="background-color:#3498DB;">Cubriendose</span></label>
                          </div>
                          <div class="checkbox">
-                           <label style="color:#76448A;"><input type="checkbox" name="checkbox-egreso" id="egreso-no-cerrado" onchange="visualizarEgresoNoCerrado()" checked>No Cerrado</label>
+                           <label style="color:#76448A;"><input type="checkbox" name="checkbox-egreso" id="egreso-no-cerrado" onchange="actualizarAsistenciaTabla()" checked><span class="label" style="background-color:#76448A;">No Cerrado</span></label>
                          </div>
                          <div class="checkbox">
-                           <label style="color:#FF6347;"><input type="checkbox" name="checkbox-egreso" id="egreso-descubierto" onchange="visualizarEgresoDescubierto()" checked>Descubierto</label>
+                           <label style="color:#FF6347;"><input type="checkbox" name="checkbox-egreso" id="egreso-descubierto" onchange="actualizarAsistenciaTabla()" checked><span class="label" style="background-color:#FF6347;">Descubierto</span></label>
                          </div>
                        </div>
 
@@ -165,14 +171,35 @@
                    </h3>
                  </div>
 
-                 <h3 style="text-align:center; color:#ABB2B9;; margin-bottom:13px;" id="titulo-control"></h3>
+                 <h3 style="text-align:center; color:#34495E; margin-bottom:13px;" id="titulo-control"></h3>
+                 <h5 style="text-align:center; color:#ABB2B9; margin-bottom:13px;" id="ultima-actualizacion"></h5>
 
                  <div class="row conf">
-                   <div  class="table-responsive">
-                     <table name="miTabla2" id="miTabla2" class="table table-condensed table-striped table-bordered table-hover rwd_auto text-nowrap">
-                     </table>
+                   <div class="col-lg-12">
+                     <div class="table-responsive">
+                       <table align="center" id="asistenciaTable" class="table table-condensed table-striped table-bordered table-hover rwd_auto text-nowrap" >
+                         <thead>
+                           <tr>
+                             <th style="text-align:center">Cliente</th>
+                             <th style="text-align:center">Objetivo</th>
+                             <th style="text-align:center">Puesto</th>
+                             <th style="text-align:center">Fecha</th>
+                             <th style="text-align:center">Ingreso Puesto</th>
+                             <th style="text-align:center">Hora Ingreso</th>
+                             <th style="text-align:center">Egreso Puesto</th>
+                             <th style="text-align:center">Hora Egreso</th>
+                             <th style="text-align:center">Personal</th>
+                             <th style="text-align:center">Estado</th>
+                             <th style="text-align:center">Ver</th>
+                           </tr>
+                         </thead>
+                         <tbody>
+                         </tbody>
+                       </table>
+                     </div>
                    </div>
                  </div>
+
 
                  <br/>
                </div>
@@ -198,6 +225,8 @@
 </div>
 <!-- /.content-wrapper -->
 
+<!-- MODAL SECTION -->
+
 <!-- Modal Validar Formulario -->
 <div id="select-validate" class="modal fade"  tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -218,4 +247,250 @@
             </div>
         </div>
     </div>
+</div>
+
+<!-- Modal Detalle Dia -->
+<div id="detalle-turno" class="modal fade" role="dialog">
+  <div class="modal-dialog modal-lg">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+
+      <div class="modal-header bg-primary">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 id="titulo" class="modal-title">DIA - 143</h4>
+      </div>
+      <div class="modal-body modal-body-detalle" >
+
+        <div class="container-fluid" style="margin-bottom:7px;">
+          <div class="row">
+            <div class="col-md-3">
+              <!-- vacia -->
+            </div>
+            <div class="col-md-6">
+              <div style="text-align:center; color:white; font-size:20px;" id="nombreDetalleDia"></div>
+            </div>
+            <!-- Zona a cargarse el menu dropdown -->
+            <div class="col-md-3" id="menu-detalle">
+                <div style="display:flex; justify-content: flex-end;">
+                <span class="label label-primary" style="color:white; font-size:11px; display:none;" id="estado-detalle">Modificado</span>
+                </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Zona a cargarse los panel detalle -->
+        <!-- <div id="modal-body-detalle"> -->
+
+        <div class="panel panel-default" id="panel-clone">
+          <div class="panel-heading">
+            <h3 class="panel-title" id="tituloPuesto">Puesto 1 - TM</h3>
+          </div>
+
+          <div class="card-contenedor" id="card-contenedor">
+
+            <div class="card">
+                <div class="card-image card3" style="background-size: cover" id="foto-ingreso"></div>
+                <div class="card-stats card3">
+                  <div class="stat">
+                    <div class="value"><b id="horaIngresoReal"></b></div>
+                  </div>
+                </div>
+            </div>
+
+            <div class="card">
+              <div class="card-image card2" style="background-size: cover" id="foto-egreso"></div>
+              <div class="card-stats card2">
+                <div class="stat">
+                  <div class="value"><b id="horaEgresoReal"></b></div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="container-fluid">
+
+            <div class="conf">
+              <br>
+              <div id="horas-turno-detalle">
+                <h4 class="text-center m-5" title="Horas del Turno" id="horasTurnoDetalle">00:00</h4>
+                <h5 class="text-center text-muted m-5" title="Horas del Turno">HORAS TURNO</h5>
+              </div>
+              <input type="text" class="js-range-slider" name="my_range" id="slider-detalle-turno" />
+            </div>
+
+            <div class="row conf">
+              <div class="col-lg-4" style="text-align:center;">
+                <br>
+                <!-- <a href="#" data-toggle="tooltip" title="Hooray!">Tooltip Example</a> -->
+                <div id="horaIngresoManual" style="display:none;">
+                  <!-- <label for="datetimepicker4">Hora Ingreso</label> -->
+                  <h5 class="text-center text-muted m-5" title="Horas Registradas">HORA INGRESO
+                    <a  class="text-yellow" data-toggle="tooltip" title="El campo no puede estar vacio" id="ingresoVacioMsj" style="display:none"><i class="fas fa-exclamation-triangle"></i></a>
+                    <a  class="text-red" data-toggle="tooltip" title="Debe ser menor que la hora de egreso" id="ingresoErrorMsj" style="display:none"><i class="fas fa-exclamation-circle"></i></a>
+                  </h5>
+                  <div class="form-group" id="ingresoInput">
+                    <div class="input-group center-block" id="dtpHIAsistencia" style="width:150px;">
+                        <input type="text" class="form-control input-manual" style="text-align:center; font-size:18px;" placeholder="SIN INGRESO" id="horaIngreso" autocomplete="off"/>
+                        <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-time"></span>
+                        </span>
+                    </div>
+                  </div>
+                  <button type="button" class="btn btn-success" style="margin-top:7px" id="btnHoraIngreso">OK</button>
+                </div>
+              </div>
+              <div class="col-lg-4">
+                <br>
+                  <h3 class="text-center m-5 text-danger" style="display:none" id="turno-eliminar">TURNO A ELIMINARSE</h3>
+                  <h1 class="text-center m-5" title="Horas Registradas" id="horasRegitradasDetalle">00:00</h1>
+                  <h5 class="text-center text-muted m-5" title="Horas Registradas">HORAS REGISTRADAS</h5>
+                <br>
+              </div>
+              <div class="col-lg-4" style="text-align:center;">
+                <br>
+                <div id="horaEgresoManual" style="display:none;">
+                  <!-- <label for="datetimepicker4">Hora Egreso</label> -->
+                  <h5 class="text-center text-muted m-5" title="Horas Registradas">HORA EGRESO
+                    <a class="text-yellow" data-toggle="tooltip" title="Campo vacio" id="egresoVacioMsj" style="display:none"><i class="fas fa-exclamation-triangle"></i></a>
+                    <a class="text-red" data-toggle="tooltip" title="Debe ser mayor que la hora de ingreso" id="egresoErrorMsj" style="display:none"><i class="fas fa-exclamation-circle"></i></a>
+                  </h5>
+                  <div class="form-group" id="egresoInput">
+                    <div class="input-group center-block" id="dtpHEAsistencia" style="width:150px;">
+                        <input type="text" class="form-control input-manual" style="text-align:center; font-size:18px;" placeholder="SIN CIERRE" id="horaEgreso" autocomplete="off"/>
+                        <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-time"></span>
+                        </span>
+                    </div>
+                  </div>
+                  <button type="button" class="btn btn-success" style="margin-top:7px" id="btnHoraEgreso">OK</button>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Sector de Botones -->
+            <div id="mostrar-botones">
+
+              <div class="conf">
+
+                <div class="text-center">
+                  <div class="btn-group">
+                    <button type="button" class="btn btn-success button-fix" id="turnoOriginalDetalle" >Turno Original</button>
+                    <!-- <button type="button" class="btn btn-primary" id="completarTurnoDetalle" >Completar Turno</button> -->
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" id="completarTurnoDetalle">
+                        Completar Turno </button>
+                        <ul class="dropdown-menu" role="menu">
+                          <li><a href="javascript:void(0)" id="turno-completo">Turno Completo</a></li>
+                          <li><a href="javascript:void(0)" id="turno-inicio">Desde el inicio</a></li>
+                          <li><a href="javascript:void(0)" id="turno-final">Hasta el final</a></li>
+                          <li><a href="javascript:void(0)" id="carga-manual">Carga manual</a></li>
+                        </ul>
+                      </div>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-danger dropdown-toggle button-fix" data-toggle="dropdown" id="penalizarDetalle">
+                        Penalizar </button>
+                        <ul class="dropdown-menu" role="menu">
+                          <li><a href="javascript:void(0)" id="descontar-hora">Descontar una Hora</a></li>
+                          <li><a href="javascript:void(0)" id="descontar-turno" >Descontar Turno</a></li>
+                        </ul>
+                      </div>
+                  </div>
+
+                </div>
+
+              </div>
+              <div class="text-center text-muted m-10" title="Ver / Ocultar Informe" id="container-icon">
+                <i class="fas fa-angle-double-down" id="icon-informe"></i>
+              </div>
+              <div id="mostrarInforme" style="display:none">
+                <div class="row">
+                  <div class="col-md-5">
+
+                    <div class="form-group select-motivo" id="variacion-horas" style="display:none">
+                      <label >Motivo de ampliacion de horas</label>
+                      <select class="form-control" name="selectMotivo" id="sel-amp-horas">
+                        <option value="0" selected>Seleccione un motivo</option>
+                        <option value="1">Sin internet</option>
+                        <option value="2">Sin celular</option>
+                        <option value="3">Sin aplicacion instalada / configurada</option>
+                        <option value="4">Problemas con la aplicacion</option>
+                        <option value="5">Desconocimiento de uso</option>
+                        <option value="6">Olvido de ingreso / cierre del servicio</option>
+                        <option value="7">Otros</option>
+                      </select>
+                      <span class="help-block" style="display:none">Por favor elija el motivo de la ampliacion de horas</span>
+                    </div>
+
+                    <div class="form-group select-motivo" id="penalizacionHora" style="display:none">
+                      <label >Motivo de reduccion de horas</label>
+                      <select class="form-control" name="selectMotivo" id="sel-red-horas">
+                        <option value="0" selected>Seleccione un motivo</option>
+                        <option value="1">Foto adulterada</option>
+                        <option value="2">Foto mal sacada</option>
+                        <option value="3">Foto y persona no coincidente</option>
+                        <option value="4">No realiza el ingreso / cierre del servicio</option>
+                        <option value="5">Otros</option>
+                      </select>
+                      <span class="help-block" style="display:none">Por favor elija el motivo de la reduccion de horas</span>
+                    </div>
+
+                    <div class="form-group select-motivo" id="penalizacionTurno" style="display:none">
+                      <label>Motivo descuento del turno</label>
+                      <select class="form-control" name="selectMotivo" id="sel-eli-turno">
+                        <option value="0" selected>Seleccione un motivo</option>
+                        <option value="1">Reincidencia de acciones fraudulentas</option>
+                        <option value="2">Cubrimiento del turno sin autorizacion</option>
+                        <option value="3">Otros</option>
+                      </select>
+                      <span class="help-block" style="display:none">Por favor elija el motivo del descuento del turno</span>
+                    </div>
+
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-12">
+                    <div class="form-group">
+                      <label for="comment">Comentarios</label>
+                      <textarea class="form-control" rows="4" id="comment"></textarea>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+          <div class="panel-footer">
+            <div class="text-center">
+              <div class="btn-group">
+                <button type="button" class="btn btn-primary button-fix" id="boton-habilitar-turno" disabled>Habilitar Turno</button>
+                <button type="button" class="btn btn-danger button-fix" id="boton-eliminar-turno" >Eliminar Turno</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- </div> -->
+
+      </div>
+
+      <!-- Zona a cargarse los botones del footer -->
+      <!-- <div id="modal-footer-detalle"> -->
+
+      <div class="modal-footer" id="modal-footer-detalle">
+        <button type="button" class="btn btn-primary" id="guardar-cambios-detalle">Guardar Cambios</button>
+        <button type="button" class="btn" data-dismiss="modal">Cerrar</button>
+      </div>
+
+      <!-- </div> -->
+
+    </div>
+
+    <br>
+
+  </div>
 </div>

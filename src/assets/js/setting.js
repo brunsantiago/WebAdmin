@@ -26,8 +26,8 @@ function cargarPuestosSetting(){
 
   if(validarFormulario()){
 
-    let nombreCliente = document.getElementById("selectClientes").value;
-    let nombreObjetivo = document.getElementById("selectObjetivos").value;
+    let nombreCliente = document.getElementById("selectCliente").value;
+    let nombreObjetivo = document.getElementById("selectObjetivo").value;
 
     idClienteGlobal="";
     idObjetivoGlobal="";
@@ -187,8 +187,8 @@ function modificarEstadoEsquema(idEsquema){
 
 function cargarEsquema(){
 
-  let nombreCliente = document.getElementById("selectClientes").value;
-  let nombreObjetivo = document.getElementById("selectObjetivos").value;
+  let nombreCliente = document.getElementById("selectCliente").value;
+  let nombreObjetivo = document.getElementById("selectObjetivo").value;
 
   db.collection("clientes").doc(idClienteGlobal).collection("objetivos").doc(idObjetivoGlobal).collection("cubrimiento")
   .doc(idCubrimientoGlobal)
@@ -596,8 +596,8 @@ function cargarDiasSemana(fechaDesdeNuevo,fechaHastaNuevo,estadoNuevo){
 
   if(validarFormulario()){
 
-    let nombreCliente = document.getElementById("selectClientes").value;
-    let nombreObjetivo = document.getElementById("selectObjetivos").value;
+    let nombreCliente = document.getElementById("selectCliente").value;
+    let nombreObjetivo = document.getElementById("selectObjetivo").value;
 
     let idCliente="";
     let idObjetivo="";
@@ -891,10 +891,10 @@ function disableCheck() {
 }
 
 function validarFormulario(){
-  if($("#selectClientes option:selected").val() == 0) {
+  if($("#selectCliente option:selected").val() == 0) {
     $('#select-validate').modal('show');
     return false;
-  }else if($("#selectObjetivos option:selected").val() == 0) {
+  }else if($("#selectObjetivo option:selected").val() == 0) {
       // alert("Debe seleccionar un Objetivo");
       $('#select-validate').modal('show');
       return false;
@@ -904,10 +904,10 @@ function validarFormulario(){
 }
 
 function validarFormulario2(){
-  if($("#selectClientes2 option:selected").val() == 0) {
+  if($("#selectCliente2 option:selected").val() == 0) {
     $('#select-validate').modal('show');
     return false;
-  }else if($("#selectObjetivos2 option:selected").val() == 0) {
+  }else if($("#selectObjetivo2 option:selected").val() == 0) {
       $('#select-validate').modal('show');
       return false;
   } else {
@@ -916,8 +916,8 @@ function validarFormulario2(){
 }
 
 function cargarEsquemaNuevo(){
-  let cliente = $("#selectClientes").val();
-  let objetivo = $("#selectObjetivos").val();
+  let cliente = $("#selectCliente").val();
+  let objetivo = $("#selectObjetivo").val();
   $('#datetimepicker7').data("DateTimePicker").clear();
   $('#datetimepicker8').data("DateTimePicker").clear();
   $('#estadoNuevo').val("");
@@ -929,8 +929,8 @@ function cargarEsquemaNuevo(){
 }
 
 function cargarModalModFechas(){
-  let cliente = $("#selectClientes").val(); // Ver si utilizo la variales globales
-  let objetivo = $("#selectObjetivos").val(); // Ver si utilizo la variales globales
+  let cliente = $("#selectCliente").val(); // Ver si utilizo la variales globales
+  let objetivo = $("#selectObjetivo").val(); // Ver si utilizo la variales globales
   let estado = $('#vigente').text();
 
   $("#dtmModFechaEsquemaFD").data("DateTimePicker").date($('#fechaDesde').text());
@@ -1005,8 +1005,8 @@ function cargarEsquemaServer(){
 
 function cargarHistorial(){
   swal.close();
-  let cliente = $("#selectClientes").val();
-  let objetivo = $("#selectObjetivos").val();
+  let cliente = $("#selectCliente").val();
+  let objetivo = $("#selectObjetivo").val();
   $("#tituloModalHistorial").text("   "+cliente+" - "+objetivo);
   $("#tituloModalHistorial").prepend('<i class="far fa-building"></i>');
   if (validarFormulario()){
@@ -1022,8 +1022,8 @@ function cargarHistorialEsquemas(){
     let diaHabilitado = "label label-success";
     let diaDeshabilitado = "label label-default";
 
-    let nombreCliente = document.getElementById("selectClientes").value;
-    let nombreObjetivo = document.getElementById("selectObjetivos").value;
+    let nombreCliente = document.getElementById("selectCliente").value;
+    let nombreObjetivo = document.getElementById("selectObjetivo").value;
 
     db.collection("clientes").where("nombreCliente","==",nombreCliente)
       .get()
@@ -1340,7 +1340,7 @@ function cargarListadoClientes2(){
 }
 
 function cargarDesplegableClientes2(listadoClientes){
-  let selectClientes = document.getElementById('selectClientes2');
+  let selectClientes = document.getElementById('selectCliente2');
   for(var i = 0; i < listadoClientes.length; i++){
     var option = listadoClientes[i];
     selectClientes.options.add( new Option(option) );
@@ -1350,7 +1350,7 @@ function cargarDesplegableClientes2(listadoClientes){
 function cargarListadoObjetivos2(){
 
   var listadoObjetivos = [];
-  var nombreCliente = document.getElementById("selectClientes2").value;
+  var nombreCliente = document.getElementById("selectCliente2").value;
 
   db.collection("clientes").where("nombreCliente","==",nombreCliente)
     .get()
@@ -1377,7 +1377,7 @@ function cargarListadoObjetivos2(){
 }
 
 function cargarDesplegableObjetivos2(listadoObjetivos){
-  var selectObjetivos = document.getElementById('selectObjetivos2');
+  var selectObjetivos = document.getElementById('selectObjetivo2');
 
   while (selectObjetivos.length > 1) {
     selectObjetivos.remove(1);
@@ -1387,6 +1387,15 @@ function cargarDesplegableObjetivos2(listadoObjetivos){
     let option = listadoObjetivos[i];
     selectObjetivos.options.add( new Option(option) );
   }
+}
+
+function inicializarFuncionesSetting(){
+  listadoClientesClient("dataListClient");
+  listadoClientesClient("dataListClient2");
+  $('.box').boxWidget();
+  toggleAccordion();
+  cargarTodosDatePicker();
+  enforcingValueDataList();
 }
 
 // -----------------------------------------------------------------
@@ -1742,8 +1751,8 @@ function tablaDiasEspeciales(){
 
   if(validarFormulario2()){
 
-    let nombreCliente = document.getElementById("selectClientes2").value;
-    let nombreObjetivo = document.getElementById("selectObjetivos2").value;
+    let nombreCliente = document.getElementById("selectCliente2").value;
+    let nombreObjetivo = document.getElementById("selectObjetivo2").value;
     let datePickerValue = $("#datetimepicker10").find("input").val();
     let sep = datePickerValue.indexOf("/");
     monthGlobalEsp = parseInt(datePickerValue.substr(0,sep));
@@ -1967,7 +1976,7 @@ function listadoClientesEsquema(){
 }
 
 function desplegableClientesEsquema(listadoClientes){
-  let selectClientes = document.getElementById('selectClientes');
+  let selectClientes = document.getElementById('selectCliente');
   for(var i = 0; i < listadoClientes.length; i++){
     var option = listadoClientes[i];
     selectClientes.options.add( new Option(option) );
@@ -1977,7 +1986,7 @@ function desplegableClientesEsquema(listadoClientes){
 function listadoObjetivosEsquema(){
 
   var listadoObjetivos = [];
-  var nombreCliente = document.getElementById("selectClientes").value;
+  var nombreCliente = document.getElementById("selectCliente").value;
 
   db.collection("clientes").where("nombreCliente","==",nombreCliente)
     .get()
@@ -2004,7 +2013,7 @@ function listadoObjetivosEsquema(){
 }
 
 function desplegableObjetivosEsquema(listadoObjetivos){
-  var selectObjetivos = document.getElementById('selectObjetivos');
+  var selectObjetivos = document.getElementById('selectObjetivo');
   while (selectObjetivos.length > 1) {
     selectObjetivos.remove(1);
   }

@@ -36,27 +36,27 @@
                     </div>
                     <br/>
                     <div class="container-fluid">
+                      <div class="row conf">
 
-                         <div class="conf">
-                             <div class="row">
-                               <div class="col-md-1">
-                               </div>
-                             </div>
-                             <div class="row">
-                               <div class="form-group col-md-2 ml-7">
-                                 <label for="selectClientes">Cliente</label>
-                                 <select class="form-control"  name="selectClientes" id="selectClientes" onchange="listadoObjetivosEsquema()">
-                                   <option value="0" selected>Seleccione un Cliente</option>
-                                 </select>
-                               </div>
-                               <div class="form-group col-md-2 ml-7">
-                                 <label for="selectObjetivos">Objetivo</label>
-                                 <select class="form-control"  name="selectObjetivos" id="selectObjetivos">
-                                   <option value="0" selected>Seleccione un Objetivo</option>
-                                 </select>
-                               </div>
-                             </div>
-                           </div>
+                        <div class=" col-sm-6 col-md-5 col-lg-3">
+                          <div class="form-group">
+                              <label for="selectCliente">Cliente</label>
+                               <input type="text" class="form-control" list="dataListClient" id="selectCliente" placeholder="Seleccione un cliente" onchange="listadoObjetivosBranch('selectCliente','selectObjetivo','dataListObjetivo')">
+                               <datalist id="dataListClient">
+                               </datalist>
+                          </div>
+                        </div>
+
+                        <div class=" col-sm-6 col-md-5 col-lg-3">
+                          <div class="form-group">
+                              <label for="selectObjetivo">Objetivo</label>
+                               <input type="text" class="form-control" list="dataListObjetivo" id="selectObjetivo" placeholder="Seleccione un objetivo">
+                               <datalist id="dataListObjetivo">
+                               </datalist>
+                          </div>
+                        </div>
+
+                      </div><br>
 
                     </div>
                     <div class="box-footer">
@@ -439,38 +439,54 @@
                       </div>
                       <br/>
                       <div class="container-fluid">
-                         <form>
-                           <div class="conf">
-                               <div class="row">
-                                 <div class="col-md-1">
-                                 </div>
+
+                       <div class="row conf">
+
+                         <div class="col-sm-6 col-md-5 col-lg-3">
+                           <div class="form-group">
+                               <label for="selectCliente2">Cliente</label>
+                                <input type="text" class="form-control" list="dataListClient2" id="selectCliente2" placeholder="Seleccione un cliente" onchange="listadoObjetivosBranch('selectCliente2','selectObjetivo2','dataListObjetivo2')">
+                                <datalist id="dataListClient2">
+                                </datalist>
+                           </div>
+                         </div>
+
+                         <div class="col-sm-6 col-md-5 col-lg-3">
+                           <div class="form-group">
+                               <label for="selectObjetivo2">Objetivo</label>
+                                <input type="text" class="form-control" list="dataListObjetivo2" id="selectObjetivo2" placeholder="Seleccione un objetivo">
+                                <datalist id="dataListObjetivo2">
+                                </datalist>
+                           </div>
+                         </div>
+
+                         <!-- <div class="form-group col-md-2 ml-7">
+                           <label for="selectClientes">Cliente</label>
+                           <select class="form-control"  name="selectClientes" id="selectClientes2" onchange="cargarListadoObjetivos2()">
+                             <option value="0" selected>Seleccione un Cliente</option>
+                           </select>
+                         </div>
+                         <div class="form-group col-md-2 ml-7">
+                           <label for="selectObjetivos">Objetivo</label>
+                           <select class="form-control"  name="selectObjetivos" id="selectObjetivos2">
+                             <option value="0" selected>Seleccione un Objetivo</option>
+                           </select>
+                         </div> -->
+                         <div class="col-md-2 col-lg-2">
+                           <div class="form-group">
+                             <label for="datetimepicker10">Periodo</label>
+                               <div class='input-group date' id='datetimepicker10'>
+                                   <input type='text' class="form-control" />
+                                   <span class="input-group-addon">
+                                       <span class="glyphicon glyphicon-calendar">
+                                       </span>
+                                   </span>
                                </div>
-                               <div class="row">
-                                 <div class="form-group col-md-2 ml-7">
-                                   <label for="selectClientes">Cliente</label>
-                                   <select class="form-control"  name="selectClientes" id="selectClientes2" onchange="cargarListadoObjetivos2()">
-                                     <option value="0" selected>Seleccione un Cliente</option>
-                                   </select>
-                                 </div>
-                                 <div class="form-group col-md-2 ml-7">
-                                   <label for="selectObjetivos">Objetivo</label>
-                                   <select class="form-control"  name="selectObjetivos" id="selectObjetivos2">
-                                     <option value="0" selected>Seleccione un Objetivo</option>
-                                   </select>
-                                 </div>
-                                    <div class="form-group col-md-2 ml-7">
-                                      <label for="datetimepicker10">Periodo</label>
-                                        <div class='input-group date' id='datetimepicker10'>
-                                            <input type='text' class="form-control" />
-                                            <span class="input-group-addon">
-                                                <span class="glyphicon glyphicon-calendar">
-                                                </span>
-                                            </span>
-                                        </div>
-                                    </div>
-                               </div>
-                             </div>
-                           </form>
+                           </div>
+                         </div>
+
+                       </div><br>
+
                       </div>
                       <div class="box-footer">
                         <div class="conf">

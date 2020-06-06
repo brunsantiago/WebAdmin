@@ -16,6 +16,12 @@
   margin: auto;
 }
 
+.center-block {
+    display: table;  /* Instead of display:block */
+    margin-left: auto;
+    margin-right: auto;
+}
+
 /* Codigo para igualar columnas de bootstrap */
 .row.display-flex {
   display: flex;
@@ -29,3 +35,41 @@
   height: 100%;
 }
 /* FIN - Codigo para igualar columnas de bootstrap */
+
+.button-fix {
+  width: 120px;
+}
+
+.modal-body-detalle {
+  background-color: #85929E;
+}
+
+/* Icon Informe Detalle */
+.fa-angle-double-down{
+  transform: rotate(0deg);
+  transition: transform 0.3s linear;
+}
+
+.fa-angle-double-down.open{
+  transform: rotate(180deg);
+  transition: transform 0.3s linear;
+}
+
+/* Placeholder Personalizado */
+
+.input-manual::-webkit-input-placeholder {
+  color: #F1948A;
+  font-size: 13px;
+}
+.input-manual::-moz-placeholder {
+  color: #F1948A;
+  font-size: 13px;
+}
+.input-manual:-ms-input-placeholder {
+  color: #F1948A;
+  font-size: 13px;
+}
+.input-manual::placeholder {
+  color: #F1948A;
+  font-size: 13px;
+}

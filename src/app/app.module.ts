@@ -11,9 +11,6 @@ import { UserService } from "./core/services/user.service";
 import { DynamicScriptLoaderService } from './core/services/dynamic-script-loader.service';
 import { AppRoutingModule } from './app.routing';
 
-// import { AngularFireModule } from '@angular/fire';
-// import { environment } from '../environments/environment';
-
 
 @NgModule({
   declarations: [

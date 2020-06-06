@@ -25,17 +25,6 @@
 
               <div class="box-tools pull-right">
                 <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
-                <div class="btn-group">
-                  <button type="button" class="btn btn-box-tool dropdown-toggle" data-toggle="dropdown">
-                    <i class="fa fa-wrench"></i></button>
-                  <ul class="dropdown-menu" role="menu">
-                    <li><a href="#">Elegir un periodo</a></li>
-                    <li><a href="#">Cambiar Servicio</a></li>
-                    <li class="divider"></li>
-                    <li><a href="#">Configuracion</a></li>
-                  </ul>
-                </div>
-                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
               </div>
             </div>
 
@@ -55,11 +44,11 @@
                      <br/>
 
                      <div class="container-fluid">
-                       <div class="row">
+                       <div class="row conf">
                          <div class=" col-sm-8 col-md-6 col-lg-3">
                            <div class="form-group">
-                               <label for="cliente">Cliente</label>
-                                <input type="text" class="form-control" list="dataListClient" id="cliente" placeholder="Seleccione un cliente">
+                               <label for="selectCliente">Cliente</label>
+                                <input type="text" class="form-control" list="dataListClient" id="selectCliente" placeholder="Seleccione un cliente" autocomplete="off">
                                 <datalist id="dataListClient">
                                 </datalist>
                            </div>
@@ -127,7 +116,7 @@
                               <div class="col-lg-8">
                                 <div class="form-group">
                                   <label for="nombreCliente">Nombre del Cliente</label>
-                                   <input type="text" class="form-control input-upper" id="nombreCliente" placeholder="Nombre del Cliente" style="text-transform:uppercase" readonly>
+                                   <input type="text" class="form-control" id="nombreCliente" placeholder="Nombre del Cliente" style="text-transform:uppercase" readonly>
                                 </div>
                               </div>
                               <div class="col-lg-2">
@@ -139,11 +128,9 @@
                               <div class="col-md-4 col-lg-2">
                                 <div class="form-group">
                                   <label>Estado</label><br>
-                                  <div class="btn-group">
-                                    <div class="no-wrap-button">
-                                      <button type="button" class="btn btn-success button-fix" id="estadoActivo" onclick="cambiarEstadoActivo()" disabled>Activo</button>
-                                      <button type="button" class="btn btn-default button-fix" id="estadoInactivo" onclick="cambiarEstadoInactivo()" disabled>Inactivo</button>
-                                    </div>
+                                  <div class="btn-group btn-group-justified">
+                                    <a href="javascript:void(0)" class="btn btn-success button-fix" id="estadoActivo" onclick="cambiarEstadoActivo()" disabled>Activo</a>
+                                    <a href="javascript:void(0)" class="btn btn-default button-fix" id="estadoInactivo" onclick="cambiarEstadoInactivo()" disabled>Inactivo</a>
                                   </div>
                                 </div>
                               </div>
@@ -157,32 +144,27 @@
                                 </div>
                               </div>
                             </div>
-
-
+                            <hr>
+                            <h5 style="color:#ABB2B9;">Domicilio</h5>
                              <div class="row">
-                               <hr>
-                               <div>
-                                 <label class="text-muted" style="margin-left:15px; margin-bottom:15px;" >Domicilio</label>
-                               </div>
-
                                <div class="form-group col-md-2">
                                  <label for="pais">Pais</label>
-                                 <input type="text" class="form-control input-upper" list="dataListPais" id="pais" placeholder="Seleccione una provincia" style="text-transform:uppercase" readonly/>
+                                 <input type="text" class="form-control" list="dataListPais" id="pais" placeholder="Pais" style="text-transform:uppercase" readonly/>
                                   <datalist id="dataListPais">
-                                    <option>ARGENTINA</option>
+                                    <option selected>ARGENTINA</option>
                                   </datalist>
                                </div>
 
                                <div class="form-group col-md-4">
                                  <label for="provincia">Provincia</label>
-                                 <input type="text" class="form-control input-upper" list="dataListPcia" id="provincia" placeholder="Seleccione una provincia" onchange="cargarDeptoLocalCalles()" style="text-transform:uppercase" readonly/>
+                                 <input type="text" class="form-control" list="dataListPcia" id="provincia" placeholder="Seleccione una provincia" onchange="cargarDeptoLocalCalles()" style="text-transform:uppercase" readonly/>
                                   <datalist id="dataListPcia">
                                   </datalist>
                                </div>
 
                                <div class="form-group col-md-3">
                                  <label for="departamento">Departamento / Comuna</label>
-                                 <input type="text" class="form-control input-upper" list="dataListDepto" id="departamento" placeholder="Seleccione un departamento" onchange="cargarLocalCalles()" style="text-transform:uppercase" readonly/>
+                                 <input type="text" class="form-control" list="dataListDepto" id="departamento" placeholder="Seleccione un departamento" onchange="cargarLocalCalles()" style="text-transform:uppercase" readonly/>
                                   <datalist id="dataListDepto">
                                   </datalist>
                                </div>
@@ -199,34 +181,59 @@
 
                                <div class="form-group col-md-5">
                                  <label for="calle">Calle</label>
-                                 <input type="text" class="form-control input-upper" list="dataListCalles" id="calle" placeholder="Seleccione una calle" style="text-transform:uppercase" readonly/>
+                                 <input type="text" class="form-control" list="dataListCalles" id="calle" placeholder="Seleccione una calle" style="text-transform:uppercase" readonly/>
                                   <datalist id="dataListCalles">
                                   </datalist>
                                </div>
 
                                <div class="form-group col-md-2">
                                  <label for="nroPuerta">Nro Puerta</label>
-                                  <input type="text" class="form-control input-upper" id="nroPuerta" placeholder="Nro Puerta" style="text-transform:uppercase" readonly>
+                                  <input type="text" class="form-control" id="nroPuerta" placeholder="Nro Puerta" style="text-transform:uppercase" readonly>
                                </div>
                                <div class="form-group col-md-2">
                                  <label for="piso">Piso</label>
-                                  <input type="text" class="form-control input-upper" id="piso" placeholder="Piso" style="text-transform:uppercase" readonly>
+                                  <input type="text" class="form-control" id="piso" placeholder="Piso" style="text-transform:uppercase" readonly>
                                </div>
                                <div class="form-group col-md-2">
                                  <label for="depto">Depto</label>
-                                  <input type="text" class="form-control input-upper" id="depto" placeholder="Depto" style="text-transform:uppercase" readonly>
+                                  <input type="text" class="form-control" id="depto" placeholder="Depto" style="text-transform:uppercase" readonly>
                                </div>
                                <div class="form-group col-md-1">
                                  <label for="cp">CP</label>
-                                  <input type="text" class="form-control input-upper" id="cp" placeholder="CP" style="text-transform:uppercase" readonly>
+                                  <input type="text" class="form-control" id="cp" placeholder="CP" style="text-transform:uppercase" readonly>
                                </div>
 
                              </div>
 
                              <div class="row">
+                               <div class="col-lg-3">
+                                   <div class="form-group">
+                                     <label for="lat">Latitud</label>
+                                     <input type="text" class="form-control" id="lat" value="" placeholder="Indique una latitud" onchange="cargarCoordenadas()" style="text-transform:uppercase" readonly>
+                                   </div>
+                               </div>
+                               <div class="col-lg-3">
+                                 <div class="form-group">
+                                   <label for="lon">Longitud</label>
+                                   <input type="text" class="form-control" id="lon" value="" placeholder="Indique una longitud" onchange="cargarCoordenadas()" style="text-transform:uppercase" readonly>
+                                 </div>
+                               </div>
+                               <div class="col-lg-6">
+                                   <h5><b>Ubicacion</b></h5>
+                                   <form>
+                                   <label class="radio-inline">
+                                     <input type="radio" name="check-ubicacion" id="checkDomicilio" disabled>Desde domicilio
+                                   </label>
+                                   <label class="radio-inline" style="margin-left:50px;">
+                                     <input type="radio" name="check-ubicacion" id="checkCoordenadas" disabled>Desde coordenadas
+                                   </label>
+                                 </form>
+                               </div>
+                             </div>
+
+                             <div class="row">
                                <div class="col-md-12">
-                                 <div class="callout callout-danger" style="display:none" id="mensajeError">
-                                    <!-- <p>No existen localidades ni calles con esta combinacion de provincia y departamento</p> -->
+                                 <div class="callout callout-warning" style="display:none" id="mensajeError">
                                   </div>
                                </div>
                              </div>
@@ -234,33 +241,14 @@
                              <div class="row">
                                <div class="col-md-12">
                                  <div class="text-center">
-                                   <a href="javascript:void(0)" onclick="cargarCoordDomicilio()" >Actualizar domicilio en el Mapa</a>
+                                   <a href="javascript:void(0)" onclick="cargarCoordMapa()" >Actualizar domicilio en el Mapa</a>
                                    <iframe width="100%" height="600" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" id="googleMap">
                                    </iframe>
                                  </div>
                                </div>
+                               <br>
                              </div>
 
-                             <div class="conf">
-                               <div class="text-center">
-                                 <div class="checkbox">
-                                    <label><input type="checkbox" value="" id="checkCoordenadas" disabled>Obtener ubicacion desde coordenadas</label>
-                                 </div>
-                                 <form class="form-inline">
-                                   <div class="form-group">
-                                     <label class="conf" for="lat">Lat: </label>
-                                     <input type="text" class="form-control" id="lat" value="" placeholder="-34.603700" style="width:100px" onchange="cargarCoordenadas()" readonly>
-                                   </div>
-                                  <div class="form-group">
-                                    <label class="conf" for="lon">Lon: </label>
-                                    <input type="text" class="form-control" id="lon" value="" placeholder="-58.381566" style="width:100px" onchange="cargarCoordenadas()" readonly>
-                                  </div>
-                                 </form>
-                               </div>
-
-                               <br/>
-
-                             </div>
 
                            </div>
 
@@ -268,7 +256,7 @@
 
                     <div class="box-footer">
                       <div class="conf">
-                        <button type="button" class="btn btn-primary" onclick="modificarDatosCliente()" id="btnModificarCliente">Modificar Datos</button>
+                        <button type="button" class="btn btn-primary" onclick="modificarDatosCliente()" id="btnModificarCliente" disabled>Modificar Datos</button>
                         <button type="button" class="btn btn-danger ml-7" onclick="guardarCambiosCliente()" id="btnGuardarCliente" disabled>Guardar Cambios</button>
                         <button type="button" class="btn btn-default ml-7" onclick="cancelarCambiosCliente()" id="btnCancelarCliente" disabled>Cancelar Cambios</button>
                       </div>
@@ -286,7 +274,7 @@
                   <!-- Panel Opciones -->
                   <div class="panel panel-primary">
                       <div class="panel-heading">
-                        <h3 class="panel-title">Datos de Facturacion General</h3>
+                        <h3 class="panel-title">Datos de Facturacion</h3>
                       </div>
                       <br/>
                       <div class="container-fluid">
@@ -321,7 +309,7 @@
                   <!-- Panel Opciones -->
                   <div class="panel panel-primary">
                       <div class="panel-heading">
-                        <h3 class="panel-title">Datos de Liquidacion General</h3>
+                        <h3 class="panel-title">Datos de Liquidacion</h3>
                       </div>
                       <br/>
                       <div class="container-fluid">
@@ -424,7 +412,7 @@
         </table>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal" onclick="cerrarModalCoincidencia()">Cerrar</button>
         <!-- <button type="button" class="btn btn-primary">Save changes</button> -->
       </div>
     </div><!-- /.modal-content -->
