@@ -258,7 +258,7 @@
 
       <div class="modal-header bg-primary">
         <button type="button" class="close" data-dismiss="modal">&times;</button>
-        <h4 id="titulo" class="modal-title">DIA - 143</h4>
+        <h4 id="titulo-modal" class="modal-title"></h4>
       </div>
       <div class="modal-body modal-body-detalle" >
 
@@ -268,7 +268,7 @@
               <!-- vacia -->
             </div>
             <div class="col-md-6">
-              <div style="text-align:center; color:white; font-size:20px;" id="nombreDetalleDia"></div>
+              <div style="text-align:center; color:white; font-size:20px;" id="personalDetalleDia"></div>
             </div>
             <!-- Zona a cargarse el menu dropdown -->
             <div class="col-md-3" id="menu-detalle">
@@ -284,10 +284,10 @@
 
         <div class="panel panel-default" id="panel-clone">
           <div class="panel-heading">
-            <h3 class="panel-title" id="tituloPuesto">Puesto 1 - TM</h3>
+            <h3 class="panel-title" id="tituloPuesto">Puesto no definido</h3>
           </div>
 
-          <div class="card-contenedor" id="card-contenedor">
+          <div class="card-contenedor" id="card-contenedor" style="display:none;">
 
             <div class="card">
                 <div class="card-image card3" style="background-size: cover" id="foto-ingreso"></div>
@@ -309,9 +309,36 @@
 
           </div>
 
+          <div id="objetivoDescubierto" style="display:none;" align="center">
+            <img src="assets/img/objetivo-descubierto.jpg" alt="">
+            <h2 class="text-center text-red m-5" title="Horas del Turno">OBJETIVO DESCUBIERTO</h2>
+            <h5 class="text-center text-muted m-5" title="Horas del Turno">Si desea cargar una persona en este turno, por favor presione el boton Carga Manual</h5>
+            <br><br>
+          </div>
+
+          <div id="objetivoNoIniciado" style="display:none;" align="center">
+            <img src="assets/img/objetivo-descubierto.jpg" alt="">
+            <h2 class="text-center text-green m-5" title="Horas del Turno">OBJETIVO NO INICIADO</h2>
+            <h5 class="text-center text-muted m-5" title="Horas del Turno">Si desea cargar una persona en este turno, por favor presione el boton Carga Manual</h5>
+            <br><br>
+          </div>
+
+          <div id="seleccionPersonal" style="display:none;" align="center">
+            <img src="assets/img/personal.jpg" alt="">
+            <h4 class="text-centerm-5" title="Horas del Turno">SELECCION DE PERSONAL</h4>
+            <div class="form-group" style="display: inline-block; min-width:170px;">
+                 <input type="text" class="form-control" list="dataListPersonal" id="selectPersonal" placeholder="Seleccione una persona" autocomplete="off" onchange="inputSize()" >
+                 <datalist id="dataListPersonal">
+                 </datalist>
+            </div>
+            <br>
+            <button type="button" class="btn btn-primary" id="btn-confirma-personal" >Confirmar Personal</button>
+            <br><br>
+          </div>
+
           <div class="container-fluid">
 
-            <div class="conf">
+            <div class="conf" id="mostrar-slider">
               <br>
               <div id="horas-turno-detalle">
                 <h4 class="text-center m-5" title="Horas del Turno" id="horasTurnoDetalle">00:00</h4>
@@ -320,7 +347,7 @@
               <input type="text" class="js-range-slider" name="my_range" id="slider-detalle-turno" />
             </div>
 
-            <div class="row conf">
+            <div class="row conf" id="control-horas">
               <div class="col-lg-4" style="text-align:center;">
                 <br>
                 <!-- <a href="#" data-toggle="tooltip" title="Hooray!">Tooltip Example</a> -->
@@ -343,7 +370,7 @@
               </div>
               <div class="col-lg-4">
                 <br>
-                  <h3 class="text-center m-5 text-danger" style="display:none" id="turno-eliminar">TURNO A ELIMINARSE</h3>
+                  <h3 class="text-center m-5 text-danger" style="display:none" id="turno-eliminar">CUBRIMIENTO A ELIMINARSE</h3>
                   <h1 class="text-center m-5" title="Horas Registradas" id="horasRegitradasDetalle">00:00</h1>
                   <h5 class="text-center text-muted m-5" title="Horas Registradas">HORAS REGISTRADAS</h5>
                 <br>
@@ -405,6 +432,7 @@
               <div class="text-center text-muted m-10" title="Ver / Ocultar Informe" id="container-icon">
                 <i class="fas fa-angle-double-down" id="icon-informe"></i>
               </div>
+              <br>
               <div id="mostrarInforme" style="display:none">
                 <div class="row">
                   <div class="col-md-5">
@@ -465,10 +493,10 @@
           </div>
 
           <div class="panel-footer">
-            <div class="text-center">
+            <div class="text-center" id="habilitar-turno">
               <div class="btn-group">
-                <button type="button" class="btn btn-primary button-fix" id="boton-habilitar-turno" disabled>Habilitar Turno</button>
-                <button type="button" class="btn btn-danger button-fix" id="boton-eliminar-turno" >Eliminar Turno</button>
+                <button type="button" class="btn btn-primary button-fix" id="boton-habilitar-turno" disabled>Habilitar Cubrimiento</button>
+                <button type="button" class="btn btn-danger button-fix" id="boton-eliminar-turno" >Eliminar Cubrimiento</button>
               </div>
             </div>
           </div>
@@ -482,6 +510,7 @@
       <!-- <div id="modal-footer-detalle"> -->
 
       <div class="modal-footer" id="modal-footer-detalle">
+        <button type="button" class="btn btn-success" id="btn-carga-manual" style="display:none" onclick="cargaManual()">Carga Manual</button>
         <button type="button" class="btn btn-primary" id="guardar-cambios-detalle">Guardar Cambios</button>
         <button type="button" class="btn" data-dismiss="modal">Cerrar</button>
       </div>
