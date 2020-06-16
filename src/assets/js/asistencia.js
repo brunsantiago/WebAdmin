@@ -129,8 +129,13 @@ function cargarPuestosAsistencia(button){
 
     // Ejecuto la Promisa
     promiseAsistencia.then(function(result) {
-      cargarCubrimientoAsistencia(arrayPuestosAsistencia);
+      //cargarCubrimientoAsistencia();
       loaderStateFinish();
+
+    // table = $("#asistenciaTable").DataTable();
+
+      // table.row('#jKerZxxYZhcesdhQO7XR').data(turnoPuesto).draw();
+
     }, function(err) {
       console.log(err);
     });
@@ -449,35 +454,79 @@ function cargarCoberturaIngresos(nombreCliente,nombreObjetivo,idCliente,idObjeti
             let idFecha=doc.id;
             db.collection("clientes").doc(idCliente).collection("objetivos").doc(idObjetivo).collection("cobertura").doc(idFecha).collection("puestos")
             .where("nombrePuesto","==",puesto.nombrePuesto).where("ingresoPuesto","==",puesto.ingresoPuesto)
-            .get()
-            .then(function(querySnapshot) {
-                if (querySnapshot.empty) {
-                  // Si NO hay un puesto cargado que coincida con el nombrePuesto e ingresoPuesto
-                  cargarTurnoAsistenciaIngresosVacio(idCliente,idObjetivo,idFecha,nombreCliente,nombreObjetivo,puesto,fechaActual,horaActual)
-                  .then(function(){
-                    resolve();
-                  });
-                } else {
+            // .get()
+            // .then(function(querySnapshot) {
+            .onSnapshot(function(querySnapshot) {
+
+                let empty = true;
+
+                // if (querySnapshot.empty) {
+                //   console.log("Actualizo querySnapshot empty");
+                //   // Si NO hay un puesto cargado que coincida con el nombrePuesto e ingresoPuesto
+                //   cargarTurnoAsistenciaIngresosVacio(idCliente,idObjetivo,idFecha,nombreCliente,nombreObjetivo,puesto,fechaActual,horaActual)
+                //   .then(function(){
+                //     resolve();
+                //   });
+                // } else {
+                  console.log("Actualizo querySnapshot not empty");
                   // Si hay un puesto cargado que coincida con el nombrePuesto e ingresoPuesto recorro el resultado
-                  const promises = [];
-                  querySnapshot.forEach(function(doc) {
-                    let cubrimiento=doc.data();
-                    cubrimiento.id=doc.id;
-                    promises.push( cargarTurnoAsistenciaIngresos(idCliente,idObjetivo,idFecha,nombreCliente,nombreObjetivo,puesto,cubrimiento) );
+                  // const promises = [];
+                  querySnapshot.docChanges().forEach(function(change) {
+                    empty=false;
+                      if (change.type === "added") {
+                          console.log("New city: ", change.doc.data());
+                          let cubrimiento = change.doc.data();
+                          cubrimiento.id = change.doc.id;
+                          cargarTurnoAsistenciaIngresos(idCliente,idObjetivo,idFecha,nombreCliente,nombreObjetivo,puesto,cubrimiento,"add");
+                      }
+                      if (change.type === "modified") {
+                          console.log("Modified city: ", change.doc.data());
+                          let cubrimiento = change.doc.data();
+                          cubrimiento.id = change.doc.id;
+                          cargarTurnoAsistenciaIngresos(idCliente,idObjetivo,idFecha,nombreCliente,nombreObjetivo,puesto,cubrimiento,"mod");
+                      }
+                      if (change.type === "removed") {
+                          console.log("Removed city: ", change.doc.data());
+                          //let cubrimiento = change.doc.data();
+                          //cubrimiento.id = change.doc.id;
+                          ///////////////////////////////////////////////////////////////////////////
+                          //horaActual tendria que se la hora al momento de dispararse la eliminacion
+                          ///////////////////////////////////////////////////////////////////////////
+                          remRow(idCliente,idObjetivo,idFecha,nombreCliente,nombreObjetivo,puesto,change.doc.id,fechaActual,horaActual);
+                      }
                   });
-                  Promise.all(promises)
-                  .then(function(result) {
-                    resolve();
-                  })
-                  .catch(function(err) {
-                    reject(err);
-                  });
-                }
+
+                  if (querySnapshot.empty && empty==true) {
+                    console.log("Actualizo querySnapshot empty");
+                    // Si NO hay un puesto cargado que coincida con el nombrePuesto e ingresoPuesto
+                    cargarTurnoAsistenciaIngresosVacio(idCliente,idObjetivo,idFecha,nombreCliente,nombreObjetivo,puesto,fechaActual,horaActual)
+                    .then(function(){
+                      resolve();
+                    });
+                  }
+                  // querySnapshot.forEach(function(doc) {
+                  //   let cubrimiento=doc.data();
+                  //   cubrimiento.id=doc.id;
+                  //   //promises.push( cargarTurnoAsistenciaIngresos(idCliente,idObjetivo,idFecha,nombreCliente,nombreObjetivo,puesto,cubrimiento) );
+                  //   cargarTurnoAsistenciaIngresos(idCliente,idObjetivo,idFecha,nombreCliente,nombreObjetivo,puesto,cubrimiento);
+                  // });
+
+                  resolve();
+
+                  // Promise.all(promises)
+                  // .then(function(result) {
+                  //   resolve();
+                  // })
+                  // .catch(function(err) {
+                  //   reject(err);
+                  // });
+
+                // }
             })
-            .catch(function(error) {
-                  console.log("Error al obtener una fecha de cobertura:", error);
-                  reject(error);
-            });
+            // .catch(function(error) {
+            //       console.log("Error al obtener una fecha de cobertura:", error);
+            //       reject(error);
+            // });
           });
         }
       }).catch(function(error) {
@@ -548,7 +597,7 @@ function cargarCoberturaEgresos(nombreCliente,nombreObjetivo,idCliente,idObjetiv
 
 }
 
-function cargarTurnoAsistenciaIngresos(idCliente,idObjetivo,idFecha,nombreCliente,nombreObjetivo,puesto,cubrimiento){
+function cargarTurnoAsistenciaIngresos(idCliente,idObjetivo,idFecha,nombreCliente,nombreObjetivo,puesto,cubrimiento,tipo){
 
   return new Promise(function(resolve,reject){
 
@@ -574,7 +623,7 @@ function cargarTurnoAsistenciaIngresos(idCliente,idObjetivo,idFecha,nombreClient
       estado="ingreso-cubierto-tarde";
     }
 
-     let turnoPuesto = {
+     let rowData = {
        nc : nombreCliente,
        no : nombreObjetivo,
        pu : puesto.nombrePuesto+" - "+puesto.nombreTurno,
@@ -595,22 +644,35 @@ function cargarTurnoAsistenciaIngresos(idCliente,idObjetivo,idFecha,nombreClient
               fp : cubrimiento.fechaPuesto,
               fi : cubrimiento.fechaIngreso,
               fe : cubrimiento.fechaEgreso,
-              est : cubrimiento.estado,
               idc : idCliente,
               ido : idObjetivo,
               idf : idFecha,
             },
      }
 
+     if(cubrimiento.estado!=undefined){
+       rowData.ex.est = est = cubrimiento.estado;
+     }
+
+     console.log(rowData);
+
      devolverPersonal(cubrimiento.idPersonal)
      .then(function(result){
-       turnoPuesto.pe=result;
-       arrayPuestosAsistencia.push(turnoPuesto);
+       rowData.pe=result;
+       if(tipo=="add"){
+         addRow(rowData);
+       }else{
+         modRow(rowData);
+       }
        resolve();
      })
      .catch(function(result){
-       turnoPuesto.pe=result;
-       arrayPuestosAsistencia.push(turnoPuesto);
+       rowData.pe="No Identificado";
+       if(tipo=="add"){
+         addRow(rowData);
+       }else{
+         modRow(rowData);
+       }
        resolve();
      });
 
@@ -660,7 +722,7 @@ function cargarTurnoAsistenciaIngresosVacio(idCliente,idObjetivo,idFecha,nombreC
       estado="ingreso-no-iniciado";
     }
 
-     let turnoPuesto = {
+     let rowData = {
        nc : nombreCliente,
        no : nombreObjetivo,
        pu : puesto.nombrePuesto+" - "+puesto.nombreTurno,
@@ -682,7 +744,8 @@ function cargarTurnoAsistenciaIngresosVacio(idCliente,idObjetivo,idFecha,nombreC
               idf : idFecha,
             },
      }
-     arrayPuestosAsistencia.push(turnoPuesto);
+
+     addRow(rowData);
      resolve();
   });
 
@@ -755,12 +818,14 @@ function cargarTurnoAsistenciaEgresos(idCliente,idObjetivo,idFecha,nombreCliente
    devolverPersonal(cubrimiento.idPersonal)
    .then(function(result){
      turnoPuesto.pe=result;
-     arrayPuestosAsistencia.push(turnoPuesto);
+     //arrayPuestosAsistencia.push(turnoPuesto);
+     addRow(turnoPuesto);
      resolve();
    })
    .catch(function(result){
-     turnoPuesto.pe=result;
-     arrayPuestosAsistencia.push(turnoPuesto);
+     turnoPuesto.pe="No Identificado";
+     //arrayPuestosAsistencia.push(turnoPuesto);
+     addRow(turnoPuesto);
      resolve();
    });
 
@@ -804,7 +869,8 @@ function cargarTurnoAsistenciaEgresosVacio(idCliente,idObjetivo,idFecha,nombreCl
               idf : idFecha,
             },
      }
-     arrayPuestosAsistencia.push(turnoPuesto);
+     //arrayPuestosAsistencia.push(turnoPuesto);
+     addRow(turnoPuesto);
      resolve();
   });
 
@@ -895,8 +961,8 @@ function desplegableObjetivosAsistencia(listadoObjetivos){
 }
 
 function limpiarTabla(){
-  $("#panelResultado").hide();
-  $("#miTabla2 tbody tr").remove();
+  table = $("#asistenciaTable").DataTable();
+  table.clear();
 }
 
 function fechaAyerDate(fechaDate){
@@ -991,11 +1057,11 @@ function inicializarFuncionesControl(){
   listadoClientesClient("dataListClient",true);
   cargarBSDateTimePicker();
   enforcingValueDataList();
-  cargarCubrimientoAsistencia([]);
+  cargarCubrimientoAsistencia();
   inicializarModalTurno();
 }
 
-function cargarCubrimientoAsistencia(listaPuestos){
+function cargarCubrimientoAsistencia(){
 
   let table="";
 
@@ -1005,6 +1071,8 @@ function cargarCubrimientoAsistencia(listaPuestos){
   }
   else {
     table = $("#asistenciaTable").DataTable({
+      //order: [[ 0, "asc" ],[ 1, "asc" ],[ 2, "asc" ]],
+      orderFixed: [[ 0, "asc" ],[ 1, "asc" ],[ 4, "asc" ],[ 2, "asc" ]],
       paging: true,
       searching: true,
       ordering:  true,
@@ -1023,7 +1091,7 @@ function cargarCubrimientoAsistencia(listaPuestos){
               data: 'es',
               render: function ( data, type, row ) {
                 if(data=="ingreso-descubierto"){
-                  return '<span class="label" style="background-color:#FF6347;">Descubiertos</span>';
+                  return '<span class="label" style="background-color:#FF6347;">Descubierto</span>';
                 } else if (data=="ingreso-no-iniciado"){
                   return '<span class="label" style="background-color:#558B2F;">No Iniciado</span>';
                 } else if (data=="ingreso-cubierto-tarde"){
@@ -1142,50 +1210,146 @@ function cargarCubrimientoAsistencia(listaPuestos){
     });
   }
 
-  listaPuestos.forEach(function(item){
-    let currentRow = table.row.add(item).draw();
-    let row = currentRow.node();
-    if(item.es=="Descubierto"){
-      $(row).addClass("grupo-descubierto");
-    }else if(item.es=="No Iniciado"){
-      $(row).addClass("grupo-no-iniciado");
-    } else if (item.es=="Cubierto Tarde"){
-      $(row).addClass("grupo-cubierto-tarde");
-    } else if (item.es=="Cubierto"){
-      $(row).addClass("grupo-cubierto");
-    } else if (item.es=="Cerrado"){
-      $(row).addClass("grupo-cerrado");
-    } else if (item.es=="Cierre Anticipado"){
-      $(row).addClass("grupo-cierre-anticipado");
-    } else if (item.es=="Cubriendose"){
-      $(row).addClass("grupo-cubriendose");
-    } else if (item.es=="No Cerrado"){
-      $(row).addClass("grupo-no-cerrado");
-    }
-  })
-
   $('#asistenciaTable tbody').off('click', 'span.editar');
 
   $('#asistenciaTable tbody').on('click', 'span.editar', function () {
     let row = $(this);
     let rowData = table.row(row.parents("tr")).data();
     if(rowData.es.includes('descubierto')){
-      // Swal.fire({
-      //   icon: 'error',
-      //   title: 'Objetivo descubierto',
-      //   text: 'El objetivo esta descubierto',
-      // });
       mostrarTurnoAsistencia(rowData,row);
     }else if(rowData.es.includes('no-iniciado')){
-      // Swal.fire({
-      //   icon: 'error',
-      //   title: 'Objetivo no iniciado',
-      //   text: 'El objetivo aun no ha iniciado',
-      // });
       mostrarTurnoAsistencia(rowData,row);
     } else {
       mostrarTurnoAsistencia(rowData,row);
     }
+  });
+
+}
+
+function addRow(rowData){
+
+    let table = $("#asistenciaTable").DataTable();
+    let rowToDelete = table.rows( function ( idx, data, node ) {
+            if(data.nc==rowData.nc && data.no==rowData.no && data.pu==rowData.pu && data.es.includes('descubierto') ||
+               data.nc==rowData.nc && data.no==rowData.no && data.pu==rowData.pu && data.es.includes('no-iniciado')
+             ){
+               return true;
+             }else{
+               return false;
+             }
+        }).remove().draw();
+    let currentRow = table.row.add(rowData).draw();
+    let row = currentRow.node();
+    if(rowData.ex.ic!="" && rowData.ex.ic!=undefined){
+      $(row).attr('id',rowData.ex.ic);
+    }
+    if(rowData.es=="ingreso-descubierto"){
+      $(row).addClass("grupo-descubierto");
+    } else if (rowData.es=="ingreso-no-iniciado"){
+      $(row).addClass("grupo-no-iniciado");
+    } else if (rowData.es=="ingreso-cubierto-tarde"){
+      $(row).addClass("grupo-cubierto-tarde");
+    } else if (rowData.es=="ingreso-cubierto"){
+      $(row).addClass("grupo-cubierto");
+    } else if (rowData.es=="egreso-cerrado"){
+      $(row).addClass("grupo-cerrado");
+    } else if (rowData.es=="egreso-cierre-anticipado"){
+      $(row).addClass("grupo-cierre-anticipado");
+    } else if (rowData.es=="egreso-cubriendose"){
+      $(row).addClass("grupo-cubriendose");
+    } else if (rowData.es=="egreso-no-cerrado"){
+      $(row).addClass("grupo-no-cerrado");
+    }
+
+}
+
+function modRow(rowData){
+  table = $("#asistenciaTable").DataTable();
+  let currentRow = table.row("#"+rowData.ex.ic).data(rowData).draw();
+  let row = currentRow.node();
+  row.classList.remove("grupo-descubierto", "grupo-no-iniciado" , "grupo-cubierto-tarde" , "grupo-cubierto" , "grupo-cerrado" , "grupo-cierre-anticipado" , "grupo-cubriendose" , "grupo-no-cerrado" );
+  if(rowData.es=="ingreso-descubierto"){
+    $(row).addClass("grupo-descubierto");
+  } else if (rowData.es=="ingreso-no-iniciado"){
+    $(row).addClass("grupo-no-iniciado");
+  } else if (rowData.es=="ingreso-cubierto-tarde"){
+    $(row).addClass("grupo-cubierto-tarde");
+  } else if (rowData.es=="ingreso-cubierto"){
+    $(row).addClass("grupo-cubierto");
+  } else if (rowData.es=="egreso-cerrado"){
+    $(row).addClass("grupo-cerrado");
+  } else if (rowData.es=="egreso-cierre-anticipado"){
+    $(row).addClass("grupo-cierre-anticipado");
+  } else if (rowData.es=="egreso-cubriendose"){
+    $(row).addClass("grupo-cubriendose");
+  } else if (rowData.es=="egreso-no-cerrado"){
+    $(row).addClass("grupo-no-cerrado");
+  }
+}
+
+function remRow(idCliente,idObjetivo,idFecha,nombreCliente,nombreObjetivo,puesto,idCubrimiento,fechaPuesto,horaActual){
+
+  return new Promise(function(resolve,reject){
+    let estado="ingreso-descubierto";
+    let options = {year: "numeric", month: "numeric", day: "numeric"};
+    let ingresoPuestoDate="";
+
+    let sepHr = puesto.ingresoPuesto.indexOf(":");
+    let horas = parseInt(puesto.ingresoPuesto.substr(0,sepHr));
+    let minutos = parseInt(puesto.ingresoPuesto.substr(sepHr+1,2));
+
+    fechaPuesto.setHours(horas,minutos,0,0);
+
+    if(fechaPuesto>horaActual){
+      estado="ingreso-no-iniciado";
+    }
+
+     let rowData = {
+       nc : nombreCliente,
+       no : nombreObjetivo,
+       pu : puesto.nombrePuesto+" - "+puesto.nombreTurno,
+       fe : fechaPuesto.toLocaleDateString("es-ES",options),
+       ip : puesto.ingresoPuesto,
+       hi : "-",
+       ep : puesto.egresoPuesto,
+       he : "-",
+       pe : "-",
+       es : estado,
+       ex : {
+              np : puesto.nombrePuesto,
+              nt : puesto.nombreTurno,
+              ht : puesto.horasTurno,
+              fp : getDateStr(fechaPuesto),
+              tn : puesto.turnoNoche,
+              idc : idCliente,
+              ido : idObjetivo,
+              idf : idFecha,
+            },
+     }
+
+     table = $("#asistenciaTable").DataTable();
+     let currentRow = table.row("#"+idCubrimiento).data(rowData).draw();
+     let row = currentRow.node();
+     row.classList.remove("grupo-descubierto", "grupo-no-iniciado" , "grupo-cubierto-tarde" , "grupo-cubierto" , "grupo-cerrado" , "grupo-cierre-anticipado" , "grupo-cubriendose" , "grupo-no-cerrado" );
+     $(row).removeAttr("id");
+     if(rowData.es=="ingreso-descubierto"){
+       $(row).addClass("grupo-descubierto");
+     } else if (rowData.es=="ingreso-no-iniciado"){
+       $(row).addClass("grupo-no-iniciado");
+     } else if (rowData.es=="ingreso-cubierto-tarde"){
+       $(row).addClass("grupo-cubierto-tarde");
+     } else if (rowData.es=="ingreso-cubierto"){
+       $(row).addClass("grupo-cubierto");
+     } else if (rowData.es=="egreso-cerrado"){
+       $(row).addClass("grupo-cerrado");
+     } else if (rowData.es=="egreso-cierre-anticipado"){
+       $(row).addClass("grupo-cierre-anticipado");
+     } else if (rowData.es=="egreso-cubriendose"){
+       $(row).addClass("grupo-cubriendose");
+     } else if (rowData.es=="egreso-no-cerrado"){
+       $(row).addClass("grupo-no-cerrado");
+     }
+     resolve();
   });
 
 }
@@ -1742,10 +1906,10 @@ function cargarRangeSliderDetalleTurno(rowData){
   });
 
   $("#boton-eliminar-turno").click(function() {
-    $("#card-contenedor").hide(300);
-    $("#horas-turno-detalle").hide(300);
-    $("#mostrar-botones").hide(300);
-    $("#mostrarInforme").hide(300);
+    $("#card-contenedor").hide();
+    $("#horas-turno-detalle").hide();
+    $("#mostrar-botones").hide();
+    $("#mostrarInforme").hide();
     $("#boton-eliminar-turno").prop( "disabled", true );
     $("#boton-habilitar-turno").prop( "disabled", false );
     document.getElementById('icon-informe').className = 'fas fa-angle-double-down';
@@ -1764,9 +1928,9 @@ function cargarRangeSliderDetalleTurno(rowData){
   });
 
   $("#boton-habilitar-turno").click(function() {
-    $("#card-contenedor").show(300);
-    $("#horas-turno-detalle").show(300);
-    $("#mostrar-botones").show(300);
+    $("#card-contenedor").show();
+    $("#horas-turno-detalle").show();
+    $("#mostrar-botones").show();
     $("#boton-eliminar-turno").prop( "disabled", false );
     $("#boton-habilitar-turno").prop( "disabled", true );
     $("#slider-detalle-turno").attr( "delete", false );
@@ -1811,7 +1975,7 @@ function cargarRangeSliderDetalleTurno(rowData){
   });
 
   $("#btn-confirma-personal").click(function(){
-
+    console.log("#btn-confirma-personal");
     if($("#selectPersonal").val()!=""){
       $("#seleccionPersonal").hide(300);
       $("#card-contenedor").show(300);
@@ -2028,8 +2192,7 @@ function guardarCambiosAsistencia(rowData,row){
           .delete()
           .then(function() {
             $("#detalle-turno").modal("hide");
-            //eliminarFila(rowData,row);
-            cargarFila(rowData,row);
+            //cargarFila(rowData,row);
             Swal.fire({
               icon: 'success',
               title: 'Cubrimiento eliminado con exito',
@@ -2116,7 +2279,7 @@ function guardarCambiosAsistencia(rowData,row){
              rowData.ex.ic = doc.id;
              cargarFechaNueva(rowData);
              $("#detalle-turno").modal("hide");
-             cargarFila(rowData,row);
+             //cargarFila(rowData,row);
              Swal.fire({
                icon: 'success',
                title: 'Cambios guardados correctamente',
@@ -2141,7 +2304,7 @@ function guardarCambiosAsistencia(rowData,row){
           .update(cubrimiento)
           .then(function() {
             $("#detalle-turno").modal("hide");
-            cargarFila(rowData,row);
+            //cargarFila(rowData,row);
             Swal.fire({
               icon: 'success',
               title: 'Cambios guardados correctamente',
@@ -2193,7 +2356,7 @@ function guardarCambiosAsistencia(rowData,row){
       .update(cubrimiento)
       .then(function() {
         $("#detalle-turno").modal("hide");
-        cargarFila(rowData,row);
+        //cargarFila(rowData,row);
         Swal.fire({
           icon: 'success',
           title: 'Cambios guardados correctamente',
@@ -2239,7 +2402,7 @@ function cargarFila(rowData,row){
       egresoPuestoDate = new Date( Date.parse(rowData.ex.fp+"T"+rowData.ep+":00") );
     }
 
-    if(rowData.ex.her!=""){ // Si la hora del puesto esta cargada y no es vacia
+    if(rowData.ex.her!="" && rowData.ex.her!=undefined){ // Si la hora del puesto esta cargada y no es vacia
       let horaEgresoDate = new Date( Date.parse(rowData.ex.fe+"T"+rowData.ex.her+":00") ); // Ver de generar objeto Date
       let egresoParametrizadoDate = egresoParametrizado(ingresoPuestoDate,egresoPuestoDate,horaEgresoDate)
       if(egresoParametrizadoDate<egresoPuestoDate){
@@ -2323,6 +2486,7 @@ function cargarFechaNueva(rowData){
     console.log("Error la fecha",error);
   });
 }
+
 
 //Funciones de Prueba
 function copiarDocumento(){
