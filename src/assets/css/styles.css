@@ -65,3 +65,15 @@
 .grupo-no-cerrado{
   color:#76448A;
 }
+
+.highlight_add {
+  background-color: #A9EFAE !important;
+}
+
+.highlight_del {
+  background-color: #EC806B !important;
+}
+
+.highlight_mod {
+  background-color: #6BAFEC !important;
+}
