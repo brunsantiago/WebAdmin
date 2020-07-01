@@ -2280,6 +2280,7 @@ function guardarCambiosAsistencia(rowData,row){
       let toManual = $("#horaIngresoManual").attr("hora-egreso");
       let oldData = {};
       let cubrimiento = {};
+      let ultimaSesion = {};
 
       if(oldFromManual!=fromManual || oldToManual!=toManual){
         if(oldFromManual!=fromManual){
@@ -2315,6 +2316,7 @@ function guardarCambiosAsistencia(rowData,row){
         }
 
         if(nuevoTurno=="true"){
+
            cubrimiento.idPersonal = ""+$("#personalDetalleDia").data("id");
            cubrimiento.ingresoPuesto = rowData.ip;
            cubrimiento.egresoPuesto = rowData.ep;
@@ -2342,8 +2344,15 @@ function guardarCambiosAsistencia(rowData,row){
            db.collection("clientes").doc(rowData.ex.idc).collection("objetivos").doc(rowData.ex.ido).collection("cobertura").doc(rowData.ex.idf).collection("puestos")
            .add(cubrimiento)
            .then(function(doc) {
+             let ultimaSesion = {
+               cliente : rowData.nc,
+               objetivo : rowData.no,
+               sesionID : doc.id,
+               pathTurno : doc.path,
+             };
              rowData.ex.ic = doc.id;
              cargarFechaNueva(rowData);
+             cambiarUltimaSesion(ultimaSesion,cubrimiento.idPersonal);
              $("#detalle-turno").modal("hide");
              //cargarFila(rowData,row);
              Swal.fire({
@@ -2370,7 +2379,6 @@ function guardarCambiosAsistencia(rowData,row){
           .update(cubrimiento)
           .then(function() {
             $("#detalle-turno").modal("hide");
-            //cargarFila(rowData,row);
             Swal.fire({
               icon: 'success',
               title: 'Cambios guardados correctamente',
@@ -2422,7 +2430,6 @@ function guardarCambiosAsistencia(rowData,row){
       .update(cubrimiento)
       .then(function() {
         $("#detalle-turno").modal("hide");
-        //cargarFila(rowData,row);
         Swal.fire({
           icon: 'success',
           title: 'Cambios guardados correctamente',
@@ -2441,6 +2448,21 @@ function guardarCambiosAsistencia(rowData,row){
       });
     }
   }
+
+}
+
+function cambiarUltimaSesion(ultimaSesion,idPersonal){
+
+  db.collection("users")
+  .where("idPersonal","==",idPersonal)
+  .set({//estadoSesion : true,
+        ultimaSesion : ultimaSesion}, { merge: true })
+  .then(function(querySnapshot) {
+    console.log("Ultima Sesion Actualizada Correctamente");
+  })
+  .catch(function(){
+    resolve("Error al actualizar datos de la Ultima Session")
+  });
 
 }
 
@@ -2690,23 +2712,6 @@ function verificarEstados(){
 function ultimaActualizacion(horaActual){
   let month = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
   $("#ultima-actualizacion").text("Ultima Actualizacion "+horaActual.getDate()+" de "+month[horaActual.getMonth()]+" de "+horaActual.getFullYear()+" a las "+addZero(horaActual.getHours())+":"+addZero(horaActual.getMinutes())+" Hs.");
-}
-
-//Funciones de Prueba
-function copiarDocumento(){
-let docACopiar="";
-  db.collection("clientes").doc("DIA").collection("objetivos").doc("TIENDA 143").collection("cobertura").doc("2020-03-14").collection("puestos")
-  .doc("hYBqbPU5iRKJRneGoCbh")
-  .get()
-  .then(function(doc){
-    docACopiar = doc.data();
-
-    db.collection("clientes").doc("DIA").collection("objetivos").doc("TIENDA 143").collection("cobertura").doc("2020-03-13").collection("puestos")
-    .add(docACopiar)
-    .then(function(doc){
-    });
-  });
-
 }
 
 function clearOptionsFast(id){
