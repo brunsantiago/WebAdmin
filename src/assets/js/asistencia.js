@@ -2051,7 +2051,10 @@ function cargarRangeSliderDetalleTurno(rowData){
 
       $("#personalDetalleDia").text($("#selectPersonal").val());
       let idPersonal = $("#dataListPersonal").find("option[value='"+$("#selectPersonal").val()+"']").data("id");
+      let idDoc = $("#dataListPersonal").find("option[value='"+$("#selectPersonal").val()+"']").data("doc");
+
       $("#personalDetalleDia").data("id",idPersonal);
+      $("#personalDetalleDia").data("idDoc",idDoc);
 
       $("#horaIngresoManual").attr("carga-manual","true");
       my_range.update({
@@ -2316,7 +2319,7 @@ function guardarCambiosAsistencia(rowData,row){
         }
 
         if(nuevoTurno=="true"){
-
+           let idDoc = ""+$("#personalDetalleDia").data("idDoc");
            cubrimiento.idPersonal = ""+$("#personalDetalleDia").data("id");
            cubrimiento.ingresoPuesto = rowData.ip;
            cubrimiento.egresoPuesto = rowData.ep;
@@ -2345,14 +2348,15 @@ function guardarCambiosAsistencia(rowData,row){
            .add(cubrimiento)
            .then(function(doc) {
              let ultimaSesion = {
-               cliente : rowData.nc,
-               objetivo : rowData.no,
+               nombreCliente : rowData.nc,
+               nombreObjetivo : rowData.no,
                sesionID : doc.id,
                pathTurno : doc.path,
+               fechaPuesto : rowData.ex.fp,
              };
              rowData.ex.ic = doc.id;
              cargarFechaNueva(rowData);
-             cambiarUltimaSesion(ultimaSesion,cubrimiento.idPersonal);
+             cambiarUltimaSesion(ultimaSesion,idDoc);
              $("#detalle-turno").modal("hide");
              //cargarFila(rowData,row);
              Swal.fire({
@@ -2451,11 +2455,12 @@ function guardarCambiosAsistencia(rowData,row){
 
 }
 
-function cambiarUltimaSesion(ultimaSesion,idPersonal){
+function cambiarUltimaSesion(ultimaSesion,idDoc){
 
-  db.collection("users")
-  .where("idPersonal","==",idPersonal)
-  .set({//estadoSesion : true,
+  console.log("idDoc: "+idDoc);
+
+  db.collection("users").doc(idDoc)
+  .set({estadoSesion : true,
         ultimaSesion : ultimaSesion}, { merge: true })
   .then(function(querySnapshot) {
     console.log("Ultima Sesion Actualizada Correctamente");
@@ -2537,6 +2542,7 @@ function listadoPersonalAsistencia(idDataList){
         let item = {
           no : doc.data().nombre,
           ip : doc.data().idPersonal,
+          idDoc : doc.id,
         };
         listadoPersonal.push(item);
       });
@@ -2555,6 +2561,7 @@ function desplegablePersonalAsistencia(listadoPersonal,idDataList){
      option.text = "Nro Legajo: "+item.ip;
      option.value = item.no;
      option.setAttribute("data-id",item.ip);
+     option.setAttribute("data-doc",item.idDoc);
      datalist.appendChild(option);
   });
 }
