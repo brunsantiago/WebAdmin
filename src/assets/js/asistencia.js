@@ -498,7 +498,6 @@ function cargarCoberturaIngresos(nombreCliente,nombreObjetivo,idCliente,idObjeti
 }
 
 function cargarCoberturaEgresos(nombreCliente,nombreObjetivo,idCliente,idObjetivo,fechaActual,puesto,horaActual){
-
   //fecha Actual es igual a la fecha del puesto a cargar, esta si puede variar al ingresar como parametro cuando se analiza el dia anterior fechaAyer
   return new Promise(function(resolve,reject){
 
@@ -604,6 +603,7 @@ function cargarTurnoAsistenciaIngresos(idCliente,idObjetivo,idFecha,nombreClient
               fp : cubrimiento.fechaPuesto,
               fi : cubrimiento.fechaIngreso,
               fe : cubrimiento.fechaEgreso,
+              tn : puesto.turnoNoche,
               idc : idCliente,
               ido : idObjetivo,
               idf : idFecha,
@@ -740,7 +740,7 @@ function cargarTurnoAsistenciaEgresos(idCliente,idObjetivo,idFecha,nombreCliente
             fp : cubrimiento.fechaPuesto,
             fi : cubrimiento.fechaIngreso,
             fe : cubrimiento.fechaEgreso,
-            tn : cubrimiento.turnoNoche,
+            tn : puesto.turnoNoche,
             idc : idCliente,
             ido : idObjetivo,
             idf : idFecha,
@@ -1876,6 +1876,8 @@ function cargarRangeSliderDetalleTurno(rowData){
       let ingresoDate = "";
       let egresoDate = "";
       if(compararHorasString(horaIngreso,horaEgreso)==-1 && rowData.ex.tn!=true){ // horaEgreso menor a horaIngreso
+        console.log("rowData.ex.tn!=true");
+        console.log(rowData.ex.tn);
         $("#egresoVacioMsj").hide();
         $("#egresoErrorMsj").show();
         $("#egresoInput").removeClass("has-warning");
@@ -2191,6 +2193,8 @@ function guardarCambiosAsistencia(rowData,row){
   let difHoras = totalHorasDetalle(from,to);
   let errorMessage=false;
 
+  let cerrarSesion=false;
+
   if (oldHours < difHoras){
     if( $("#sel-amp-horas").val() == 0) {
       errorMessage=true;
@@ -2251,17 +2255,17 @@ function guardarCambiosAsistencia(rowData,row){
       })
       .then((result) => {
         if (result.value) {
-
           rowData.hi = "-";
           rowData.he = "-";
           rowData.pe = "-";
           rowData.es = "-";
-
           db.collection("clientes").doc(rowData.ex.idc).collection("objetivos").doc(rowData.ex.ido).collection("cobertura").doc(rowData.ex.idf).collection("puestos").doc(rowData.ex.ic)
           .delete()
           .then(function() {
             $("#detalle-turno").modal("hide");
-            //cargarFila(rowData,row);
+
+            console.log("Se debe cerrar la ultima sesion");
+
             Swal.fire({
               icon: 'success',
               title: 'Cubrimiento eliminado con exito',
@@ -2297,6 +2301,9 @@ function guardarCambiosAsistencia(rowData,row){
         }
         if (oldToManual!=toManual){
             if(toManual!=""){
+              if(rowData.he=="-"){
+                cerrarSesion=true;
+              }
               oldData.oldTo = oldToManual;
               cubrimiento.horaEgreso = getHoursStr(new Date(toManual));
               cubrimiento.fechaEgreso = getDateStr(new Date(toManual));
@@ -2347,6 +2354,7 @@ function guardarCambiosAsistencia(rowData,row){
            db.collection("clientes").doc(rowData.ex.idc).collection("objetivos").doc(rowData.ex.ido).collection("cobertura").doc(rowData.ex.idf).collection("puestos")
            .add(cubrimiento)
            .then(function(doc) {
+             let estadoSesion = true;
              let ultimaSesion = {
                nombreCliente : rowData.nc,
                nombreObjetivo : rowData.no,
@@ -2356,9 +2364,11 @@ function guardarCambiosAsistencia(rowData,row){
              };
              rowData.ex.ic = doc.id;
              cargarFechaNueva(rowData);
-             cambiarUltimaSesion(ultimaSesion,idDoc);
+             if(toManual!=""){
+               estadoSesion = false;
+             }
+             cambiarUltimaSesion(estadoSesion,ultimaSesion,idDoc);
              $("#detalle-turno").modal("hide");
-             //cargarFila(rowData,row);
              Swal.fire({
                icon: 'success',
                title: 'Cambios guardados correctamente',
@@ -2383,6 +2393,9 @@ function guardarCambiosAsistencia(rowData,row){
           .update(cubrimiento)
           .then(function() {
             $("#detalle-turno").modal("hide");
+            if(cerrarSesion==true){
+              cerrarUltimaSesion(rowData.ex.ip);
+            }
             Swal.fire({
               icon: 'success',
               title: 'Cambios guardados correctamente',
@@ -2414,6 +2427,9 @@ function guardarCambiosAsistencia(rowData,row){
         rowData.ex.fi = getDateStr(from);
       }
       if(oldTo!=to){
+        if(rowData.he=="-"){
+          cerrarSesion=true;
+        }
         oldData.oldTo = oldTo;
         cubrimiento.horaEgreso = getHoursStr(to);
         cubrimiento.fechaEgreso = getDateStr(to);
@@ -2432,8 +2448,11 @@ function guardarCambiosAsistencia(rowData,row){
 
       db.collection("clientes").doc(rowData.ex.idc).collection("objetivos").doc(rowData.ex.ido).collection("cobertura").doc(rowData.ex.idf).collection("puestos").doc(rowData.ex.ic)
       .update(cubrimiento)
-      .then(function() {
+      .then(function(doc) {
         $("#detalle-turno").modal("hide");
+        if(cerrarSesion==true){
+          cerrarUltimaSesion(rowData.ex.ip);
+        }
         Swal.fire({
           icon: 'success',
           title: 'Cambios guardados correctamente',
@@ -2455,18 +2474,43 @@ function guardarCambiosAsistencia(rowData,row){
 
 }
 
-function cambiarUltimaSesion(ultimaSesion,idDoc){
-
-  console.log("idDoc: "+idDoc);
+function cambiarUltimaSesion(estadoSesion,ultimaSesion,idDoc){
 
   db.collection("users").doc(idDoc)
-  .set({estadoSesion : true,
+  .set({estadoSesion : estadoSesion,
         ultimaSesion : ultimaSesion}, { merge: true })
   .then(function(querySnapshot) {
-    console.log("Ultima Sesion Actualizada Correctamente");
   })
   .catch(function(){
     resolve("Error al actualizar datos de la Ultima Session")
+  });
+
+}
+
+function cerrarUltimaSesion(idPersonal){
+
+  db.collection("users")
+  .where("idPersonal","==",idPersonal)
+  .get()
+  .then(function(querySnapshot) {
+      if (querySnapshot.empty) {
+        console.log("No se encontro el Personal");
+      } else {
+        querySnapshot.forEach(function(doc) {
+
+          db.collection("users").doc(doc.id)
+          .update({estadoSesion : false})
+          .then(function(querySnapshot) {
+          })
+          .catch(function(){
+            resolve("Error al cerrar Ultima Session")
+          });
+
+        });
+      }
+  })
+  .catch(function(){
+    resolve("Error Personal")
   });
 
 }
