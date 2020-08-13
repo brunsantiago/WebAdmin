@@ -73,3 +73,8 @@
   color: #F1948A;
   font-size: 13px;
 }
+
+/* Desbloquea el Scroll del Modal cuanda se ultiza mas de uno en pantalla */
+.modal {
+  overflow-y:auto;
+}

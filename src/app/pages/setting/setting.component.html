@@ -41,7 +41,7 @@
                         <div class=" col-sm-6 col-md-5 col-lg-3">
                           <div class="form-group">
                               <label for="selectCliente">Cliente</label>
-                               <input type="text" class="form-control" list="dataListClient" id="selectCliente" placeholder="Seleccione un cliente" onchange="listadoObjetivosBranch('selectCliente','selectObjetivo','dataListObjetivo')">
+                               <input type="text" class="form-control" list="dataListClient" id="selectCliente" placeholder="Seleccione un cliente" onchange="listadoObjetivosBranch('selectCliente','selectObjetivo','dataListObjetivo','TODOS',false)">
                                <datalist id="dataListClient">
                                </datalist>
                           </div>
@@ -445,7 +445,7 @@
                          <div class="col-sm-6 col-md-5 col-lg-3">
                            <div class="form-group">
                                <label for="selectCliente2">Cliente</label>
-                                <input type="text" class="form-control" list="dataListClient2" id="selectCliente2" placeholder="Seleccione un cliente" onchange="listadoObjetivosBranch('selectCliente2','selectObjetivo2','dataListObjetivo2')">
+                                <input type="text" class="form-control" list="dataListClient2" id="selectCliente2" placeholder="Seleccione un cliente" onchange="listadoObjetivosBranch('selectCliente2','selectObjetivo2','dataListObjetivo2','TODOS',false)">
                                 <datalist id="dataListClient2">
                                 </datalist>
                            </div>
@@ -693,10 +693,18 @@
             <div class="row">
               <div class="col-md-4">
 
-                  <div class="form-group">
-                    <i class="fa fa-street-view"></i><label class="conf">Nombre del Puesto: </label>
-                      <input type="text" class="form-control"  name="nombrePuesto1"  id="nombrePuesto1">
+
+                <i class="fa fa-street-view"></i><label class="conf">Nombre del Puesto: </label>
+                  <div class="input-group">
+                      <input type="text" class="form-control" list="dataListPuesto" name="nombrePuesto1"  id="nombrePuesto1" placeholder="Seleccione un puesto..." autocomplete="off">
+                      <datalist id="dataListPuesto">
+                      </datalist>
+                      <span class="input-group-btn">
+                        <button class="btn btn-default" type="button" onclick="agregarPuestoModal()"><i class="fas fa-plus"></i></button>
+                      </span>
                   </div>
+
+                  <br>
 
                   <div class="form-group">
                       <i class="fa fa-folder-open"></i><label class="conf">Nombre del Turno: </label>
@@ -706,7 +714,7 @@
                   <div class="form-group">
                     <i class="glyphicon glyphicon-log-in"></i><label for="datetimepickerHI" class="conf">Hora Ingreso: </label>
                     <div class="input-group" id="datetimepickerHI">
-                        <input type="text" class="form-control" name="horaIngreso1" id="horaIngreso1"/>
+                        <input type="text" class="form-control" name="horaIngreso1" id="horaIngreso1" placeholder="Ingrese una hora de ingreso" autocomplete="off"/>
                         <span class="input-group-addon">
                             <span class="glyphicon glyphicon-time"></span>
                         </span>
@@ -716,7 +724,7 @@
                   <div class="form-group">
                     <i class="glyphicon glyphicon-log-out"></i><label for="datetimepickerHE" class="conf">Hora Egreso: </label>
                     <div class="input-group" id="datetimepickerHE">
-                        <input type="text" class="form-control" name="horaEgreso1" id="horaEgreso1"/>
+                        <input type="text" class="form-control" name="horaEgreso1" id="horaEgreso1" placeholder="Ingrese una hora de egreso" autocomplete="off"/>
                         <span class="input-group-addon">
                             <span class="glyphicon glyphicon-time"></span>
                         </span>
@@ -1222,5 +1230,5 @@
 
     </div>
 
-  </div>
+    </div>
     </div>

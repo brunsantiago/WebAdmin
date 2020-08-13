@@ -22,3 +22,7 @@ Device.js
 En la APP y en la WEB
 
 1) Cargar la fecha del puesto dentro de la Ultima Sesion
+
+Asistencia.js
+
+1) Se debe cerrar la sesion del usuario al eliminar un turno o manejar el evento

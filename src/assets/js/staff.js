@@ -782,3 +782,13 @@ function cambiarClave(){
     console.log(error);
   });
 }
+
+function inicializarFuncionesStaff(){
+  listadoPersonalAsistencia("dataListPersonal");
+  checkCoordenadas();
+  listadoSupervisores();
+  listadoObjetivosPersonal();
+  desplegableSexo();
+  desplegableEstadoCivil();
+  desplegableCategoria();
+}

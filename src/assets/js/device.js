@@ -389,10 +389,10 @@ function inicializarFuncionesDispositivos(){
   validateFormModificarDispositivo();
   desplegableEstadoDispositivo("dataListEstado");
   desplegableMarcaDispositivo("dataListMarca");
-  listadoClientesClient("dataListClient");
+  listadoClientesClient("dataListClient","TODOS",false);
   desplegableEstadoDispositivo("dataListEstadoMod");
   desplegableMarcaDispositivo("dataListMarcaMod");
-  listadoClientesClient("dataListClientMod");
+  listadoClientesClient("dataListClientMod","TODOS",false);
   enforcingValueDataList();
 }
 

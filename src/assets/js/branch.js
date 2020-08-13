@@ -1,59 +1,6 @@
 
 let objetivoObject;
 
-function listadoObjetivosBranch(idSelectClient,idSelectBranch,idDataList,allBranch){
-
-  let listadoObjetivos = [];
-  let nombreCliente = $("#"+idSelectClient).val();
-
-  $("#"+idSelectBranch).val("");
-
-  db.collection("clientes").where("nombreCliente","==",nombreCliente)
-    .get()
-    .then(function(querySnapshot) {
-      if(querySnapshot.empty){
-        desplegableObjetivosBranch(listadoObjetivos,idSelectClient,idSelectBranch,idDataList);
-      }else{
-        querySnapshot.forEach(function(doc) {
-          idClienteGlobal = doc.id;
-            db.collection("clientes").doc(doc.id).collection("objetivos")
-            .get()
-            .then(function(querySnapshot) {
-              querySnapshot.forEach(function(doc) {
-                    listadoObjetivos.push(doc.data().nombreObjetivo);
-              });
-              desplegableObjetivosBranch(listadoObjetivos,idSelectClient,idSelectBranch,idDataList,allBranch);
-            });
-        })
-      }
-    });
-}
-
-function desplegableObjetivosBranch(listadoObjetivos,idSelectClient,idSelectBranch,idDataList,allBranch){
-
-  let datalist = document.getElementById(idDataList);
-  $("#"+idDataList).empty();
-  if($("#"+idSelectClient).val()=="TODOS"){
-    $("#"+idSelectBranch).val("TODOS");
-  } else if($("#"+idSelectClient).val()==""){
-    $("#"+idSelectBranch).attr("placeholder", "Esperando un cliente...");
-  } else if(listadoObjetivos.length==0){
-    $("#"+idSelectBranch).attr("placeholder", "Sin objetivos");
-  } else {
-      $("#"+idSelectBranch).attr("placeholder", "Seleccione un objetivo");
-      if(allBranch==true){
-        let option = document.createElement("option");
-        option.value = "TODOS";
-        datalist.appendChild(option);
-      }
-      listadoObjetivos.forEach(function(item){
-         let option = document.createElement("option");
-         option.value = mayus(item);
-         datalist.appendChild(option);
-      });
-  }
-}
-
 function listadoSupervisores(){
 
   let listadoSuper = [];
@@ -525,7 +472,7 @@ function desplegableImei(listadoImei){
 }
 
 function inicializarFuncionesBranch(){
-  listadoClientesClient("dataListClient");
+  listadoClientesClient("dataListClient","TODOS",false);
   checkCoordenadas();
   listadoSupervisores();
   enforcingValueDataList();

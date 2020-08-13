@@ -62,7 +62,7 @@
                        <div class=" col-sm-6 col-md-5 col-lg-3">
                          <div class="form-group">
                              <label for="selectCliente">Cliente</label>
-                              <input type="text" class="form-control" list="dataListClient" id="selectCliente" placeholder="Seleccione un cliente" onchange="listadoObjetivosBranch('selectCliente','selectObjetivo','dataListObjetivo',true)" autocomplete="off">
+                              <input type="text" class="form-control" list="dataListClient" id="selectCliente" placeholder="Seleccione un cliente" onchange="listadoObjetivosBranch('selectCliente','selectObjetivo','dataListObjetivo','TODOS',true)" autocomplete="off">
                               <datalist id="dataListClient">
                               </datalist>
                          </div>
@@ -191,7 +191,7 @@
                              <th style="text-align:center">Hora Egreso</th>
                              <th style="text-align:center">Personal</th>
                              <th style="text-align:center">Estado</th>
-                             <th style="text-align:center">Ver</th>
+                             <th style="text-align:center">Accion</th>
                            </tr>
                          </thead>
                          <tbody>
@@ -200,6 +200,12 @@
                      </div>
                    </div>
                  </div>
+
+
+                   <div style="text-align: center;">
+                     <button type="button" id="cargar_turno" class="btn btn-primary" onclick="cargarNuevoTurnoModal()">Registrar Ingreso</button>
+                   </div>
+
 
 
                  <br/>
@@ -521,6 +527,89 @@
     </div>
 
     <br>
+
+  </div>
+</div>
+
+<!-- Modal Carga Puesto -->
+<div id="cargar-turno" class="modal fade" role="dialog">
+  <div class="modal-dialog modal-lg">
+  <!-- Modal content-->
+  <div class="modal-content">
+
+    <div class="modal-header bg-primary">
+      <button type="button" class="close" data-dismiss="modal">&times;</button>
+      <i class="fa fa-building-o"></i><label class="ml-7"><h4>Registrar Ingreso</h4></label>
+    </div>
+
+
+      <div class="modal-body  modal-body-detalle">
+
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title" id="tituloPuesto">Datos del turno</h3>
+          </div>
+
+          <br>
+
+          <div class="row conf">
+            <div class=" col-sm-12 col-md-12 col-lg-12">
+
+              <form class="form-horizontal">
+                <div class="form-group">
+                  <label for="selectClienteNuevoTurno" class="col-sm-2 control-label">Cliente</label>
+                  <div class="col-sm-6">
+                    <input type="text" class="form-control" list="dataListClientNuevoTurno" id="selectClienteNuevoTurno" placeholder="Seleccione un cliente" onchange="listadoObjetivosNuevoTurno()" autocomplete="off">
+                    <datalist id="dataListClientNuevoTurno">
+                    </datalist>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="selectObjetivoNuevoTurno" class="col-sm-2 control-label">Objetivo</label>
+                  <div class="col-sm-6">
+                    <input type="text" class="form-control" list="dataListObjetivoNuevoTurno" id="selectObjetivoNuevoTurno" placeholder="Esperando un cliente..." autocomplete="off" onchange="cargarTurnosEsquema()">
+                    <datalist id="dataListObjetivoNuevoTurno">
+                    </datalist>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="selectTurno" class="col-sm-2 control-label">Turno</label>
+                  <div class="col-sm-6">
+                    <input type="text" class="form-control" list="dataListTurno" id="selectTurno" placeholder="Esperando un objetivo..." autocomplete="off">
+                    <datalist id="dataListTurno">
+                    </datalist>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="fechaIngreso" class="col-sm-2 control-label">Fecha de Ingreso</label>
+                  <div class="col-sm-6">
+                    <input type="text" class="form-control" id="fechaIngreso" readonly>
+                  </div>
+                </div>
+              </form>
+
+            </div>
+          </div>
+
+          <br>
+
+          <div class="panel-footer">
+
+          </div>
+
+
+      </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-success" onclick="cargarNuevoTurno()">Continuar</button>
+        <button type="button" class="btn" data-dismiss="modal">Cerrar</button>
+      </div>
+
+
+
+  </div>
 
   </div>
 </div>

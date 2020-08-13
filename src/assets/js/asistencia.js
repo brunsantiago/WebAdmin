@@ -20,8 +20,7 @@ function cargarPuestosAsistencia(button){
 
     let nombreCliente = document.getElementById("selectCliente").value;
     let nombreObjetivo = document.getElementById("selectObjetivo").value;
-    tipoAsistencia = button.value;
-    $("#asistenciaTable").data("type", button.value );
+    let tipoAsistencia = button.value;
 
     unsubscribersIngresos.forEach(unsubscriber => unsubscriber());
     unsubscribersEgresos.forEach(unsubscriber => unsubscriber());
@@ -34,10 +33,15 @@ function cargarPuestosAsistencia(button){
     let numeroDia = horaActual.getDay();
     let numeroDiaAnterior = restarNumeroDia(numeroDia);
 
-    $("#asistenciaTable").data("currentTime", horaActual );
     ultimaActualizacion(horaActual);
     let horaDesde = $("#datetimepicker1").find("input").val();
     let horaHasta = $("#datetimepicker2").find("input").val();
+
+    $("#asistenciaTable").data("nombre-cliente", nombreCliente);
+    $("#asistenciaTable").data("nombre-objetivo", nombreObjetivo);
+    $("#asistenciaTable").data("hora-desde", horaDesde);
+    $("#asistenciaTable").data("hora-hasta", horaHasta);
+    $("#asistenciaTable").data("tipo-asistencia", tipoAsistencia);
 
     if(tipoAsistencia=="ingreso"){
       document.getElementById("col-opciones").className = "col-md-9";
@@ -278,7 +282,7 @@ function cargarAsistenciaEsquema(idCliente,idObjetivo,idEsquema,numeroDia,horaDe
           let promises = [];
           querySnapshot.forEach(function(doc) {
             let docObject = doc.data();
-            let count = 0;
+            //let count = 0;
             for (let fieldName in docObject) {
               if (fieldName=="documentData"){
               } else {
@@ -904,7 +908,7 @@ function desplegableObjetivosAsistencia(listadoObjetivos){
 
 function limpiarTabla(){
   table = $("#asistenciaTable").DataTable();
-  table.clear();
+  table.clear().draw();
 }
 
 function fechaAyerDate(fechaDate){
@@ -996,7 +1000,7 @@ function loaderStateFinish(){
 }
 
 function inicializarFuncionesControl(){
-  listadoClientesClient("dataListClient",true);
+  listadoClientesClient("dataListClient","TODOS",true);
   cargarBSDateTimePicker();
   enforcingValueDataList();
   cargarCubrimientoAsistencia();
@@ -1058,7 +1062,7 @@ function cargarCubrimientoAsistencia(){
           {
               data: 'ex',
               render: function ( data, type, row ) {
-                  return "<span class='editar' style='color:black; cursor:pointer'><i class='fas fa-eye'></i></span>";
+                  return "<span class='editar' style='color:black; cursor:pointer' title='Editar'><i class='fas fa-edit'></i></span>";
               }
 
           }
@@ -1158,11 +1162,11 @@ function cargarCubrimientoAsistencia(){
     let row = $(this);
     let rowData = table.row(row.parents("tr")).data();
     if(rowData.es.includes('descubierto')){
-      mostrarTurnoAsistencia(rowData,row);
+      mostrarTurnoAsistencia(rowData); //row
     }else if(rowData.es.includes('no-iniciado')){
-      mostrarTurnoAsistencia(rowData,row);
+      mostrarTurnoAsistencia(rowData); //row
     } else {
-      mostrarTurnoAsistencia(rowData,row);
+      mostrarTurnoAsistencia(rowData); //row
     }
   });
 
@@ -1412,15 +1416,15 @@ function remRowEgresos(idCliente,idObjetivo,idFecha,nombreCliente,nombreObjetivo
 
 }
 
-function mostrarTurnoAsistencia(rowData,row){
+function mostrarTurnoAsistencia(rowData){
 
-  cargarTurnoAsistencia(rowData,row);
+  cargarTurnoAsistencia(rowData);
   cargarRangeSliderDetalleTurno(rowData);
   $("#detalle-turno").modal("show");
 
 }
 
-function cargarTurnoAsistencia(rowData,row){
+function cargarTurnoAsistencia(rowData){
 
   $("#titulo-modal").text(rowData.nc+" - "+rowData.no);
 
@@ -1477,7 +1481,7 @@ function cargarTurnoAsistencia(rowData,row){
   $("#slider-detalle-turno").attr("delete","false");
 
   $("#guardar-cambios-detalle").click(function() {
-   guardarCambiosAsistencia(rowData,row);
+   guardarCambiosAsistencia(rowData); //row
  });
 
 }
@@ -1490,7 +1494,20 @@ function cargarRangeSliderDetalleTurno(rowData){
     fechaEgresoPuesto = new Date( fechaEgresoPuesto.getTime() + 24*60*60*1000 );
   }
 
-  if(rowData.es.includes('descubierto')){
+  if(rowData.es.includes('nuevo-turno')){
+    listadoPersonalAsistencia("dataListPersonal");
+    $("#card-contenedor").hide();
+    $("#objetivoNoIniciado").hide();
+    $("#seleccionPersonal").show();
+    $("#mostrar-slider").hide();
+    $("#control-horas").hide();
+    $("#mostrar-botones").hide();
+    $("#habilitar-turno").hide();
+    $("#objetivoDescubierto").hide();
+    $("#btn-carga-manual").hide();
+    $("#guardar-cambios-detalle").prop( "disabled", true );
+
+  }else if(rowData.es.includes('descubierto')){
     $("#card-contenedor").hide();
     $("#objetivoNoIniciado").hide();
     $("#seleccionPersonal").hide();
@@ -2177,7 +2194,7 @@ function inicializarModalTurno(){
 
 }
 
-function guardarCambiosAsistencia(rowData,row){
+function guardarCambiosAsistencia(rowData){
 
   let slider = $("#slider-detalle-turno").data("ionRangeSlider");
   let from = new Date(slider.result.from);
@@ -2515,54 +2532,7 @@ function cerrarUltimaSesion(idPersonal){
 
 }
 
-function cargarFila(rowData,row){
-  let tipoAsistencia = $("#asistenciaTable").data("type");
-  if(tipoAsistencia=="ingreso"){
-    let horaIngresoDate = new Date( Date.parse(rowData.ex.fi+"T"+rowData.hi+":00") );
-    let ingresoPuestoDate = new Date( Date.parse(rowData.ex.fp+"T"+rowData.ip+":00") );
-    let estado="ingreso-cubierto";
-    if(horaIngresoDate>ingresoPuestoDate){
-      estado="ingreso-cubierto-tarde";
-    }
-    rowData.es = estado;
-  }else{
-    let horaActual = $("#asistenciaTable").data("currentTime");
-    let estado="egreso-cerrado";
-    let egresoPuestoDate = "";
-    let ingresoPuestoDate = new Date( Date.parse(rowData.ex.fp+"T"+rowData.ip+":00") );
-    let fechaPuestoDate=new Date( Date.parse(rowData.ex.fp+"T00:00:00"));
-
-    if (rowData.ex.tn==true) { //Si el puesto es turno noche
-      egresoPuestoDate = new Date( Date.parse(rowData.ex.fp+"T"+rowData.ep+":00"));
-      egresoPuestoDate.setDate(egresoPuestoDate.getDate()+1);
-    }else{
-      egresoPuestoDate = new Date( Date.parse(rowData.ex.fp+"T"+rowData.ep+":00") );
-    }
-
-    if(rowData.ex.her!="" && rowData.ex.her!=undefined){ // Si la hora del puesto esta cargada y no es vacia
-      let horaEgresoDate = new Date( Date.parse(rowData.ex.fe+"T"+rowData.ex.her+":00") ); // Ver de generar objeto Date
-      let egresoParametrizadoDate = egresoParametrizado(ingresoPuestoDate,egresoPuestoDate,horaEgresoDate)
-      if(egresoParametrizadoDate<egresoPuestoDate){
-        estado="egreso-cierre-anticipado";
-      }
-    } else if (horaActual>egresoPuestoDate){
-      estado="egreso-no-cerrado";
-    } else if(horaActual<egresoPuestoDate){
-      estado="egreso-cubriendose"
-    }
-    rowData.es = estado;
-  }
-  table = $("#asistenciaTable").DataTable();
-  table.row(row.parents("tr")).data(rowData).draw();
-}
-
-function eliminarFila(rowData,row){
-  table = $("#asistenciaTable").DataTable();
-  table.row(row.parents("tr")).remove().draw();
-}
-
 function cargaManual(){
-  // $("#card-contenedor").hide();
   listadoPersonalAsistencia("dataListPersonal");
   $("#objetivoNoIniciado").hide(300);
   $("#objetivoDescubierto").hide(300);
@@ -2576,7 +2546,6 @@ function listadoPersonalAsistencia(idDataList){
   let listadoPersonal = [];
 
   $("#selectPersonal").val("");
-  // $("#selectPersonal").width(170);
   $("#selectPersonal").attr("size",20);
 
   db.collection("users").orderBy("nombre")
@@ -2658,7 +2627,7 @@ function verificarEstados(){
     minuto = momentoActual.getMinutes();
     segundo = momentoActual.getSeconds();
     if( minuto==0 || minuto==15 || minuto==30 || minuto==45 ){
-      let tipoAsistencia = $("#asistenciaTable").data("type");
+      let tipoAsistencia = $("#asistenciaTable").data("tipo-asistencia");
       let table = $("#asistenciaTable").DataTable();
       if(tipoAsistencia=="ingreso"){
         table.rows().every( function () {
@@ -2767,4 +2736,205 @@ function ultimaActualizacion(horaActual){
 
 function clearOptionsFast(id){
 	document.getElementById(id).innerHTML = "";
+}
+
+function cargarNuevoTurnoModal(){
+  let fechaHoy = new Date();
+  $("#fechaIngreso").val(fechaHoy.toLocaleDateString());
+  $("#selectClienteNuevoTurno").val("");
+  $("#selectObjetivoNuevoTurno").val("");
+  $("#selectTurno").val("");
+  //let nombreCliente = $("#asistenciaTable").data("nombre-cliente");
+  listadoClientesClient("dataListClientNuevoTurno","TODOS",false);
+  desplegableObjetivosBranch([],"selectClienteNuevoTurno","selectObjetivoNuevoTurno","dataListObjetivoNuevoTurno",false);
+  desplegableTurnos([],"selectObjetivoNuevoTurno","selectTurno","dataListTurno");
+  $("#cargar-turno").modal("show");
+}
+
+function listadoObjetivosNuevoTurno(){
+  $("#selectObjetivoNuevoTurno").val("");
+  $("#selectTurno").val("");
+  desplegableTurnos([],"selectObjetivoNuevoTurno","selectTurno","dataListTurno");
+  //let nombreObjetivo = $("#asistenciaTable").data("nombre-objetivo");
+  listadoObjetivosBranch("selectClienteNuevoTurno","selectObjetivoNuevoTurno","dataListObjetivoNuevoTurno","TODOS",false);
+}
+
+function cargarTurnosEsquema(){
+  $("#selectTurno").val("");
+  desplegableTurnos([],"selectObjetivoNuevoTurno","selectTurno","dataListTurno");
+  let nombreCliente = $("#selectClienteNuevoTurno").val();
+  let nombreObjetivo = $("#selectObjetivoNuevoTurno").val();
+  let tipoAsistencia = $("#asistenciaTable").data("tipo-asistencia");
+  let horaDesde = $("#asistenciaTable").data("hora-desde");
+  let horaHasta = $("#asistenciaTable").data("hora-hasta");
+  let numeroDia = (new Date()).getDay();
+  turnosEsquemaVigente(nombreCliente,nombreObjetivo,numeroDia,tipoAsistencia,horaDesde,horaHasta);
+}
+
+function turnosEsquemaVigente(nombreCliente,nombreObjetivo,numeroDia,tipoAsistencia,horaDesde,horaHasta){
+
+  return new Promise(function(resolve,reject){
+
+    db.collection("clientes").where("nombreCliente","==",nombreCliente)
+      .get()
+      .then(function(querySnapshot) {
+        if (querySnapshot.empty) {
+          // Si el Cliente no existe ingresa aca
+          resolve();
+        } else {
+          querySnapshot.forEach(function(doc) {
+            let idCliente = doc.id;
+
+            db.collection("clientes").doc(idCliente).collection("objetivos").where("nombreObjetivo","==",nombreObjetivo)
+              .get()
+              .then(function(querySnapshot) {
+                if (querySnapshot.empty) {
+                  // Si el Objetivo no existe ingresa aca
+                  resolve();
+                } else {
+                  querySnapshot.forEach(function(doc) {
+
+                    let idObjetivo = doc.id;
+                    db.collection("clientes").doc(idCliente).collection("objetivos").doc(idObjetivo).collection("cubrimiento").where("estado","==","VIGENTE")
+                      .get()
+                      .then(function(querySnapshot) {
+                        if (querySnapshot.empty) {
+                          // Si el Objetivo no tiene un esquema vigente ingresa aca
+                          resolve();
+                        } else {
+                          querySnapshot.forEach(function(doc) {
+                            let idEsquema = doc.id;
+                              db.collection("clientes").doc(idCliente).collection("objetivos").doc(idObjetivo).collection("cubrimiento").doc(idEsquema)
+                              .collection("esquema").where("documentData.numeroDia","==",numeroDia)
+                              .get()
+                              .then(function(querySnapshot) {
+                                if (querySnapshot.empty) {
+                                  // Si el Objetivo no tiene un esquema vigente ingresa aca
+                                  resolve();
+                                } else {
+                                  querySnapshot.forEach(function(doc){
+
+                                    let docObject = doc.data();
+                                    let listadoTurnos = [];
+                                    for (let fieldName in docObject) {
+                                      if (fieldName=="documentData"){
+                                      } else {
+                                        let turno = docObject[fieldName];
+                                        listadoTurnos.push(turno);
+                                      }
+                                    }
+                                    turnosTemporales(idCliente,idObjetivo,listadoTurnos);
+                                  });
+                                }
+                              })
+                              .catch(function(error){
+                                console.log("Error al buscar un Objetivo con ese nombre");
+                                reject(error);
+                              });
+
+                          });
+                        }
+                      })
+                      .catch(function(error){
+                        console.log("Error al buscar un Objetivo con ese nombre");
+                        reject(error);
+                      });
+
+                  });
+                }
+              })
+              .catch(function(error){
+                console.log("Error al buscar un Objetivo con ese nombre");
+                reject(error);
+              });
+
+          });
+        }
+      })
+      .catch(function(error){
+        console.log("Error al buscar un Cliente con ese nombre");
+        reject(error);
+      });
+
+  });
+}
+
+function turnosTemporales(idCliente,idObjetivo,listadoTurnos){
+
+  let fechaActual = getDateStr(new Date());
+
+  db.collection("clientes").doc(idCliente).collection("objetivos").doc(idObjetivo).collection("temporales").doc(fechaActual)
+  .get()
+  .then(function(doc) {
+    let docObject = doc.data();
+    for (let fieldName in docObject) {
+      if (fieldName=="documentData"){
+      } else {
+        let turno = docObject[fieldName];
+        turno.tmp=true;
+        listadoTurnos.push(turno);
+      }
+    }
+    desplegableTurnos(listadoTurnos,"selectObjetivoNuevoTurno","selectTurno","dataListTurno");
+  })
+  .catch(function(error){
+    console.log("Error al buscar turnos temporales");
+  });
+}
+
+function desplegableTurnos(listadoTurnos,idSelectObjetivo,idSelectTurno,idDataList){
+
+  var datalist = document.getElementById(idDataList);
+
+  $("#"+idDataList).empty();
+
+  if($("#"+idSelectObjetivo).val()==""){
+    $("#"+idSelectTurno).attr("placeholder", "Esperando un objetivo...");
+  } else if(listadoTurnos.length==0){
+    $("#"+idSelectTurno).attr("placeholder", "Sin turnos");
+  } else {
+      $("#"+idSelectTurno).attr("placeholder", "Seleccione un turno");
+      listadoTurnos.forEach(function(turno){
+         var option = document.createElement("option");
+         option.text = turno.ingresoPuesto+" - "+turno.egresoPuesto;
+         option.value = turno.nombrePuesto+" - "+turno.nombreTurno;
+         if (turno.tmp==true){
+           option.value += " (Servicio Temporal)"
+         }
+         option.setAttribute("data-turno",JSON.stringify(turno));
+         datalist.appendChild(option);
+      });
+  }
+
+}
+
+function cargarNuevoTurno(){
+
+  let fechaPuesto = new Date();
+  let turno = $("#dataListTurno").find("option[value='"+$("#selectTurno").val()+"']").data("turno");
+  let idCliente = $("#dataListClientNuevoTurno").find("option[value='"+$("#selectClienteNuevoTurno").val()+"']").data("id");
+  let idObjetivo = $("#dataListObjetivoNuevoTurno").find("option[value='"+$("#selectObjetivoNuevoTurno").val()+"']").data("id");
+  let rowData = {
+    nc : $("#selectClienteNuevoTurno").val(),
+    no : $("#selectObjetivoNuevoTurno").val(),
+    pu : turno.nombrePuesto+" - "+turno.nombreTurno,
+    ip : turno.ingresoPuesto,
+    hi : "-",
+    ep : turno.egresoPuesto,
+    he : "-",
+    pe : "-",
+    es : "nuevo-turno",
+    ex : {
+           np : turno.nombrePuesto,
+           nt : turno.nombreTurno,
+           ht : turno.horasTurno,
+           fp : getDateStr(fechaPuesto),
+           tn : turno.turnoNoche,
+           idc : idCliente,
+           ido : idObjetivo,
+           idf : getDateStr(fechaPuesto),
+         },
+  }
+  $("#cargar-turno").modal("hide");
+  mostrarTurnoAsistencia(rowData);
 }

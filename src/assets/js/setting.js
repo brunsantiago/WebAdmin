@@ -842,6 +842,8 @@ function diasSeleccionados(){
 
 function cargarModalPuestos(){
 
+  cargarPuestosModal();
+
   $('#nombrePuesto1').val("");
   $('#nombreTurno1').val("");
   $("#datetimepickerHI").data("DateTimePicker").clear();
@@ -861,7 +863,67 @@ function cargarModalPuestos(){
   $('input[type=checkbox]').prop('checked',false);
   $('#carga-puesto').modal('show');
 
+
+
 }
+
+function cargarPuestosModal(){
+
+  db.collection("clientes").doc(idClienteGlobal).collection("objetivos").doc(idObjetivoGlobal).collection("cubrimiento")
+  .doc(idCubrimientoGlobal).collection("esquema")
+  .get()
+  .then(function(querySnapshot) {
+    if (querySnapshot.empty) {
+      // No existen puestos cargados
+    }else{
+      let listadoPuestosObj = [];
+      querySnapshot.forEach(function(doc) {
+        let docObject = doc.data();
+        for (var fieldName in docObject) {
+          if (fieldName!="documentData"){
+            let turno = docObject[fieldName];
+            listadoPuestosObj[fieldName] = {np : turno.nombrePuesto, nt : turno.nombreTurno}
+          }
+        }
+      });
+      desplegableTurnosModal(listadoPuestosObj,"dataListPuesto");
+    }
+  })
+  .catch(function(error){
+    console.log(error);
+  });
+}
+
+function desplegableTurnosModal(listadoPuestosObj,idDataList){
+
+  let datalist = document.getElementById(idDataList);
+
+  let listadoFiltrado = removeDuplicates(listadoPuestosObj,"np");
+
+  $("#"+idDataList).empty();
+
+  for (var fieldName in listadoFiltrado) {
+    let turno = listadoFiltrado[fieldName];
+    let option = document.createElement("option");
+    option.value = turno.np.toUpperCase();
+    datalist.appendChild(option);
+  }
+
+}
+
+function removeDuplicates(originalArray, prop) {
+     var newArray = [];
+     var lookupObject  = {};
+
+     for(var i in originalArray) {
+        lookupObject[originalArray[i][prop]] = originalArray[i];
+     }
+
+     for(i in lookupObject) {
+         newArray.push(lookupObject[i]);
+     }
+      return newArray;
+ }
 
 function enableCheck() {
   document.getElementById("lunesCheck").disabled= false;
@@ -1390,12 +1452,49 @@ function cargarDesplegableObjetivos2(listadoObjetivos){
 }
 
 function inicializarFuncionesSetting(){
-  listadoClientesClient("dataListClient");
-  listadoClientesClient("dataListClient2");
+  listadoClientesClient("dataListClient","TODOS",false);
+  listadoClientesClient("dataListClient2","TODOS",false);
   $('.box').boxWidget();
   toggleAccordion();
   cargarTodosDatePicker();
   enforcingValueDataList();
+}
+
+function agregarPuestoModal(){
+
+  let nombrePuesto = "Puesto "+(document.getElementById("dataListPuesto").options.length + 1);
+
+  Swal.fire({
+  // icon: 'warning',
+  title: 'Agregar Nuevo Puesto',
+  html : '<input id="nroPuesto" class="swal2-input" value="'+nombrePuesto+'" disabled>',
+  input: 'text',
+  inputPlaceholder: 'Denominacion / Ubicacion del Puesto',
+  showCancelButton: true,
+  confirmButtonColor: '#3c8dbc',
+  cancelButtonColor: '#e5e5e5',
+  confirmButtonText: 'Agregar',
+  cancelButtonText: 'Cerrar'
+  })
+  .then((result) => {
+    if (result.isConfirmed) {
+      if(result.value!=""){
+        nombrePuesto+=" - "+result.value;
+      }
+      desplegablePuestosSetting([(nombrePuesto).toUpperCase()],"dataListPuesto");
+    }
+  });
+}
+
+function desplegablePuestosSetting(listadoPersonal,idDataList){
+
+  var datalist = document.getElementById(idDataList);
+  //$("#"+idDataList).empty();
+  listadoPersonal.forEach(function(item){
+     var option = document.createElement("option");
+     option.value = item;
+     datalist.appendChild(option);
+  });
 }
 
 // -----------------------------------------------------------------

@@ -3,42 +3,6 @@
 
 let clienteObject;
 
-function listadoClientesClient(idDataList,allClients){
-  let listadoClientes = [];
-  db.collection("clientes").orderBy("nombreCliente")
-  .get()
-  .then(function(querySnapshot) {
-    querySnapshot.forEach(function(doc) {
-        let item = {
-          nc : doc.data().nombreCliente,
-          rs : doc.data().razonSocial,
-        };
-        listadoClientes.push(item);
-      });
-      desplegableClientesClient(listadoClientes,idDataList,allClients);
-    });
-}
-
-function desplegableClientesClient(listadoClientes,idDataList,allClients){
-
-  var datalist = document.getElementById(idDataList);
-
-  $("#"+idDataList).empty();
-
-  if(allClients){
-    var option = document.createElement("option");
-    option.value = "TODOS";
-    datalist.appendChild(option);
-  }
-
-  listadoClientes.forEach(function(item){
-     var option = document.createElement("option");
-     option.text = item.rs;
-     option.value = item.nc;
-     datalist.appendChild(option);
-  });
-}
-
 function formatoInputs(){
 
   new Cleave('.input-cuit', {
@@ -830,7 +794,7 @@ function cargarDataListDomicilio(){
 }
 
 function inicializarFuncionesClient(){
-  listadoClientesClient("dataListClient");
+  listadoClientesClient("dataListClient","TODOS",false);
   formatoInputs();
   checkCoordenadas();
   enforcingValueDataList();

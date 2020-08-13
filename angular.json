@@ -29,6 +29,7 @@
             "scripts": [
               "src/assets/jquery-ui/jquery-ui.min.js",
               "node_modules/admin-lte/dist/js/adminlte.min.js",
+              "src/assets/js/global_function.js",
               "src/assets/js/cobertura.js",
               "src/assets/js/cubrimiento.js",
               "src/assets/js/asistencia.js",
